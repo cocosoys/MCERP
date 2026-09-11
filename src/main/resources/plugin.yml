@@ -1,0 +1,3 @@
+name: MCERP
+version: '${project.version}'
+main: com.github.cocosoys.mc.mcerp.MCERP
