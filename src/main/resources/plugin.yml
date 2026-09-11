@@ -1,3 +1,121 @@
-name: MCERP
+﻿name: MCERP
 version: '${project.version}'
 main: com.github.cocosoys.mc.mcerp.MCERP
+depend: [SOYSHTTPOverMC]
+author: cocosoys
+description: ERP plugin for the 1.12.2 server, mounted over the SOYSHTTPOverMC HTTP-over-MC tunnel.
+commands:
+  mcerp:
+    description: MCERP 中控命令（reload 重载注册中心 / list 查看已登记模块）
+    aliases: [erp]
+    usage: /mcerp <reload|list>
+permissions:
+  mcerp.admin:
+    description: MCERP 管理命令（reload/list）
+    default: op
+  system.user.list:
+    description: 用户列表
+    default: op
+  system.user.query:
+    description: 用户查询
+    default: op
+  system.user.add:
+    description: 新增用户
+    default: op
+  system.user.edit:
+    description: 编辑用户
+    default: op
+  system.user.remove:
+    description: 删除用户
+    default: op
+  system.user.resetPwd:
+    description: 重置密码
+    default: op
+  system.user.changeStatus:
+    description: 修改用户状态
+    default: op
+  system.menu.list:
+    description: 菜单列表
+    default: op
+  system.menu.query:
+    description: 菜单查询
+    default: op
+  system.menu.add:
+    description: 新增菜单
+    default: op
+  system.menu.edit:
+    description: 编辑菜单
+    default: op
+  system.menu.remove:
+    description: 删除菜单
+    default: op
+  system.dict.list:
+    description: 字典列表
+    default: op
+  system.dict.query:
+    description: 字典查询
+    default: op
+  system.dict.add:
+    description: 新增字典
+    default: op
+  system.dict.edit:
+    description: 编辑字典
+    default: op
+  system.dict.remove:
+    description: 删除字典
+    default: op
+  system.config.list:
+    description: 参数列表
+    default: op
+  system.config.query:
+    description: 参数查询
+    default: op
+  system.config.add:
+    description: 新增参数
+    default: op
+  system.config.edit:
+    description: 编辑参数
+    default: op
+  system.config.remove:
+    description: 删除参数
+    default: op
+  system.notice.list:
+    description: 公告列表
+    default: op
+  system.notice.query:
+    description: 公告查询
+    default: op
+  system.notice.add:
+    description: 新增公告
+    default: op
+  system.notice.edit:
+    description: 编辑公告
+    default: op
+  system.notice.remove:
+    description: 删除公告
+    default: op
+  monitor.operlog.list:
+    description: 操作日志列表
+    default: op
+  monitor.operlog.query:
+    description: 操作日志查询
+    default: op
+  monitor.operlog.remove:
+    description: 删除操作日志
+    default: op
+  monitor.operlog.clean:
+    description: 清空操作日志
+    default: op
+  monitor.logininfor.list:
+    description: 登录日志列表
+    default: op
+  monitor.logininfor.query:
+    description: 登录日志查询
+    default: op
+  monitor.logininfor.remove:
+    description: 删除登录日志
+    default: op
+  monitor.logininfor.clean:
+    description: 清空登录日志
+    default: op
+
