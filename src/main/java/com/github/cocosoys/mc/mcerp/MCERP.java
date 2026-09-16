@@ -30,6 +30,7 @@ import com.github.cocosoys.mc.soyshttpovermc.HttpOverMcPlugin;
 import com.github.cocosoys.mc.soyshttpovermc.api.SoysHttpOverMcApi;
 import com.github.cocosoys.mc.soyshttpovermc.api.event.SoysReadyEvent;
 import lombok.CustomLog;
+import lombok.Getter;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.EventHandler;
@@ -57,61 +58,23 @@ import java.util.List;
  * </ul>
  */
 @CustomLog
+@Getter
 public class MCERP extends JavaPlugin implements Listener {
 
-    private static MCERP instance;
+    private @Getter static MCERP instance;
 
     private EripRegistry registry;
-    private McerpApi api;
     private McerpExpansion expansion;
-    private AuthService authService;
-    private MenuRouteService menuRouteService;
-    private OperLogService operLogService;
-    private SysUserService sysUserService;
-    private SysMenuService sysMenuService;
-    private SysDictService sysDictService;
-    private SysConfigService sysConfigService;
-    private SysNoticeService sysNoticeService;
-    private SysLogService sysLogService;
-
-    private boolean soysInited = false;
-
-    public static MCERP getInstance() {
-        return instance;
-    }
-
-    /** 外部插件接入门面：McerpApi.getRegistry().registerModule(...) */
-    public McerpApi getApi() {
-        return api;
-    }
 
     @Override
     public void onEnable() {
         instance = this;
         registry = new EripRegistry(this);
-        authService = new AuthServiceImpl(registry);
-        menuRouteService = new MenuRouteServiceImpl(registry, authService);
-        operLogService = new OperLogServiceImpl();
-        sysUserService = new SysUserServiceImpl(authService, operLogService);
-        sysMenuService = new SysMenuServiceImpl(registry, operLogService);
-        sysDictService = new SysDictServiceImpl(operLogService);
-        sysConfigService = new SysConfigServiceImpl(operLogService);
-        sysNoticeService = new SysNoticeServiceImpl(operLogService);
-        sysLogService = new SysLogServiceImpl();
-        api = new McerpApi() {
-            @Override
-            public EripRegistry getRegistry() {
-                return registry;
-            }
-        };
         getServer().getPluginManager().registerEvents(this, this);
-        // 插件禁用时摘除其 ERP 登记（生命周期自动摘除）
+        // SOYS 可能已先启用（SoysReadyEvent 在监听器注册前已广播）→ 就绪则直接注册
         if (HttpOverMcPlugin.getInstance() != null) {
-            initSoys();
-        } else {
-            log.info("SOYSHTTPOverMC 尚未就绪，等待 SoysReadyEvent...");
+            registerSoys();
         }
-        log.info("已启用 (ERP 统一中控)");
     }
 
     @Override
@@ -124,9 +87,28 @@ public class MCERP extends JavaPlugin implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onSoysReady(SoysReadyEvent event) {
-        if (!soysInited) {
-            initSoys();
+        registerSoys();
+    }
+
+    /**
+     * SOYS 接入：McerpExpansion 极简注册门户（覆写 buildControllers() 记录全部 Controller
+     * 实例，主插件 registerController() 自动批量登记补 /api/plugins/MCERP 前缀；
+     * resourceRoot()="dist" 由骨架自动托管前端页面，打 expansion:MCERP tag）。
+     * 幂等：已注册过则跳过；失败置空允许事件重试。
+     */
+    private void registerSoys() {
+        if (expansion != null) {
+            return;
         }
+        expansion = new McerpExpansion(instance);
+        if (!expansion.register()) {
+            log.warn("McerpExpansion 注册失败：检查 identifier 冲突 / SOYS bootstrap 未就绪");
+            expansion = null; // 失败置空，允许后续事件重试
+            return;
+        }
+        initData();
+        log.info("SOYS 接入完成：SoysExpansion 门户注册（路由） + dist 托管（expansion:MCERP）");
+        log.info("已启用 (ERP 统一中控)");
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -134,47 +116,6 @@ public class MCERP extends JavaPlugin implements Listener {
         if (event.getPlugin() != this) {
             registry.unregisterModule(event.getPlugin().getName());
         }
-    }
-
-    private synchronized void initSoys() {
-        if (soysInited) {
-            return;
-        }
-        HttpOverMcPlugin soys = HttpOverMcPlugin.getInstance();
-        if (soys == null) {
-            return;
-        }
-        SoysHttpOverMcApi soysApi = soys.getApi();
-
-        //    API 注册：SoysExpansion 极简注册门户（McerpExpansion 覆写 registerController()
-        //    批量登记全部 Controller 实例，正常登记自动补 /api/plugins/MCERP 前缀；
-        //    resourceRoot()="dist" 由骨架自动托管前端页面，打 expansion:MCERP tag）
-        if (expansion == null) {
-            expansion = new McerpExpansion(soysApi, buildControllers());
-        }
-        if (!expansion.register()) {
-            log.warn("McerpExpansion 注册失败：检查 identifier 冲突 / SOYS bootstrap 未就绪");
-        }
-
-        initData();
-
-        soysInited = true;
-        log.info("SOYS 接入完成：SoysExpansion 门户注册（" + (soysApi.getApiRegistration().getRegisteredApis() == null ? 0 : soysApi.getApiRegistration().getRegisteredApis().size()) + " 路由） + dist 托管（expansion:MCERP）");
-    }
-
-    /**
-     * 记录所有 controller 实例化（供 McerpExpansion 批量注册；批量注册与注销共用同一来源）。
-     */
-    private List<Object> buildControllers() {
-        List<Object> list = new ArrayList<>();
-        list.add(new AuthController(authService, menuRouteService));
-        list.add(new SysUserController(sysUserService));
-        list.add(new SysMenuController(sysMenuService));
-        list.add(new SysDictController(sysDictService));
-        list.add(new SysConfigController(sysConfigService));
-        list.add(new SysNoticeController(sysNoticeService));
-        list.add(new SysLogController(sysLogService));
-        return list;
     }
 
     @Override

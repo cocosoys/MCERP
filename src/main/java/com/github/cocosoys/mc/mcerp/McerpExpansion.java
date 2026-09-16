@@ -1,38 +1,81 @@
 package com.github.cocosoys.mc.mcerp;
 
+import com.github.cocosoys.mc.mcerp.controller.AuthController;
+import com.github.cocosoys.mc.mcerp.controller.SysConfigController;
+import com.github.cocosoys.mc.mcerp.controller.SysDictController;
+import com.github.cocosoys.mc.mcerp.controller.SysLogController;
+import com.github.cocosoys.mc.mcerp.controller.SysMenuController;
+import com.github.cocosoys.mc.mcerp.controller.SysNoticeController;
+import com.github.cocosoys.mc.mcerp.controller.SysUserController;
+import com.github.cocosoys.mc.mcerp.impl.AuthServiceImpl;
+import com.github.cocosoys.mc.mcerp.impl.MenuRouteServiceImpl;
+import com.github.cocosoys.mc.mcerp.impl.OperLogServiceImpl;
+import com.github.cocosoys.mc.mcerp.impl.SysConfigServiceImpl;
+import com.github.cocosoys.mc.mcerp.impl.SysDictServiceImpl;
+import com.github.cocosoys.mc.mcerp.impl.SysLogServiceImpl;
+import com.github.cocosoys.mc.mcerp.impl.SysMenuServiceImpl;
+import com.github.cocosoys.mc.mcerp.impl.SysNoticeServiceImpl;
+import com.github.cocosoys.mc.mcerp.impl.SysUserServiceImpl;
+import com.github.cocosoys.mc.mcerp.service.AuthService;
+import com.github.cocosoys.mc.mcerp.service.MenuRouteService;
+import com.github.cocosoys.mc.mcerp.service.OperLogService;
+import com.github.cocosoys.mc.mcerp.service.SysConfigService;
+import com.github.cocosoys.mc.mcerp.service.SysDictService;
+import com.github.cocosoys.mc.mcerp.service.SysLogService;
+import com.github.cocosoys.mc.mcerp.service.SysMenuService;
+import com.github.cocosoys.mc.mcerp.service.SysNoticeService;
+import com.github.cocosoys.mc.mcerp.service.SysUserService;
 import com.github.cocosoys.mc.soyshttpovermc.api.SoysExpansion;
-import com.github.cocosoys.mc.soyshttpovermc.api.SoysHttpOverMcApi;
-import lombok.CustomLog;
-import org.bukkit.plugin.Plugin;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * MCERP 的 {@link SoysExpansion} 极简注册门户。
+ * MCERP 的 {@link SoysExpansion} 极简注册门户（随主插件 SoysExpansion 新书写同步）。
  * <ul>
- *   <li>{@link #registerController()} 覆写：批量正常登记全部 Controller 实例
- *       （自动补 /plugins/&lt;插件名&gt; 前缀 → 路由 /api/plugins/MCERP/&lt;类级前缀&gt;/*）</li>
- *   <li>{@link #controllers()}：集中记录所有 controller 实例化（批量注册/注销共用同一来源）</li>
+ *   <li>构造收 {@link MCERP} 实例，内部集中创建 Service 层与全部 Controller 实例
+ *       （本类自治，MCERP 主类无需暴露 service 字段）</li>
+ *   <li>{@link #buildControllers()}：记录全部 controller 实例化（批量注册/注销共用同一来源）；
+ *       主插件默认 {@code registerController()} 自动遍历本来源逐例正常登记
+ *       （补 /plugins/&lt;插件名&gt; 前缀 → 路由 /api/plugins/MCERP/&lt;类级前缀&gt;/*），
+ *       {@code unregisterController()} 自动逐例卸载——无需重写注册/注销逻辑</li>
  *   <li>{@link #resourceRoot()} 返回 "dist"：骨架 {@code registerPages()} 自动托管前端页面
  *       （等价原 {@code registerResourceDirectory(this,"/",cl,"dist")}，额外打
  *       {@code expansion:MCERP} tag → 可精确卸载）</li>
- *   <li>{@link #unregisterControllers()} 配套覆写：默认只卸载 this 自身，批量登记的
- *       独立实例须按 owner 插件名整组卸载（{@code unregisterPluginControllers}）</li>
+ *   <li>{@link #getIdentifier()}="MCERP"：页面 tag / 冲突检测 / 文档展示</li>
  * </ul>
  */
-@CustomLog
+@Getter
 public class McerpExpansion extends SoysExpansion {
+    private final MCERP instance;
 
-    private final SoysHttpOverMcApi soysApi;
+    // ===== Service 层 =====
+    private final AuthService authService;
+    private final MenuRouteService menuRouteService;
+    private final OperLogService operLogService;
+    private final SysUserService sysUserService;
+    private final SysMenuService sysMenuService;
+    private final SysDictService sysDictService;
+    private final SysConfigService sysConfigService;
+    private final SysNoticeService sysNoticeService;
+    private final SysLogService sysLogService;
 
-    /** 全部 Controller 实例清单（集中实例化，批量注册/注销共用） */
-    private final List<Object> controllers;
+    public McerpExpansion(MCERP instance) {
+        this.instance = instance;
+        EripRegistry registry = instance.getRegistry();
+        // ===== Service 层 =====
+        authService = new AuthServiceImpl(registry);
+        menuRouteService = new MenuRouteServiceImpl(registry, authService);
+        operLogService = new OperLogServiceImpl();
+        sysUserService = new SysUserServiceImpl(authService, operLogService);
+        sysMenuService = new SysMenuServiceImpl(registry, operLogService);
+        sysDictService = new SysDictServiceImpl(operLogService);
+        sysConfigService = new SysConfigServiceImpl(operLogService);
+        sysNoticeService = new SysNoticeServiceImpl(operLogService);
+        sysLogService = new SysLogServiceImpl();
 
-    public McerpExpansion(SoysHttpOverMcApi soysApi, List<Object> controllers) {
-        this.soysApi = soysApi;
-        this.controllers = controllers == null ? new ArrayList<>() : new ArrayList<>(controllers);
     }
 
     /** 模块唯一标识（页面 tag / 冲突检测 / 文档展示） */
@@ -42,10 +85,22 @@ public class McerpExpansion extends SoysExpansion {
     }
 
     /**
-     * 记录所有 controller 实例化：返回只读清单，供批量注册与注销使用。
+     * 记录所有 controller 实例化：主插件 registerController()/unregisterController()
+     * 自动遍历本来源批量登记/注销（默认实现已内置，本扩展仅提供来源列表）。
      */
-    public List<Object> controllers() {
-        return Collections.unmodifiableList(controllers);
+    @Override
+    protected List<Object> buildControllers() {
+        // ===== 记录所有 controller 实例化 =====
+        List<Object> list = new ArrayList<>();
+        list.add(new AuthController(authService, menuRouteService));
+        list.add(new SysUserController(sysUserService));
+        list.add(new SysMenuController(sysMenuService));
+        list.add(new SysDictController(sysDictService));
+        list.add(new SysConfigController(sysConfigService));
+        list.add(new SysNoticeController(sysNoticeService));
+        list.add(new SysLogController(sysLogService));
+        /** 全部 Controller 实例清单（集中实例化，批量注册/注销共用） */
+        return Collections.unmodifiableList(list);
     }
 
     /** 前端页面资源根：骨架 registerPages() 自动托管 dist 目录 */
@@ -54,43 +109,4 @@ public class McerpExpansion extends SoysExpansion {
         return "dist";
     }
 
-    /**
-     * 重写 registerController()：批量正常登记全部 Controller 实例。
-     * <p>默认实现登记本扩展类自身；本扩展的端点书写在独立 Controller 类中，
-     * 故逐实例登记（{@code force=false}，重复路由仍由 SOYS 阻止）。</p>
-     */
-    @Override
-    protected boolean registerController() {
-        Plugin o = getOwner();
-        if (soysApi == null || o == null) {
-            log.warn("MCERP SoysExpansion 端点注册失败：soysApi 或 owner 未就绪");
-            return false;
-        }
-        try {
-            for (Object c : controllers) {
-                soysApi.getApiRegistration().registerController(c, o, false);
-            }
-            return true;
-        } catch (Exception ex) {
-            log.warn("MCERP SoysExpansion 批量端点注册失败: {0}", ex.getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * 配套注销：默认 unregisterControllers() 仅卸载 this，批量登记的独立实例
-     * 按 owner 插件名整组卸载（MCERP 名下全部端点）。
-     */
-    @Override
-    protected void unregisterControllers() {
-        Plugin o = getOwner();
-        if (soysApi == null || o == null) {
-            return;
-        }
-        try {
-            soysApi.getApiRegistration().unregisterPluginControllers(o.getName());
-        } catch (Exception ex) {
-            log.warn("MCERP SoysExpansion 批量端点反注册失败: {0}", ex.getMessage());
-        }
-    }
 }
