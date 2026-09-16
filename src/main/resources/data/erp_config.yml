@@ -1,0 +1,27 @@
+# MCERP 初始化数据（YAML 存储模式）— 参数配置
+# 内置参数 2 条；ID 为自然数；config_type='Y' 表示系统内置（后端据此禁止修改/删除）。
+erp_config:
+  '1':
+    config_id: '1'
+    config_name: 验证码开关
+    config_key: sys.account.captchaEnabled
+    config_value: 'false'
+    config_type: Y
+    remark: 系统内置参数
+    create_time: '2026-09-11 00:00:00'
+  '2':
+    config_id: '2'
+    config_name: 注册用户开关
+    config_key: sys.account.registerUser
+    config_value: 'false'
+    config_type: Y
+    remark: 系统内置参数
+    create_time: '2026-09-11 00:00:00'
+  '3':
+    config_id: '3'
+    config_name: 用户初始密码
+    config_key: sys.user.initPassword
+    config_value: '123456'
+    config_type: Y
+    remark: 新增用户初始密码（若依契约，user 页读取）
+    create_time: '2026-09-11 00:00:00'

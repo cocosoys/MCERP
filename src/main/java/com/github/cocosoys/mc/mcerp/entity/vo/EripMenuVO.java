@@ -1,5 +1,7 @@
 package com.github.cocosoys.mc.mcerp.entity.vo;
 
+import lombok.Data;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +13,8 @@ import java.util.List;
  *   <li>F 按钮：仅权限标识，不出现在路由树</li>
  * </ul>
  */
-public class EripMenu {
+@Data
+public class EripMenuVO {
 
     /** 节点唯一标识（同层级内建议唯一） */
     private String id;
@@ -41,85 +44,5 @@ public class EripMenu {
     private int sortOrder;
 
     /** 子节点（仅 M 目录可有） */
-    private List<EripMenu> children = new ArrayList<>();
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getIcon() {
-        return icon;
-    }
-
-    public void setIcon(String icon) {
-        this.icon = icon;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getPerms() {
-        return perms;
-    }
-
-    public void setPerms(String perms) {
-        this.perms = perms;
-    }
-
-    public boolean isVisible() {
-        return visible;
-    }
-
-    public void setVisible(boolean visible) {
-        this.visible = visible;
-    }
-
-    public int getSortOrder() {
-        return sortOrder;
-    }
-
-    public void setSortOrder(int sortOrder) {
-        this.sortOrder = sortOrder;
-    }
-
-    public List<EripMenu> getChildren() {
-        return children;
-    }
-
-    public void setChildren(List<EripMenu> children) {
-        this.children = children == null ? new ArrayList<>() : children;
-    }
+    private List<EripMenuVO> children = new ArrayList<>();
 }

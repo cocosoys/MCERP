@@ -1,2 +1,5 @@
 .idea/
 target/
+*.log
+RuoYi-Vue2-master/
+.trae/

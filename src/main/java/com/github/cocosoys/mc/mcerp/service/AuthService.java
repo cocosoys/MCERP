@@ -1,38 +1,23 @@
 package com.github.cocosoys.mc.mcerp.service;
 
 import com.github.cocosoys.mc.mcerp.entity.SysUser;
+import com.github.cocosoys.mc.soyshttpovermc.permission.local.LocalPermissionStore;
 import com.github.cocosoys.mc.soyshttpovermc.util.AjaxResult;
 import com.github.cocosoys.mc.soyshttpovermc.web.gateway.policy.auth.issuer.CredentialPresentation;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
- * 登录链路服务（抽象契约）：登录/登出、当前主体解析、权限判定、登录模式探测。
- * 实现见 {@link AuthServiceImpl}；实现细节完全交给 SOYS 登录桥（AuthMe）。
+ * 用户信息服务（抽象契约）：登录会话完全交给 SOYS 主插件自带 auth（/api/auth/* + soys-auth.js），
+ * 本服务仅提供当前主体解析、权限判定与若依 getInfo 契约。实现见 {@link AuthServiceImpl}。
  */
 public interface AuthService {
 
     /**
-     * 是否有登录插件提供者（AuthMe）：有 → 密码必检；无 → 免密码 + 验证码校验。
-     */
-    boolean isPasswordRequired();
-
-    /**
-     * 生成新图形验证码（无提供者时作为第二校验）。
-     *
-     * @return {uuid, img}(img 为 base64 PNG，无 data: 前缀，与若依契约一致)
-     */
-    Map<String, String> newCaptcha();
-
-    AjaxResult login(String body);
-
-    AjaxResult logout(CredentialPresentation credential);
-
-    /**
-     * 由 SOYS 网关解析后的凭证获取当前玩家名；null 表示未登录/未知。
+     * 由 SOYS 网关解析后的凭证获取当前玩家名（CombinedPermissionService.subjectOf）；
+     * null 表示未登录/未知。
      */
     String currentPlayer(CredentialPresentation credential);
 
@@ -46,6 +31,11 @@ public interface AuthService {
     SysUser findUser(String userName);
 
     boolean isOp(String player);
+
+    /**
+     * SOYS 本地权限存储（权限组/用户权限节点读写，OP 默认拥有全部权限）。
+     */
+    LocalPermissionStore getPermissionStore();
 
     /**
      * 玩家拥有的全部权限标识（内置 + 已登记模块），供前端菜单/按钮鉴权。

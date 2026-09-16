@@ -1,0 +1,207 @@
+erp_dict_data:
+  # ===== sys_normal_disable（正常/停用）=====
+  84d3acd9-5450-4228-82f0-87f2cd45410c:
+    dict_code: 84d3acd9-5450-4228-82f0-87f2cd45410c
+    dict_sort: 0
+    dict_label: 正常
+    dict_value: '0'
+    dict_type: sys_normal_disable
+    status: '0'
+  b4013c9b-5912-4ac9-add5-0e5787ce3bac:
+    dict_code: b4013c9b-5912-4ac9-add5-0e5787ce3bac
+    dict_sort: 1
+    dict_label: 停用
+    dict_value: '1'
+    dict_type: sys_normal_disable
+    status: '0'
+  # ===== sys_show_hide（显示/隐藏）=====
+  c21a1f02-7a11-4a01-a9b2-2d6b2e0a7c01:
+    dict_code: c21a1f02-7a11-4a01-a9b2-2d6b2e0a7c01
+    dict_sort: 0
+    dict_label: 显示
+    dict_value: '0'
+    dict_type: sys_show_hide
+    status: '0'
+  c21a1f02-7a11-4a01-a9b2-2d6b2e0a7c02:
+    dict_code: c21a1f02-7a11-4a01-a9b2-2d6b2e0a7c02
+    dict_sort: 1
+    dict_label: 隐藏
+    dict_value: '1'
+    dict_type: sys_show_hide
+    status: '0'
+  # ===== sys_common_status（公共状态）=====
+  c31a1f02-7a11-4a01-a9b2-2d6b2e0a7c01:
+    dict_code: c31a1f02-7a11-4a01-a9b2-2d6b2e0a7c01
+    dict_sort: 0
+    dict_label: 成功
+    dict_value: '0'
+    dict_type: sys_common_status
+    status: '0'
+  c31a1f02-7a11-4a01-a9b2-2d6b2e0a7c02:
+    dict_code: c31a1f02-7a11-4a01-a9b2-2d6b2e0a7c02
+    dict_sort: 1
+    dict_label: 失败
+    dict_value: '1'
+    dict_type: sys_common_status
+    status: '0'
+  # ===== sys_oper_type（操作类型）=====
+  c41a1f02-7a11-4a01-a9b2-2d6b2e0a7c00:
+    dict_code: c41a1f02-7a11-4a01-a9b2-2d6b2e0a7c00
+    dict_sort: 0
+    dict_label: 其它
+    dict_value: '0'
+    dict_type: sys_oper_type
+    status: '0'
+  c41a1f02-7a11-4a01-a9b2-2d6b2e0a7c01:
+    dict_code: c41a1f02-7a11-4a01-a9b2-2d6b2e0a7c01
+    dict_sort: 1
+    dict_label: 新增
+    dict_value: '1'
+    dict_type: sys_oper_type
+    status: '0'
+  c41a1f02-7a11-4a01-a9b2-2d6b2e0a7c02:
+    dict_code: c41a1f02-7a11-4a01-a9b2-2d6b2e0a7c02
+    dict_sort: 2
+    dict_label: 修改
+    dict_value: '2'
+    dict_type: sys_oper_type
+    status: '0'
+  c41a1f02-7a11-4a01-a9b2-2d6b2e0a7c03:
+    dict_code: c41a1f02-7a11-4a01-a9b2-2d6b2e0a7c03
+    dict_sort: 3
+    dict_label: 删除
+    dict_value: '3'
+    dict_type: sys_oper_type
+    status: '0'
+  c41a1f02-7a11-4a01-a9b2-2d6b2e0a7c04:
+    dict_code: c41a1f02-7a11-4a01-a9b2-2d6b2e0a7c04
+    dict_sort: 4
+    dict_label: 授权
+    dict_value: '4'
+    dict_type: sys_oper_type
+    status: '0'
+  c41a1f02-7a11-4a01-a9b2-2d6b2e0a7c05:
+    dict_code: c41a1f02-7a11-4a01-a9b2-2d6b2e0a7c05
+    dict_sort: 5
+    dict_label: 导出
+    dict_value: '5'
+    dict_type: sys_oper_type
+    status: '0'
+  c41a1f02-7a11-4a01-a9b2-2d6b2e0a7c06:
+    dict_code: c41a1f02-7a11-4a01-a9b2-2d6b2e0a7c06
+    dict_sort: 6
+    dict_label: 导入
+    dict_value: '6'
+    dict_type: sys_oper_type
+    status: '0'
+  c41a1f02-7a11-4a01-a9b2-2d6b2e0a7c07:
+    dict_code: c41a1f02-7a11-4a01-a9b2-2d6b2e0a7c07
+    dict_sort: 7
+    dict_label: 强退
+    dict_value: '7'
+    dict_type: sys_oper_type
+    status: '0'
+  c41a1f02-7a11-4a01-a9b2-2d6b2e0a7c08:
+    dict_code: c41a1f02-7a11-4a01-a9b2-2d6b2e0a7c08
+    dict_sort: 8
+    dict_label: 生成代码
+    dict_value: '8'
+    dict_type: sys_oper_type
+    status: '0'
+  c41a1f02-7a11-4a01-a9b2-2d6b2e0a7c09:
+    dict_code: c41a1f02-7a11-4a01-a9b2-2d6b2e0a7c09
+    dict_sort: 9
+    dict_label: 清空数据
+    dict_value: '9'
+    dict_type: sys_oper_type
+    status: '0'
+  # ===== sys_notice_status（公告状态）=====
+  c51a1f02-7a11-4a01-a9b2-2d6b2e0a7c01:
+    dict_code: c51a1f02-7a11-4a01-a9b2-2d6b2e0a7c01
+    dict_sort: 0
+    dict_label: 正常
+    dict_value: '0'
+    dict_type: sys_notice_status
+    status: '0'
+  c51a1f02-7a11-4a01-a9b2-2d6b2e0a7c02:
+    dict_code: c51a1f02-7a11-4a01-a9b2-2d6b2e0a7c02
+    dict_sort: 1
+    dict_label: 关闭
+    dict_value: '1'
+    dict_type: sys_notice_status
+    status: '0'
+  # ===== sys_notice_type（公告类型）=====
+  c61a1f02-7a11-4a01-a9b2-2d6b2e0a7c01:
+    dict_code: c61a1f02-7a11-4a01-a9b2-2d6b2e0a7c01
+    dict_sort: 1
+    dict_label: 通知
+    dict_value: '1'
+    dict_type: sys_notice_type
+    status: '0'
+  c61a1f02-7a11-4a01-a9b2-2d6b2e0a7c02:
+    dict_code: c61a1f02-7a11-4a01-a9b2-2d6b2e0a7c02
+    dict_sort: 2
+    dict_label: 公告
+    dict_value: '2'
+    dict_type: sys_notice_type
+    status: '0'
+  # ===== sys_job_group（任务分组）=====
+  c71a1f02-7a11-4a01-a9b2-2d6b2e0a7c01:
+    dict_code: c71a1f02-7a11-4a01-a9b2-2d6b2e0a7c01
+    dict_sort: 0
+    dict_label: 默认
+    dict_value: DEFAULT
+    dict_type: sys_job_group
+    status: '0'
+  # ===== sys_job_status（任务状态）=====
+  c81a1f02-7a11-4a01-a9b2-2d6b2e0a7c01:
+    dict_code: c81a1f02-7a11-4a01-a9b2-2d6b2e0a7c01
+    dict_sort: 0
+    dict_label: 正常
+    dict_value: '0'
+    dict_type: sys_job_status
+    status: '0'
+  c81a1f02-7a11-4a01-a9b2-2d6b2e0a7c02:
+    dict_code: c81a1f02-7a11-4a01-a9b2-2d6b2e0a7c02
+    dict_sort: 1
+    dict_label: 暂停
+    dict_value: '1'
+    dict_type: sys_job_status
+    status: '0'
+  # ===== sys_yes_no（是/否）=====
+  ec1c9830-a342-4e61-98c1-3ec929d78431:
+    dict_code: ec1c9830-a342-4e61-98c1-3ec929d78431
+    dict_sort: 0
+    dict_label: 是
+    dict_value: Y
+    dict_type: sys_yes_no
+    status: '0'
+  7f8a8710-47ff-46ea-8cb7-b3d7155d962b:
+    dict_code: 7f8a8710-47ff-46ea-8cb7-b3d7155d962b
+    dict_sort: 1
+    dict_label: 否
+    dict_value: N
+    dict_type: sys_yes_no
+    status: '0'
+  # ===== sys_user_sex（性别）=====
+  024eeda4-cdde-4f40-a3c3-25d60b92b47d:
+    dict_code: 024eeda4-cdde-4f40-a3c3-25d60b92b47d
+    dict_sort: 0
+    dict_label: 男
+    dict_value: '0'
+    dict_type: sys_user_sex
+    status: '0'
+  46d3f181-28de-4589-8089-27250b4ba89a:
+    dict_code: 46d3f181-28de-4589-8089-27250b4ba89a
+    dict_sort: 1
+    dict_label: 女
+    dict_value: '1'
+    dict_type: sys_user_sex
+    status: '0'
+  add5361c-e861-4c7b-b4ac-5d009976d0f8:
+    dict_code: add5361c-e861-4c7b-b4ac-5d009976d0f8
+    dict_sort: 2
+    dict_label: 未知
+    dict_value: '2'
+    dict_type: sys_user_sex
+    status: '0'

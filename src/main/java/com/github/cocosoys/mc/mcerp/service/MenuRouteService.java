@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * getRouters 路由合成服务（抽象契约）：内置菜单 ⊕ 已登记 ERP 模块菜单。
+ * getRouters 路由合成服务（抽象契约）：菜单表（内置初始化数据 ⊕ 自定义 erp_menu）⊕ 已登记 ERP 模块菜单。
  * 实现见 {@link MenuRouteServiceImpl}。
  */
 public interface MenuRouteService {

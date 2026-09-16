@@ -1,5 +1,7 @@
 package com.github.cocosoys.mc.mcerp.entity.vo;
 
+import lombok.Data;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +17,8 @@ import java.util.List;
  *   <li>permission：访问该模块所需的权限标识（可选，空则不校验）</li>
  * </ul>
  */
-public class EripModule {
+@Data
+public class EripModuleVO {
 
     /** 注册键 = 插件名 */
     private String id;
@@ -30,67 +33,11 @@ public class EripModule {
     private String homeUrl;
 
     /** 子菜单分层 */
-    private List<EripMenu> children = new ArrayList<>();
+    private List<EripMenuVO> children = new ArrayList<>();
 
     /** 排序号 */
     private int sortOrder;
 
     /** 访问权限标识（可选） */
     private String permission;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-
-    public String getIcon() {
-        return icon;
-    }
-
-    public void setIcon(String icon) {
-        this.icon = icon;
-    }
-
-    public String getHomeUrl() {
-        return homeUrl;
-    }
-
-    public void setHomeUrl(String homeUrl) {
-        this.homeUrl = homeUrl;
-    }
-
-    public List<EripMenu> getChildren() {
-        return children;
-    }
-
-    public void setChildren(List<EripMenu> children) {
-        this.children = children == null ? new ArrayList<>() : children;
-    }
-
-    public int getSortOrder() {
-        return sortOrder;
-    }
-
-    public void setSortOrder(int sortOrder) {
-        this.sortOrder = sortOrder;
-    }
-
-    public String getPermission() {
-        return permission;
-    }
-
-    public void setPermission(String permission) {
-        this.permission = permission;
-    }
 }

@@ -1,5 +1,7 @@
 package com.github.cocosoys.mc.mcerp;
 
+import com.github.cocosoys.mc.mcerp.entity.vo.EripMenuVO;
+import com.github.cocosoys.mc.mcerp.entity.vo.EripModuleVO;
 import lombok.CustomLog;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -16,7 +18,7 @@ import java.util.Map;
 /**
  * ERP 模块注册中心。
  * <ul>
- *   <li>动态通道：其他插件 onEnable 调 {@link #registerModule(JavaPlugin, EripModule)}（首选）</li>
+ *   <li>动态通道：其他插件 onEnable 调 {@link #registerModule(JavaPlugin, EripModuleVO)}（首选）</li>
  *   <li>静态通道：plugins/MCERP/erp-modules.yml（第三方非 SOYS 系插件，不写代码即可登记）</li>
  *   <li>持久化：动态登记结果快照到 erp-registry.yml，/mcerp reload 以「静态配置 + 持久化快照 + 当前在线注册」重建</li>
  * </ul>
@@ -34,16 +36,16 @@ public class EripRegistry {
     private final Map<String, Registered> dynamic = new LinkedHashMap<>();
 
     /** erp-modules.yml 静态配置 */
-    private final Map<String, EripModule> staticModules = new LinkedHashMap<>();
+    private final Map<String, EripModuleVO> staticModules = new LinkedHashMap<>();
 
     /** erp-registry.yml 持久化快照 */
-    private final Map<String, EripModule> persisted = new LinkedHashMap<>();
+    private final Map<String, EripModuleVO> persisted = new LinkedHashMap<>();
 
     private static final class Registered {
-        final EripModule module;
+        final EripModuleVO module;
         final String owner;
 
-        Registered(EripModule module, String owner) {
+        Registered(EripModuleVO module, String owner) {
             this.module = module;
             this.owner = owner;
         }
@@ -57,7 +59,7 @@ public class EripRegistry {
     /**
      * 动态登记（其他插件 onEnable 调用）。同 id 重复登记会被覆盖（新的在线状态优先）。
      */
-    public synchronized void registerModule(JavaPlugin owner, EripModule module) {
+    public synchronized void registerModule(JavaPlugin owner, EripModuleVO module) {
         if (module == null || module.getId() == null || module.getId().trim().isEmpty()) {
             throw new IllegalArgumentException("EripModule.id 不能为空");
         }
@@ -103,20 +105,20 @@ public class EripRegistry {
     /**
      * 合并后的模块列表（按 sortOrder 升序）。
      */
-    public synchronized List<EripModule> getModules() {
-        Map<String, EripModule> merged = new LinkedHashMap<>();
+    public synchronized List<EripModuleVO> getModules() {
+        Map<String, EripModuleVO> merged = new LinkedHashMap<>();
         merged.putAll(staticModules);
         merged.putAll(persisted);
         for (Registered r : dynamic.values()) {
             merged.put(r.module.getId(), r.module);
         }
-        List<EripModule> list = new ArrayList<>(merged.values());
-        list.sort(Comparator.comparingInt(EripModule::getSortOrder));
+        List<EripModuleVO> list = new ArrayList<>(merged.values());
+        list.sort(Comparator.comparingInt(EripModuleVO::getSortOrder));
         return list;
     }
 
-    public synchronized EripModule getModule(String id) {
-        for (EripModule m : getModules()) {
+    public synchronized EripModuleVO getModule(String id) {
+        for (EripModuleVO m : getModules()) {
             if (m.getId().equalsIgnoreCase(id)) {
                 return m;
             }
@@ -130,7 +132,7 @@ public class EripRegistry {
 
     public synchronized List<String> getModuleIds() {
         List<String> ids = new ArrayList<>();
-        for (EripModule m : getModules()) {
+        for (EripModuleVO m : getModules()) {
             ids.add(m.getId());
         }
         return ids;
@@ -150,12 +152,12 @@ public class EripRegistry {
         }
         for (Object o : list) {
             if (o instanceof Map) {
-                EripModule m = fromMap((Map<?, ?>) o);
+                EripModuleVO m = fromMap((Map<?, ?>) o);
                 if (m != null && m.getId() != null) {
                     staticModules.put(m.getId(), m);
                 }
             } else if (o instanceof ConfigurationSection) {
-                EripModule m = fromSection((ConfigurationSection) o);
+                EripModuleVO m = fromSection((ConfigurationSection) o);
                 if (m != null && m.getId() != null) {
                     staticModules.put(m.getId(), m);
                 }
@@ -177,12 +179,12 @@ public class EripRegistry {
         }
         for (Object o : list) {
             if (o instanceof Map) {
-                EripModule m = fromMap((Map<?, ?>) o);
+                EripModuleVO m = fromMap((Map<?, ?>) o);
                 if (m != null && m.getId() != null) {
                     persisted.put(m.getId(), m);
                 }
             } else if (o instanceof ConfigurationSection) {
-                EripModule m = fromSection((ConfigurationSection) o);
+                EripModuleVO m = fromSection((ConfigurationSection) o);
                 if (m != null && m.getId() != null) {
                     persisted.put(m.getId(), m);
                 }
@@ -206,8 +208,8 @@ public class EripRegistry {
 
     // ===== Map / Section 转换 =====
 
-    private static EripModule fromMap(Map<?, ?> map) {
-        EripModule m = new EripModule();
+    private static EripModuleVO fromMap(Map<?, ?> map) {
+        EripModuleVO m = new EripModuleVO();
         m.setId(str(map.get("id")));
         m.setDisplayName(str(map.get("displayName")));
         m.setIcon(str(map.get("icon")));
@@ -225,8 +227,8 @@ public class EripRegistry {
         return m.getId() == null ? null : m;
     }
 
-    private static EripModule fromSection(ConfigurationSection s) {
-        EripModule m = new EripModule();
+    private static EripModuleVO fromSection(ConfigurationSection s) {
+        EripModuleVO m = new EripModuleVO();
         m.setId(s.getString("id"));
         m.setDisplayName(s.getString("displayName"));
         m.setIcon(s.getString("icon"));
@@ -245,8 +247,8 @@ public class EripRegistry {
         return m.getId() == null ? null : m;
     }
 
-    private static EripMenu fromMenuMap(Map<?, ?> map) {
-        EripMenu menu = new EripMenu();
+    private static EripMenuVO fromMenuMap(Map<?, ?> map) {
+        EripMenuVO menu = new EripMenuVO();
         menu.setId(str(map.get("id")));
         menu.setTitle(str(map.get("title")));
         menu.setIcon(str(map.get("icon")));
@@ -268,8 +270,8 @@ public class EripRegistry {
         return menu;
     }
 
-    private static EripMenu fromMenuSection(String key, ConfigurationSection s) {
-        EripMenu menu = new EripMenu();
+    private static EripMenuVO fromMenuSection(String key, ConfigurationSection s) {
+        EripMenuVO menu = new EripMenuVO();
         menu.setId(s.getString("id", key));
         menu.setTitle(s.getString("title", key));
         menu.setIcon(s.getString("icon"));
@@ -291,7 +293,7 @@ public class EripRegistry {
         return menu;
     }
 
-    private static Map<String, Object> toMap(EripModule m) {
+    private static Map<String, Object> toMap(EripModuleVO m) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("id", m.getId());
         map.put("displayName", m.getDisplayName());
@@ -300,14 +302,14 @@ public class EripRegistry {
         map.put("sortOrder", m.getSortOrder());
         map.put("permission", m.getPermission());
         List<Map<String, Object>> children = new ArrayList<>();
-        for (EripMenu c : m.getChildren()) {
+        for (EripMenuVO c : m.getChildren()) {
             children.add(toMenuMap(c));
         }
         map.put("children", children);
         return map;
     }
 
-    private static Map<String, Object> toMenuMap(EripMenu menu) {
+    private static Map<String, Object> toMenuMap(EripMenuVO menu) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("id", menu.getId());
         map.put("title", menu.getTitle());
@@ -319,7 +321,7 @@ public class EripRegistry {
         map.put("sortOrder", menu.getSortOrder());
         map.put("visible", menu.isVisible());
         List<Map<String, Object>> children = new ArrayList<>();
-        for (EripMenu c : menu.getChildren()) {
+        for (EripMenuVO c : menu.getChildren()) {
             children.add(toMenuMap(c));
         }
         map.put("children", children);

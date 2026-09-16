@@ -1,0 +1,73 @@
+# MCERP 初始化数据（YAML 存储模式）— 字典类型
+# 内置字典类型（若依前端 dicts 契约全量）；ID 为自然数。
+erp_dict_type:
+  '1':
+    dict_id: '1'
+    dict_name: 系统开关
+    dict_type: sys_normal_disable
+    status: '0'
+    remark: 正常/停用（用户、菜单、字典状态）
+    create_time: '2026-09-11 00:00:00'
+  '2':
+    dict_id: '2'
+    dict_name: 系统是否
+    dict_type: sys_yes_no
+    status: '0'
+    remark: 系统内置字典
+    create_time: '2026-09-11 00:00:00'
+  '3':
+    dict_id: '3'
+    dict_name: 用户性别
+    dict_type: sys_user_sex
+    status: '0'
+    remark: 系统内置字典
+    create_time: '2026-09-11 00:00:00'
+  '4':
+    dict_id: '4'
+    dict_name: 菜单显示状态
+    dict_type: sys_show_hide
+    status: '0'
+    remark: 显示/隐藏（菜单表单显示状态）
+    create_time: '2026-09-11 00:00:00'
+  '5':
+    dict_id: '5'
+    dict_name: 公共状态
+    dict_type: sys_common_status
+    status: '0'
+    remark: 操作日志/登录日志状态
+    create_time: '2026-09-11 00:00:00'
+  '6':
+    dict_id: '6'
+    dict_name: 操作类型
+    dict_type: sys_oper_type
+    status: '0'
+    remark: 操作日志类型
+    create_time: '2026-09-11 00:00:00'
+  '7':
+    dict_id: '7'
+    dict_name: 公告状态
+    dict_type: sys_notice_status
+    status: '0'
+    remark: 通知公告状态
+    create_time: '2026-09-11 00:00:00'
+  '8':
+    dict_id: '8'
+    dict_name: 公告类型
+    dict_type: sys_notice_type
+    status: '0'
+    remark: 通知/公告
+    create_time: '2026-09-11 00:00:00'
+  '9':
+    dict_id: '9'
+    dict_name: 任务分组
+    dict_type: sys_job_group
+    status: '0'
+    remark: 定时任务分组
+    create_time: '2026-09-11 00:00:00'
+  '10':
+    dict_id: '10'
+    dict_name: 任务状态
+    dict_type: sys_job_status
+    status: '0'
+    remark: 定时任务状态
+    create_time: '2026-09-11 00:00:00'

@@ -1,0 +1,10 @@
+# MCERP 初始化数据（YAML 存储模式）— 通知公告表
+erp_notice:
+  '1':
+    notice_id: '1'
+    notice_title: 欢迎使用 MCERP 管理系统
+    notice_type: '2'
+    notice_content: 本系统由 SOYSHTTPOverMC 提供登录与会话认证，权限控制采用 SOYS 权限体系（OP 默认拥有全部权限）。游戏内使用 /changepassword 修改 AuthMe 密码。
+    status: '0'
+    create_by: admin
+    create_time: '2026-09-15 00:00:00'
