@@ -1,4 +1,4 @@
-package com.github.cocosoys.mc.mcerp;
+package com.github.cocosoys.mc.mcerp.entity.vo;
 
 import java.util.ArrayList;
 import java.util.List;
