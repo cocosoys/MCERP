@@ -1,11 +1,11 @@
 package com.github.cocosoys.mc.mcerp.impl;
 
-import com.github.cocosoys.mc.mcerp.entity.SysDictData;
-import com.github.cocosoys.mc.mcerp.entity.SysDictType;
+import com.github.cocosoys.mc.mcerp.entity.ErpDictData;
+import com.github.cocosoys.mc.mcerp.entity.ErpDictType;
 import com.github.cocosoys.mc.mcerp.entity.vo.DictOptionVO;
 import com.github.cocosoys.mc.mcerp.service.AuthService;
 import com.github.cocosoys.mc.mcerp.service.OperLogService;
-import com.github.cocosoys.mc.mcerp.service.SysDictService;
+import com.github.cocosoys.mc.mcerp.service.ErpDictService;
 import com.github.cocosoys.mc.soyshttpovermc.util.PageUtils;
 import com.github.cocosoys.mc.soyshttpovermc.util.TableDataInfo;
 import com.github.cocosoys.mc.soyshttpovermc.orm.DATA;
@@ -13,18 +13,19 @@ import com.github.cocosoys.mc.soyshttpovermc.util.AjaxResult;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 /**
- * 字典管理实现（从 SysDictController 迁入）：类型/数据 CRUD；
+ * 字典管理实现（从 ErpDictController 迁入）：类型/数据 CRUD；
  * 删除类型时连带删除该类型下所有字典数据。
  */
-public class SysDictServiceImpl implements SysDictService {
+public class ErpDictServiceImpl implements ErpDictService {
 
     private final OperLogService operLog;
 
-    public SysDictServiceImpl(OperLogService operLog) {
+    public ErpDictServiceImpl(OperLogService operLog) {
         this.operLog = operLog;
     }
 
@@ -32,9 +33,9 @@ public class SysDictServiceImpl implements SysDictService {
 
     @Override
     public TableDataInfo typeList(Integer pageNum, Integer pageSize, String dictName, String dictType) {
-        List<SysDictType> all = DATA.select(SysDictType.class);
-        List<SysDictType> filtered = new ArrayList<>();
-        for (SysDictType t : all) {
+        List<ErpDictType> all = DATA.select(ErpDictType.class);
+        List<ErpDictType> filtered = new ArrayList<>();
+        for (ErpDictType t : all) {
             if (dictName != null && !dictName.isEmpty() && !contains(t.getDictName(), dictName)) {
                 continue;
             }
@@ -43,13 +44,13 @@ public class SysDictServiceImpl implements SysDictService {
             }
             filtered.add(t);
         }
-        filtered.sort(Comparator.comparing(SysDictType::getCreateTime, Comparator.nullsLast(String::compareTo)).reversed());
+        filtered.sort(Comparator.comparing(ErpDictType::getCreateTime, Comparator.nullsLast(Date::compareTo)).reversed());
         return PageUtils.page(filtered, pageNum, pageSize);
     }
 
     @Override
     public AjaxResult typeDetail(String dictId) {
-        SysDictType dt = DATA.get(SysDictType.class, dictId);
+        ErpDictType dt = DATA.get(ErpDictType.class, dictId);
         if (dt == null) {
             return AjaxResult.error("字典类型不存在");
         }
@@ -57,17 +58,17 @@ public class SysDictServiceImpl implements SysDictService {
     }
 
     @Override
-    public AjaxResult typeAdd(SysDictType body) {
+    public AjaxResult typeAdd(ErpDictType body) {
         String type = body.getDictType() == null ? "" : body.getDictType().trim();
         if (type.isEmpty()) {
             return AjaxResult.error("字典类型编码不能为空");
         }
-        for (SysDictType t : DATA.select(SysDictType.class)) {
+        for (ErpDictType t : DATA.select(ErpDictType.class)) {
             if (type.equals(t.getDictType())) {
                 return AjaxResult.error("字典类型已存在");
             }
         }
-        SysDictType dt = new SysDictType();
+        ErpDictType dt = new ErpDictType();
         dt.setDictId(UUID.randomUUID().toString());
         dt.setDictName(body.getDictName() == null || body.getDictName().isEmpty() ? type : body.getDictName());
         dt.setDictType(type);
@@ -80,8 +81,8 @@ public class SysDictServiceImpl implements SysDictService {
     }
 
     @Override
-    public AjaxResult typeUpdate(String dictId, SysDictType body) {
-        SysDictType dt = dictId == null || dictId.isEmpty() ? null : DATA.get(SysDictType.class, dictId);
+    public AjaxResult typeUpdate(String dictId, ErpDictType body) {
+        ErpDictType dt = dictId == null || dictId.isEmpty() ? null : DATA.get(ErpDictType.class, dictId);
         if (dt == null) {
             return AjaxResult.error("字典类型不存在");
         }
@@ -111,13 +112,13 @@ public class SysDictServiceImpl implements SysDictService {
             if (id.trim().isEmpty()) {
                 continue;
             }
-            SysDictType dt = DATA.get(SysDictType.class, id.trim());
-            DATA.deleteById(SysDictType.class, id.trim());
+            ErpDictType dt = DATA.get(ErpDictType.class, id.trim());
+            DATA.deleteById(ErpDictType.class, id.trim());
             if (dt != null) {
                 // 连带删除该类型下的字典数据
-                for (SysDictData d : DATA.select(SysDictData.class)) {
+                for (ErpDictData d : DATA.select(ErpDictData.class)) {
                     if (dt.getDictType().equals(d.getDictType())) {
-                        DATA.deleteById(SysDictData.class, d.getDictCode());
+                        DATA.deleteById(ErpDictData.class, d.getDictCode());
                     }
                 }
                 operLog.record("字典管理", "删除字典类型", dt.getDictType(), "删除成功");
@@ -128,7 +129,7 @@ public class SysDictServiceImpl implements SysDictService {
 
     @Override
     public AjaxResult optionselect() {
-        return AjaxResult.success(DATA.select(SysDictType.class));
+        return AjaxResult.success(DATA.select(ErpDictType.class));
     }
 
     @Override
@@ -140,9 +141,9 @@ public class SysDictServiceImpl implements SysDictService {
 
     @Override
     public TableDataInfo dataList(Integer pageNum, Integer pageSize, String dictType, String dictLabel) {
-        List<SysDictData> all = DATA.select(SysDictData.class);
-        List<SysDictData> filtered = new ArrayList<>();
-        for (SysDictData d : all) {
+        List<ErpDictData> all = DATA.select(ErpDictData.class);
+        List<ErpDictData> filtered = new ArrayList<>();
+        for (ErpDictData d : all) {
             if (dictType != null && !dictType.isEmpty() && !dictType.equals(d.getDictType())) {
                 continue;
             }
@@ -151,14 +152,14 @@ public class SysDictServiceImpl implements SysDictService {
             }
             filtered.add(d);
         }
-        filtered.sort(Comparator.comparingInt(SysDictData::getDictSort));
+        filtered.sort(Comparator.comparingInt(ErpDictData::getDictSort));
         return PageUtils.page(filtered, pageNum, pageSize);
     }
 
     @Override
     public AjaxResult dataByType(String dictType) {
         List<DictOptionVO> out = new ArrayList<>();
-        for (SysDictData d : DATA.select(SysDictData.class)) {
+        for (ErpDictData d : DATA.select(ErpDictData.class)) {
             if (dictType != null && dictType.equals(d.getDictType())) {
                 DictOptionVO vo = new DictOptionVO();
                 vo.setDictLabel(d.getDictLabel());
@@ -172,7 +173,7 @@ public class SysDictServiceImpl implements SysDictService {
 
     @Override
     public AjaxResult dataDetail(String dictCode) {
-        SysDictData d = DATA.get(SysDictData.class, dictCode);
+        ErpDictData d = DATA.get(ErpDictData.class, dictCode);
         if (d == null) {
             return AjaxResult.error("字典数据不存在");
         }
@@ -180,8 +181,8 @@ public class SysDictServiceImpl implements SysDictService {
     }
 
     @Override
-    public AjaxResult dataAdd(SysDictData body) {
-        SysDictData d = new SysDictData();
+    public AjaxResult dataAdd(ErpDictData body) {
+        ErpDictData d = new ErpDictData();
         d.setDictCode(UUID.randomUUID().toString());
         d.setDictSort(body.getDictSort());
         d.setDictLabel(body.getDictLabel() == null ? "" : body.getDictLabel());
@@ -198,8 +199,8 @@ public class SysDictServiceImpl implements SysDictService {
     }
 
     @Override
-    public AjaxResult dataUpdate(String dictCode, SysDictData body) {
-        SysDictData d = dictCode == null || dictCode.isEmpty() ? null : DATA.get(SysDictData.class, dictCode);
+    public AjaxResult dataUpdate(String dictCode, ErpDictData body) {
+        ErpDictData d = dictCode == null || dictCode.isEmpty() ? null : DATA.get(ErpDictData.class, dictCode);
         if (d == null) {
             return AjaxResult.error("字典数据不存在");
         }
@@ -233,8 +234,8 @@ public class SysDictServiceImpl implements SysDictService {
             if (id.trim().isEmpty()) {
                 continue;
             }
-            SysDictData d = DATA.get(SysDictData.class, id.trim());
-            DATA.deleteById(SysDictData.class, id.trim());
+            ErpDictData d = DATA.get(ErpDictData.class, id.trim());
+            DATA.deleteById(ErpDictData.class, id.trim());
             if (d != null) {
                 operLog.record("字典管理", "删除字典数据", d.getDictLabel(), "删除成功");
             }

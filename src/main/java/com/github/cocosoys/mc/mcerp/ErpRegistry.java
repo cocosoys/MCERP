@@ -30,7 +30,7 @@ import java.util.Set;
  * </ul>
  */
 @CustomLog
-public class EripRegistry {
+public class ErpRegistry {
 
     /** 在线 ERP 模块索引：identifier → owner 插件名 */
     private final Map<String, String> dynamic = new LinkedHashMap<>();

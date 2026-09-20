@@ -1,6 +1,6 @@
 package com.github.cocosoys.mc.mcerp.entity.vo;
 
-import com.github.cocosoys.mc.mcerp.entity.SysUser;
+import com.github.cocosoys.mc.mcerp.entity.ErpUser;
 import lombok.Data;
 
 import java.util.List;
@@ -27,6 +27,6 @@ public class UserAuthRoleVO {
     private List<String> perms;
 
     /** 用户实体 */
-    private SysUser user;
+    private ErpUser user;
 
 }

@@ -1,112 +1,161 @@
 package com.github.cocosoys.mc.mcerp;
 
-import com.github.cocosoys.mc.mcerp.controller.AuthController;
-import com.github.cocosoys.mc.mcerp.controller.SysConfigController;
-import com.github.cocosoys.mc.mcerp.controller.SysDictController;
-import com.github.cocosoys.mc.mcerp.controller.SysLogController;
-import com.github.cocosoys.mc.mcerp.controller.SysMenuController;
-import com.github.cocosoys.mc.mcerp.controller.SysNoticeController;
-import com.github.cocosoys.mc.mcerp.controller.SysUserController;
-import com.github.cocosoys.mc.mcerp.impl.AuthServiceImpl;
-import com.github.cocosoys.mc.mcerp.impl.MenuRouteServiceImpl;
-import com.github.cocosoys.mc.mcerp.impl.OperLogServiceImpl;
-import com.github.cocosoys.mc.mcerp.impl.SysConfigServiceImpl;
-import com.github.cocosoys.mc.mcerp.impl.SysDictServiceImpl;
-import com.github.cocosoys.mc.mcerp.impl.SysLogServiceImpl;
-import com.github.cocosoys.mc.mcerp.impl.SysMenuServiceImpl;
-import com.github.cocosoys.mc.mcerp.impl.SysNoticeServiceImpl;
-import com.github.cocosoys.mc.mcerp.impl.SysUserServiceImpl;
-import com.github.cocosoys.mc.mcerp.service.AuthService;
-import com.github.cocosoys.mc.mcerp.service.MenuRouteService;
-import com.github.cocosoys.mc.mcerp.service.OperLogService;
-import com.github.cocosoys.mc.mcerp.service.SysConfigService;
-import com.github.cocosoys.mc.mcerp.service.SysDictService;
-import com.github.cocosoys.mc.mcerp.service.SysLogService;
-import com.github.cocosoys.mc.mcerp.service.SysMenuService;
-import com.github.cocosoys.mc.mcerp.service.SysNoticeService;
-import com.github.cocosoys.mc.mcerp.service.SysUserService;
+import com.github.cocosoys.mc.mcerp.entity.vo.ErpMenuVO;
+import com.github.cocosoys.mc.mcerp.entity.vo.ErpModuleVO;
 import com.github.cocosoys.mc.soyshttpovermc.api.SoysExpansion;
+import lombok.CustomLog;
 import lombok.Getter;
+import lombok.Setter;
+import org.bukkit.plugin.Plugin;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
- * MCERP 的 {@link SoysExpansion} 极简注册门户（随主插件 SoysExpansion 新书写同步）。
+ * ERP 模块扩展基类（继承 SoysExpansion 泛化）。
+ *
+ * <p>附属 ERP 插件只需<b>继承本类 + 覆写 ERP 声明钩子 + 一行 {@code register()}</b>，
+ * 即自动完成全部登记：
  * <ul>
- *   <li>构造收 {@link MCERP} 实例，内部集中创建 Service 层与全部 Controller 实例
- *       （本类自治，MCERP 主类无需暴露 service 字段）</li>
- *   <li>{@link #buildControllers()}：记录全部 controller 实例化（批量注册/注销共用同一来源）；
- *       主插件默认 {@code registerController()} 自动遍历本来源逐例正常登记
- *       （补 /plugins/&lt;插件名&gt; 前缀 → 路由 /api/plugins/MCERP/&lt;类级前缀&gt;/*），
- *       {@code unregisterController()} 自动逐例卸载——无需重写注册/注销逻辑</li>
- *   <li>{@link #resourceRoot()} 返回 "dist"：骨架 {@code registerPages()} 自动托管前端页面
- *       （等价原 {@code registerResourceDirectory(this,"/",cl,"dist")}，额外打
- *       {@code expansion:MCERP} tag → 可精确卸载）</li>
- *   <li>{@link #getIdentifier()}="MCERP"：页面 tag / 冲突检测 / 文档展示</li>
+ *   <li>SoysExpansion 骨架自动执行：端点批量登记（/api/plugins/&lt;id&gt;/*）、页面托管
+ *       （/web/plugins/&lt;id&gt;/*）、数据层初始化（{@code dataRoots()/sqlRoots()/seedData()/
+ *       schemaVersion()}，主插件内置事务 + meta 幂等）、CORS、冲突检测与失败回滚；</li>
+ *   <li>本类 {@link #onRegister()} 默认实现：把模块（identifier/displayName/menus()/routeTable()…）
+ *       登记到 MCERP {@link ErpRegistry} → 菜单/路由实时合成（即安即生效）；</li>
+ *   <li>{@link #onUnregister()} 默认实现：摘除 ERP 登记（卸载同步清理）。</li>
  * </ul>
+ *
+ * <pre>
+ * public class StockExpansion extends McerpExpansion {
+ *     &#64;Override public String getIdentifier() { return "stock"; }
+ *     &#64;Override protected String displayName() { return "库存管理"; }
+ *     &#64;Override protected ErpMenus menus() {
+ *         return ErpMenus.create()
+ *             .dir("system", "系统管理", "system", d -> d
+ *                 .menu("user", "用户列表", "user").perm("soys.erp.user.list")
+ *                 .menu("group", "权限组列表", "lock"))
+ *             .menu("home", "首页", "home").component("erp/home");
+ *     }                                                        // 或 routeTable()
+ *     &#64;Override protected String[] dataRoots() { return new String[]{"data"}; }  // 继承自 SoysExpansion
+ * }
+ * // onEnable:
+ * if (!new StockExpansion().register()) {
+ *     getLogger().warning("stock 注册失败（identifier 冲突 / bootstrap 未就绪）");
+ * }
+ * </pre>
+ *
+ * <p><b>MCERP 判定"是否 ERP 模块"</b> = {@code obj instanceof McerpExpansion}；
+ * 宿主 {@link McErpHostExpansion} 是 SoysExpansion 直系子类，天然排除。
+ * 未绑定 MCERP（未安装/未就绪）时 onRegister 静默跳过，由 /mcerp reload 或
+ * /soyshttp reload 兜底补登记。</p>
  */
-@Getter
-public class McerpExpansion extends SoysExpansion {
-    private final MCERP instance;
+@CustomLog
+public abstract class McerpExpansion extends SoysExpansion {
 
-    // ===== Service 层 =====
-    private final AuthService authService;
-    private final MenuRouteService menuRouteService;
-    private final OperLogService operLogService;
-    private final SysUserService sysUserService;
-    private final SysMenuService sysMenuService;
-    private final SysDictService sysDictService;
-    private final SysConfigService sysConfigService;
-    private final SysNoticeService sysNoticeService;
-    private final SysLogService sysLogService;
+    /** MCERP 宿主引用（MCERP onEnable 时经 {@link #setMcerp(MCERP)} 注入；未绑定 = MCERP 未装/未就绪）。 */
+    protected @Getter @Setter static volatile MCERP mcerp;
 
-    public McerpExpansion(MCERP instance) {
-        this.instance = instance;
-        EripRegistry registry = instance.getRegistry();
-        // ===== Service 层 =====
-        authService = new AuthServiceImpl(registry);
-        menuRouteService = new MenuRouteServiceImpl(registry, authService);
-        operLogService = new OperLogServiceImpl();
-        sysUserService = new SysUserServiceImpl(authService, operLogService);
-        sysMenuService = new SysMenuServiceImpl(registry, operLogService);
-        sysDictService = new SysDictServiceImpl(operLogService);
-        sysConfigService = new SysConfigServiceImpl(operLogService);
-        sysNoticeService = new SysNoticeServiceImpl(operLogService);
-        sysLogService = new SysLogServiceImpl();
+    // ===== ERP 声明钩子（全默认，覆写需要者）=====
 
+    /** 菜单标题（默认 = identifier）。 */
+    protected String displayName() {
+        return getIdentifier();
     }
 
-    /** 模块唯一标识（页面 tag / 冲突检测 / 文档展示） */
-    @Override
-    public String getIdentifier() {
-        return "MCERP";
+    /** 模块图标。 */
+    protected String icon() {
+        return null;
+    }
+
+    /** 排序号。 */
+    protected int sortOrder() {
+        return 0;
+    }
+
+    /** 主菜单访问权限标识。 */
+    protected String permission() {
+        return null;
+    }
+
+    /** 无子菜单时的默认页地址。 */
+    protected String homeUrl() {
+        return null;
     }
 
     /**
-     * 记录所有 controller 实例化：主插件 registerController()/unregisterController()
-     * 自动遍历本来源批量登记/注销（默认实现已内置，本扩展仅提供来源列表）。
+     * 菜单树（自带 component/perms/children），声明式构建器写法见 {@link ErpMenus}。
+     * 选填项，若你希望通过数据库新增的方式，请向用户提供数据库代码(yml/sql)
      */
-    @Override
-    protected List<Object> buildControllers() {
-        // ===== 记录所有 controller 实例化 =====
-        List<Object> list = new ArrayList<>();
-        list.add(new AuthController(authService, menuRouteService));
-        list.add(new SysUserController(sysUserService));
-        list.add(new SysMenuController(sysMenuService));
-        list.add(new SysDictController(sysDictService));
-        list.add(new SysConfigController(sysConfigService));
-        list.add(new SysNoticeController(sysNoticeService));
-        list.add(new SysLogController(sysLogService));
-        /** 全部 Controller 实例清单（集中实例化，批量注册/注销共用） */
-        return Collections.unmodifiableList(list);
+    protected ErpMenus menus() {
+        return null;
     }
 
-    /** 前端页面资源根：骨架 registerPages() 自动托管 dist 目录 */
-    @Override
-    protected String resourceRoot() {
-        return "dist";
+    /**
+     * 路由对照表（path→url 便捷生成 C 菜单；与 menus() 二选一，menus() 优先）。
+     * 选填项，若你希望通过数据库新增的方式，请向用户提供数据库代码(yml/sql)
+     */
+    protected ErpMenus routeTable() {
+        return null;
     }
 
+    // ===== 生命周期：自动登记/摘除 MCERP =====
+
+    @Override
+    public boolean onRegister() {
+        MCERP m = mcerp;
+        if (m == null) {
+            log.info("MCERP 未就绪，跳过 ERP 登记（reload 时兜底补登记）: {0}", getIdentifier());
+            return true; // 静默，不阻断 SoysExpansion 正常注册
+        }
+        ErpModuleVO vo = toModuleVO();
+        if (vo == null || vo.getDisplayName() == null || vo.getDisplayName().trim().isEmpty()) {
+            log.warn("ERP 模块缺少 displayName，拒绝登记: {0}", getIdentifier());
+            return false; // displayName 必填 → 整体回滚
+        }
+        Plugin owner = getOwner();
+        if (owner == null) {
+            log.warn("ERP 模块无法定位 owner 插件，拒绝登记: {0}", getIdentifier());
+            return false;
+        }
+        // 写入索引（仅 identifier）：与 /mcerp reload 兜底同通道，幂等。
+        // displayName / owner 校验仅用于决定是否阻断 SoysExpansion 整体注册。
+        m.getRegistry().registerModule(this);
+        return true;
+    }
+
+    @Override
+    public void onUnregister() {
+        MCERP m = mcerp;
+        if (m == null) {
+            return;
+        }
+        Plugin owner = getOwner();
+        if (owner != null) {
+            m.getRegistry().unregisterModule(owner.getName());
+        }
+    }
+
+    // ===== 登记数据组装（onRegister 与 reload 兜底补登记共用）=====
+
+    /**
+     * 组装 ErpModuleVO（id = getIdentifier()，菜单 = menus() 或 routeTable()）。
+     */
+    public ErpModuleVO toModuleVO() {
+        ErpModuleVO vo = new ErpModuleVO();
+        vo.setId(getIdentifier());
+        vo.setDisplayName(displayName());
+        vo.setIcon(icon());
+        vo.setHomeUrl(homeUrl());
+        vo.setPermission(permission());
+        vo.setSortOrder(sortOrder());
+        ErpMenus ms = menus();
+        List<ErpMenuVO> children = ms == null ? null : ms.build();
+        if (children == null || children.isEmpty()) {
+            ErpMenus rs = routeTable();
+            children = rs == null ? null : rs.build();
+        }
+        if (children != null) {
+            vo.getChildren().addAll(children);
+        }
+        return vo;
+    }
 }

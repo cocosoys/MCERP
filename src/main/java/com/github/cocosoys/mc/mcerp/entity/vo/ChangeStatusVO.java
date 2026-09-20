@@ -8,6 +8,9 @@ import lombok.Data;
 @Data
 public class ChangeStatusVO {
 
+    /** 用户 ID（erp_user.user_id） */
     private String userId;
+
+    /** 目标状态：'0' 正常 / '1' 停用 */
     private String status;
 }

@@ -1,8 +1,7 @@
 package com.github.cocosoys.mc.mcerp.impl;
 
-import com.github.cocosoys.mc.mcerp.EripRegistry;
-import com.github.cocosoys.mc.mcerp.entity.SysMenu;
-import com.github.cocosoys.mc.mcerp.entity.SysUser;
+import com.github.cocosoys.mc.mcerp.entity.ErpMenu;
+import com.github.cocosoys.mc.mcerp.entity.ErpUser;
 import com.github.cocosoys.mc.mcerp.entity.vo.MenuTreeVO;
 import com.github.cocosoys.mc.mcerp.entity.vo.ProfileVO;
 import com.github.cocosoys.mc.mcerp.entity.vo.RoleOptionVO;
@@ -14,7 +13,7 @@ import com.github.cocosoys.mc.mcerp.entity.vo.SavePermsVO;
 import com.github.cocosoys.mc.mcerp.entity.vo.UserPermsVO;
 import com.github.cocosoys.mc.mcerp.service.AuthService;
 import com.github.cocosoys.mc.mcerp.service.OperLogService;
-import com.github.cocosoys.mc.mcerp.service.SysUserService;
+import com.github.cocosoys.mc.mcerp.service.ErpUserService;
 import com.github.cocosoys.mc.soyshttpovermc.util.PageUtils;
 import com.github.cocosoys.mc.soyshttpovermc.util.TableDataInfo;
 import com.github.cocosoys.mc.soyshttpovermc.orm.DATA;
@@ -26,6 +25,7 @@ import com.github.cocosoys.mc.soyshttpovermc.web.gateway.policy.auth.issuer.Cred
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -34,10 +34,10 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * 用户管理实现（从 SysUserController 迁入）：CRUD、状态、角色/权限同步。
+ * 用户管理实现（从 ErpUserController 迁入）：CRUD、状态、角色/权限同步。
  * 角色（权限组）与权限节点（USER 类型）的增删同步在此编排，保证多步一致。
  */
-public class SysUserServiceImpl implements SysUserService {
+public class ErpUserServiceImpl implements ErpUserService {
 
     /** 数据权限节点（RuoYi 数据范围语义的权限化表达；当前权限分配仅限菜单 perms，暂不使用）。 */
     // private static final String DATA_PERM_ALL = "mcerp:data:all";
@@ -45,16 +45,16 @@ public class SysUserServiceImpl implements SysUserService {
     private final AuthService auth;
     private final OperLogService operLog;
 
-    public SysUserServiceImpl(AuthService auth, OperLogService operLog) {
+    public ErpUserServiceImpl(AuthService auth, OperLogService operLog) {
         this.auth = auth;
         this.operLog = operLog;
     }
 
     @Override
     public TableDataInfo list(Integer pageNum, Integer pageSize, String userName, String status, String phonenumber) {
-        List<SysUser> all = DATA.select(SysUser.class);
-        List<SysUser> filtered = new ArrayList<>();
-        for (SysUser u : all) {
+        List<ErpUser> all = DATA.select(ErpUser.class);
+        List<ErpUser> filtered = new ArrayList<>();
+        for (ErpUser u : all) {
             if (userName != null && !userName.isEmpty() && !contains(u.getUserName(), userName)) {
                 continue;
             }
@@ -66,7 +66,7 @@ public class SysUserServiceImpl implements SysUserService {
             }
             filtered.add(u);
         }
-        filtered.sort(Comparator.comparing(SysUser::getCreateTime, Comparator.nullsLast(String::compareTo)).reversed());
+        filtered.sort(Comparator.comparing(ErpUser::getCreateTime, Comparator.nullsLast(Date::compareTo)).reversed());
         return PageUtils.page(filtered, pageNum, pageSize);
     }
 
@@ -89,7 +89,7 @@ public class SysUserServiceImpl implements SysUserService {
 
     @Override
     public AjaxResult detail(String userId) {
-        SysUser u = userId == null ? null : DATA.get(SysUser.class, userId);
+        ErpUser u = userId == null ? null : DATA.get(ErpUser.class, userId);
         if (u == null) {
             return AjaxResult.error("用户不存在");
         }
@@ -110,7 +110,7 @@ public class SysUserServiceImpl implements SysUserService {
     }
 
     @Override
-    public AjaxResult add(SysUser user) {
+    public AjaxResult add(ErpUser user) {
         String userName = user.getUserName() == null ? "" : user.getUserName().trim();
         if (userName.isEmpty()) {
             return AjaxResult.error("用户名不能为空");
@@ -118,7 +118,7 @@ public class SysUserServiceImpl implements SysUserService {
         if (auth.findUser(userName) != null) {
             return AjaxResult.error("用户名已存在");
         }
-        SysUser u = new SysUser();
+        ErpUser u = new ErpUser();
         u.setUserId(UUID.randomUUID().toString());
         u.setUserName(userName);
         u.setNickName(user.getNickName() == null || user.getNickName().isEmpty() ? userName : user.getNickName());
@@ -134,8 +134,8 @@ public class SysUserServiceImpl implements SysUserService {
     }
 
     @Override
-    public AjaxResult update(String userId, SysUser user) {
-        SysUser u = userId == null || userId.isEmpty() ? null : DATA.get(SysUser.class, userId);
+    public AjaxResult update(String userId, ErpUser user) {
+        ErpUser u = userId == null || userId.isEmpty() ? null : DATA.get(ErpUser.class, userId);
         if (u == null) {
             return AjaxResult.error("用户不存在");
         }
@@ -172,11 +172,11 @@ public class SysUserServiceImpl implements SysUserService {
             if (id.trim().isEmpty()) {
                 continue;
             }
-            SysUser u = DATA.get(SysUser.class, id.trim());
+            ErpUser u = DATA.get(ErpUser.class, id.trim());
             if (u != null && current != null && u.getUserName().equalsIgnoreCase(current)) {
                 return AjaxResult.error("不能删除当前登录账号");
             }
-            DATA.deleteById(SysUser.class, id.trim());
+            DATA.deleteById(ErpUser.class, id.trim());
             operLog.record("用户管理", "删除用户", u == null ? id.trim() : u.getUserName(), "删除成功");
         }
         return AjaxResult.success("删除成功");
@@ -185,7 +185,7 @@ public class SysUserServiceImpl implements SysUserService {
     @Override
     public AjaxResult changeStatus(ChangeStatusVO vo) {
         String userId = vo.getUserId() == null ? "" : vo.getUserId();
-        SysUser u = userId.isEmpty() ? null : DATA.get(SysUser.class, userId);
+        ErpUser u = userId.isEmpty() ? null : DATA.get(ErpUser.class, userId);
         if (u == null) {
             return AjaxResult.error("用户不存在");
         }
@@ -208,7 +208,7 @@ public class SysUserServiceImpl implements SysUserService {
 
     @Override
     public AjaxResult authRole(String userId) {
-        SysUser u = DATA.get(SysUser.class, userId);
+        ErpUser u = DATA.get(ErpUser.class, userId);
         String player = u == null ? "" : u.getUserName();
         UserAuthRoleVO vo = new UserAuthRoleVO();
         vo.setRoles(roleOptions());
@@ -225,9 +225,9 @@ public class SysUserServiceImpl implements SysUserService {
 
     /** 菜单权限树：从 erp_menu 构建（menuId/parentId/menuName/perms/menuType/children）。 */
     private List<MenuTreeVO> buildMenuTree() {
-        List<SysMenu> all = DATA.select(SysMenu.class);
+        List<ErpMenu> all = DATA.select(ErpMenu.class);
         Map<String, MenuTreeVO> byId = new LinkedHashMap<>();
-        for (SysMenu m : all) {
+        for (ErpMenu m : all) {
             MenuTreeVO v = new MenuTreeVO();
             v.setMenuId(m.getMenuId());
             v.setParentId(m.getParentId());
@@ -251,7 +251,7 @@ public class SysUserServiceImpl implements SysUserService {
     @Override
     public AjaxResult authRoleSave(AuthRoleSaveVO vo) {
         String userId = vo.getUserId() == null ? "" : vo.getUserId();
-        SysUser u = userId.isEmpty() ? null : DATA.get(SysUser.class, userId);
+        ErpUser u = userId.isEmpty() ? null : DATA.get(ErpUser.class, userId);
         if (u == null) {
             return AjaxResult.error("用户不存在");
         }
@@ -403,7 +403,7 @@ public class SysUserServiceImpl implements SysUserService {
     /** 可分配权限节点全集：仅菜单表 perms（菜单权限标识），分配操作直接写 SOYS 本地权限存储。 */
     private List<String> allPermNodes() {
         Set<String> nodes = new LinkedHashSet<>();
-        for (SysMenu m : DATA.select(SysMenu.class)) {
+        for (ErpMenu m : DATA.select(ErpMenu.class)) {
             String perm = m.getPerms();
             if (perm != null && !perm.isEmpty()) {
                 nodes.add(perm);

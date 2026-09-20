@@ -5,9 +5,9 @@ import com.github.cocosoys.mc.soyshttpovermc.util.AjaxResult;
 
 /**
  * 日志管理服务（抽象契约）：操作日志/登录日志列表、删除、清空。
- * 实现见 {@link com.github.cocosoys.mc.mcerp.impl.SysLogServiceImpl}。
+ * 实现见 {@link com.github.cocosoys.mc.mcerp.impl.ErpLogServiceImpl}。
  */
-public interface SysLogService {
+public interface ErpLogService {
 
     TableDataInfo operlogList(Integer pageNum, Integer pageSize, String title, String operName);
 

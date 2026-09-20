@@ -1,11 +1,10 @@
 package com.github.cocosoys.mc.mcerp.service;
 
-import com.github.cocosoys.mc.mcerp.entity.SysUser;
+import com.github.cocosoys.mc.mcerp.entity.ErpUser;
 import com.github.cocosoys.mc.soyshttpovermc.permission.local.LocalPermissionStore;
 import com.github.cocosoys.mc.soyshttpovermc.util.AjaxResult;
 import com.github.cocosoys.mc.soyshttpovermc.web.gateway.policy.auth.issuer.CredentialPresentation;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -28,7 +27,7 @@ public interface AuthService {
      */
     AjaxResult getInfo(CredentialPresentation credential);
 
-    SysUser findUser(String userName);
+    ErpUser findUser(String userName);
 
     boolean isOp(String player);
 
@@ -43,9 +42,10 @@ public interface AuthService {
     List<String> permissionsOf(CredentialPresentation credential);
 
     /**
-     * 当前时间戳（若依 createTime 等契约格式）。
+     * 当前时间（Date）。ORM 落库时经 BeanCodec 统一编码为 yyyy-MM-dd HH:mm:ss 字符串
+     * （YAML 与 SQL 双端同构）；JSON 序列化经 JsonWriter/@JsonFormat 输出同格式。
      */
-    static String now() {
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+    static Date now() {
+        return new Date();
     }
 }

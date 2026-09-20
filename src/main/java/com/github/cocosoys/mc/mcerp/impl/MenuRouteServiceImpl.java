@@ -1,9 +1,9 @@
 package com.github.cocosoys.mc.mcerp.impl;
 
-import com.github.cocosoys.mc.mcerp.EripRegistry;
-import com.github.cocosoys.mc.mcerp.entity.SysMenu;
-import com.github.cocosoys.mc.mcerp.entity.vo.EripMenuVO;
-import com.github.cocosoys.mc.mcerp.entity.vo.EripModuleVO;
+import com.github.cocosoys.mc.mcerp.ErpRegistry;
+import com.github.cocosoys.mc.mcerp.entity.ErpMenu;
+import com.github.cocosoys.mc.mcerp.entity.vo.ErpMenuVO;
+import com.github.cocosoys.mc.mcerp.entity.vo.ErpModuleVO;
 import com.github.cocosoys.mc.mcerp.service.AuthService;
 import com.github.cocosoys.mc.mcerp.service.MenuRouteService;
 import com.github.cocosoys.mc.soyshttpovermc.orm.DATA;
@@ -27,10 +27,10 @@ import java.util.Map;
  */
 public class MenuRouteServiceImpl implements MenuRouteService {
 
-    private final EripRegistry registry;
+    private final ErpRegistry registry;
     private final AuthService auth;
 
-    public MenuRouteServiceImpl(EripRegistry registry, AuthService auth) {
+    public MenuRouteServiceImpl(ErpRegistry registry, AuthService auth) {
         this.registry = registry;
         this.auth = auth;
     }
@@ -39,9 +39,9 @@ public class MenuRouteServiceImpl implements MenuRouteService {
     public List<Map<String, Object>> buildRoutes(CredentialPresentation credential) {
         List<Map<String, Object>> routes = new ArrayList<>();
         // 内置 + 自定义菜单（统一由 erp_menu 表驱动，含 resources 初始化数据）
-        List<SysMenu> menus = DATA.select(SysMenu.class);
-        menus.sort(Comparator.comparingInt(SysMenu::getOrderNum));
-        for (SysMenu m : menus) {
+        List<ErpMenu> menus = DATA.select(ErpMenu.class);
+        menus.sort(Comparator.comparingInt(ErpMenu::getOrderNum));
+        for (ErpMenu m : menus) {
             if (isTopLevel(m)) {
                 Map<String, Object> r = routeFromMenu(m, menus, credential);
                 if (r != null) {
@@ -50,7 +50,7 @@ public class MenuRouteServiceImpl implements MenuRouteService {
             }
         }
         // 插件模块树
-        for (EripModuleVO module : registry.getModules()) {
+        for (ErpModuleVO module : registry.getModules()) {
             if (!auth.hasPermission(credential, module.getPermission())) {
                 continue; // 模块级权限
             }
@@ -64,11 +64,11 @@ public class MenuRouteServiceImpl implements MenuRouteService {
 
     // ===== 菜单表路由（内置 + 自定义） =====
 
-    private static boolean isTopLevel(SysMenu m) {
+    private static boolean isTopLevel(ErpMenu m) {
         return m.getParentId() == null || m.getParentId().isEmpty() || "0".equals(m.getParentId());
     }
 
-    private Map<String, Object> routeFromMenu(SysMenu menu, List<SysMenu> all,
+    private Map<String, Object> routeFromMenu(ErpMenu menu, List<ErpMenu> all,
                                               CredentialPresentation credential) {
         if ("1".equals(menu.getVisible())) {
             return null;
@@ -81,9 +81,13 @@ public class MenuRouteServiceImpl implements MenuRouteService {
             return null;
         }
         String path = menu.getPath() == null ? "" : menu.getPath();
+        boolean frame = "0".equals(menu.getIsFrame()); // 外链：path 为完整 URL，不拼 query
+        String routePath = frame
+                ? path
+                : (menu.getQuery() != null && !menu.getQuery().isEmpty() ? path + "?" + menu.getQuery() : path);
         Map<String, Object> route = new LinkedHashMap<>();
-        route.put("name", routeName(path));
-        route.put("path", path);
+        route.put("name", routeNameOf(menu, path));
+        route.put("path", routePath);
         route.put("hidden", false);
         route.put("redirect", "noRedirect");
         // 仅目录（M）强制 alwaysShow（前端据此渲染为可展开 el-submenu）；
@@ -101,17 +105,28 @@ public class MenuRouteServiceImpl implements MenuRouteService {
         Map<String, Object> meta = new LinkedHashMap<>();
         meta.put("title", menu.getMenuName());
         meta.put("icon", menu.getIcon() == null || menu.getIcon().isEmpty() ? "form" : menu.getIcon());
-        meta.put("noCache", false);
-        meta.put("link", null);
+        meta.put("noCache", "1".equals(menu.getIsCache()));
+        meta.put("link", frame ? path : null);
         route.put("meta", meta);
         route.put("children", menuChildren(menu.getMenuId(), all, credential));
         return route;
     }
 
-    private List<Map<String, Object>> menuChildren(String parentId, List<SysMenu> all,
+    /** 路由 name：route_name 非空优先；外链占位 Link；否则按 path 首字母大写兜底。 */
+    private static String routeNameOf(ErpMenu menu, String path) {
+        if (menu.getRouteName() != null && !menu.getRouteName().isEmpty()) {
+            return menu.getRouteName();
+        }
+        if (path.startsWith("http://") || path.startsWith("https://")) {
+            return "Link"; // 外链不参与路由匹配，name 仅占位
+        }
+        return routeName(path);
+    }
+
+    private List<Map<String, Object>> menuChildren(String parentId, List<ErpMenu> all,
                                                    CredentialPresentation credential) {
         List<Map<String, Object>> list = new ArrayList<>();
-        for (SysMenu m : all) {
+        for (ErpMenu m : all) {
             if (parentId != null && parentId.equals(m.getParentId())) {
                 Map<String, Object> r = routeFromMenu(m, all, credential);
                 if (r != null) {
@@ -136,7 +151,7 @@ public class MenuRouteServiceImpl implements MenuRouteService {
 
     // ===== 插件模块路由 =====
 
-    private Map<String, Object> moduleRoute(EripModuleVO module, CredentialPresentation credential) {
+    private Map<String, Object> moduleRoute(ErpModuleVO module, CredentialPresentation credential) {
         String id = safeName(module.getId());
         boolean hasChildren = hasVisibleMenu(module.getChildren());
         Map<String, Object> route = new LinkedHashMap<>();
@@ -161,13 +176,13 @@ public class MenuRouteServiceImpl implements MenuRouteService {
         return route;
     }
 
-    private List<Map<String, Object>> menuRoutes(List<EripMenuVO> menus, String parentName,
+    private List<Map<String, Object>> menuRoutes(List<ErpMenuVO> menus, String parentName,
                                                  CredentialPresentation credential) {
         List<Map<String, Object>> list = new ArrayList<>();
         if (menus == null) {
             return list;
         }
-        for (EripMenuVO menu : menus) {
+        for (ErpMenuVO menu : menus) {
             if (!menu.isVisible()) {
                 continue;
             }
@@ -183,16 +198,16 @@ public class MenuRouteServiceImpl implements MenuRouteService {
         return list;
     }
 
-    private Map<String, Object> menuRoute(EripMenuVO menu, String parentName, CredentialPresentation credential) {
-        String type = menu.getType() == null ? "C" : menu.getType();
-        String name = parentName + "_" + safeName(menu.getId() == null ? menu.getTitle() : menu.getId());
+    private Map<String, Object> menuRoute(ErpMenuVO menu, String parentName, CredentialPresentation credential) {
+        String type = menu.getMenuType() == null ? "C" : menu.getMenuType();
+        String name = parentName + "_" + safeName(menu.getMenuId() == null ? menu.getMenuName() : menu.getMenuId());
         Map<String, Object> route = new LinkedHashMap<>();
         route.put("name", name);
-        route.put("path", menu.getPath() == null ? menu.getId() : menu.getPath());
+        route.put("path", menu.getPath() == null ? menu.getMenuId() : menu.getPath());
         route.put("hidden", false);
         route.put("alwaysShow", true);
         Map<String, Object> meta = new LinkedHashMap<>();
-        meta.put("title", menu.getTitle());
+        meta.put("title", menu.getMenuName());
         meta.put("icon", menu.getIcon() == null ? "form" : menu.getIcon());
         meta.put("noCache", false);
         meta.put("link", null);
@@ -208,7 +223,7 @@ public class MenuRouteServiceImpl implements MenuRouteService {
         } else {
             // C 菜单：iframe 打开目标页面
             route.put("redirect", "noRedirect");
-            route.put("component", iframeComponent(menu.getUrl()));
+            route.put("component", iframeComponent(menu.getComponent()));
             route.put("children", new ArrayList<>());
         }
         return route;
@@ -224,12 +239,12 @@ public class MenuRouteServiceImpl implements MenuRouteService {
         return "iframe:" + url;
     }
 
-    private static boolean hasVisibleMenu(List<EripMenuVO> menus) {
+    private static boolean hasVisibleMenu(List<ErpMenuVO> menus) {
         if (menus == null) {
             return false;
         }
-        for (EripMenuVO m : menus) {
-            if (m.isVisible() && !"F".equals(m.getType())) {
+        for (ErpMenuVO m : menus) {
+            if (m.isVisible() && !"F".equals(m.getMenuType())) {
                 return true;
             }
         }

@@ -1,6 +1,6 @@
 package com.github.cocosoys.mc.mcerp.controller;
 
-import com.github.cocosoys.mc.mcerp.service.SysLogService;
+import com.github.cocosoys.mc.mcerp.service.ErpLogService;
 import com.github.cocosoys.mc.soyshttpovermc.util.TableDataInfo;
 import com.github.cocosoys.mc.soyshttpovermc.annotations.ApiName;
 import com.github.cocosoys.mc.soyshttpovermc.annotations.ApiPermission;
@@ -13,14 +13,14 @@ import com.github.cocosoys.mc.soyshttpovermc.util.AjaxResult;
 
 /**
  * 日志管理（若依契约）：路由 /api/plugins/MCERP/monitor/operlog + monitor/logininfor。
- * 列表/删除/清空全部委托 {@link SysLogService}。
+ * 列表/删除/清空全部委托 {@link ErpLogService}。
  */
 @RequestMapping("/monitor")
-public class SysLogController {
+public class ErpLogController {
 
-    private final SysLogService logService;
+    private final ErpLogService logService;
 
-    public SysLogController(SysLogService logService) {
+    public ErpLogController(ErpLogService logService) {
         this.logService = logService;
     }
 

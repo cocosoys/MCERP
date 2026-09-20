@@ -1,7 +1,10 @@
 package com.github.cocosoys.mc.mcerp.entity.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.github.cocosoys.mc.soyshttpovermc.orm.convertor.BeanCodec;
 import lombok.Data;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -10,15 +13,33 @@ import java.util.List;
 @Data
 public class UserDetailVO {
 
+    /** 用户 ID（erp_user.user_id，SOYS 玩家 UUID） */
     private String userId;
+
+    /** 登录名（SOYS 玩家名） */
     private String userName;
+
+    /** 昵称（展示名） */
     private String nickName;
+
+    /** 邮箱 */
     private String email;
+
+    /** 手机号 */
     private String phonenumber;
+
+    /** 性别（字典 sys_user_sex：0 男 / 1 女 / 2 未知） */
     private String sex;
+
+    /** 账号状态：'0' 正常 / '1' 停用 */
     private String status;
+
+    /** 备注 */
     private String remark;
-    private String createTime;
+
+    /** 创建时间（yyyy-MM-dd HH:mm:ss）。 */
+    @JsonFormat(pattern = BeanCodec.DATE_TIME_PATTERN)
+    private Date createTime;
 
     /** 角色下拉选项 */
     private List<RoleOptionVO> roles;

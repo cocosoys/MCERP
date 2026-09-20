@@ -1,8 +1,8 @@
 package com.github.cocosoys.mc.mcerp.controller;
 
-import com.github.cocosoys.mc.mcerp.entity.SysDictData;
-import com.github.cocosoys.mc.mcerp.entity.SysDictType;
-import com.github.cocosoys.mc.mcerp.service.SysDictService;
+import com.github.cocosoys.mc.mcerp.entity.ErpDictData;
+import com.github.cocosoys.mc.mcerp.entity.ErpDictType;
+import com.github.cocosoys.mc.mcerp.service.ErpDictService;
 import com.github.cocosoys.mc.soyshttpovermc.util.TableDataInfo;
 import com.github.cocosoys.mc.soyshttpovermc.annotations.ApiName;
 import com.github.cocosoys.mc.soyshttpovermc.annotations.ApiPermission;
@@ -18,14 +18,14 @@ import com.github.cocosoys.mc.soyshttpovermc.util.AjaxResult;
 
 /**
  * 字典管理（若依契约）：路由 /api/plugins/MCERP/system/dict/*。
- * 类型/数据 CRUD 全部委托 {@link SysDictService}。
+ * 类型/数据 CRUD 全部委托 {@link ErpDictService}。
  */
 @RequestMapping("/system/dict")
-public class SysDictController {
+public class ErpDictController {
 
-    private final SysDictService dictService;
+    private final ErpDictService dictService;
 
-    public SysDictController(SysDictService dictService) {
+    public ErpDictController(ErpDictService dictService) {
         this.dictService = dictService;
     }
 
@@ -51,14 +51,14 @@ public class SysDictController {
     @ApiName("新增字典类型")
     @ApiPermission("system:dict:add")
     @PostMapping("/type")
-    public AjaxResult typeAdd(@RequestBody SysDictType body) {
+    public AjaxResult typeAdd(@RequestBody ErpDictType body) {
         return dictService.typeAdd(body);
     }
 
     @ApiName("编辑字典类型")
     @ApiPermission("system:dict:edit")
     @PutMapping("/type/{dictId}")
-    public AjaxResult typeUpdate(@PathVariable(name = "dictId") String dictId, @RequestBody SysDictType body) {
+    public AjaxResult typeUpdate(@PathVariable(name = "dictId") String dictId, @RequestBody ErpDictType body) {
         return dictService.typeUpdate(dictId, body);
     }
 
@@ -112,14 +112,14 @@ public class SysDictController {
     @ApiName("新增字典数据")
     @ApiPermission("system:dict:add")
     @PostMapping("/data")
-    public AjaxResult dataAdd(@RequestBody SysDictData body) {
+    public AjaxResult dataAdd(@RequestBody ErpDictData body) {
         return dictService.dataAdd(body);
     }
 
     @ApiName("编辑字典数据")
     @ApiPermission("system:dict:edit")
     @PutMapping("/data/{dictCode}")
-    public AjaxResult dataUpdate(@PathVariable(name = "dictCode") String dictCode, @RequestBody SysDictData body) {
+    public AjaxResult dataUpdate(@PathVariable(name = "dictCode") String dictCode, @RequestBody ErpDictData body) {
         return dictService.dataUpdate(dictCode, body);
     }
 

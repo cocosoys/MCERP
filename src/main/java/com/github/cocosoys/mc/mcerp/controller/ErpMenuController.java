@@ -1,7 +1,7 @@
 package com.github.cocosoys.mc.mcerp.controller;
 
-import com.github.cocosoys.mc.mcerp.entity.SysMenu;
-import com.github.cocosoys.mc.mcerp.service.SysMenuService;
+import com.github.cocosoys.mc.mcerp.entity.ErpMenu;
+import com.github.cocosoys.mc.mcerp.service.ErpMenuService;
 import com.github.cocosoys.mc.soyshttpovermc.annotations.ApiName;
 import com.github.cocosoys.mc.soyshttpovermc.annotations.ApiPermission;
 import com.github.cocosoys.mc.soyshttpovermc.annotations.DeleteMapping;
@@ -15,14 +15,14 @@ import com.github.cocosoys.mc.soyshttpovermc.util.AjaxResult;
 
 /**
  * 菜单管理（若依契约）：路由 /api/plugins/MCERP/system/menu/*。
- * 合成树（菜单表 ⊕ 插件登记菜单）与 CRUD 全部委托 {@link SysMenuService}。
+ * 合成树（菜单表 ⊕ 插件登记菜单）与 CRUD 全部委托 {@link ErpMenuService}。
  */
 @RequestMapping("/system/menu")
-public class SysMenuController {
+public class ErpMenuController {
 
-    private final SysMenuService menuService;
+    private final ErpMenuService menuService;
 
-    public SysMenuController(SysMenuService menuService) {
+    public ErpMenuController(ErpMenuService menuService) {
         this.menuService = menuService;
     }
 
@@ -50,14 +50,14 @@ public class SysMenuController {
     @ApiName("新增菜单")
     @ApiPermission("system:menu:add")
     @PostMapping("")
-    public AjaxResult add(@RequestBody SysMenu menu) {
+    public AjaxResult add(@RequestBody ErpMenu menu) {
         return menuService.add(menu);
     }
 
     @ApiName("编辑菜单")
     @ApiPermission("system:menu:edit")
     @PutMapping("/{menuId}")
-    public AjaxResult update(@PathVariable(name = "menuId") String menuId, @RequestBody SysMenu menu) {
+    public AjaxResult update(@PathVariable(name = "menuId") String menuId, @RequestBody ErpMenu menu) {
         return menuService.update(menuId, menu);
     }
 

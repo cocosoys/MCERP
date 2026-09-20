@@ -1,10 +1,10 @@
 package com.github.cocosoys.mc.mcerp.impl;
 
-import com.github.cocosoys.mc.mcerp.EripRegistry;
-import com.github.cocosoys.mc.mcerp.entity.SysMenu;
-import com.github.cocosoys.mc.mcerp.entity.SysUser;
-import com.github.cocosoys.mc.mcerp.entity.vo.EripMenuVO;
-import com.github.cocosoys.mc.mcerp.entity.vo.EripModuleVO;
+import com.github.cocosoys.mc.mcerp.ErpRegistry;
+import com.github.cocosoys.mc.mcerp.entity.ErpMenu;
+import com.github.cocosoys.mc.mcerp.entity.ErpUser;
+import com.github.cocosoys.mc.mcerp.entity.vo.ErpMenuVO;
+import com.github.cocosoys.mc.mcerp.entity.vo.ErpModuleVO;
 import com.github.cocosoys.mc.mcerp.service.AuthService;
 import com.github.cocosoys.mc.soyshttpovermc.HttpOverMcPlugin;
 import com.github.cocosoys.mc.soyshttpovermc.orm.DATA;
@@ -32,9 +32,9 @@ import java.util.Set;
  */
 public class AuthServiceImpl implements AuthService {
 
-    private final EripRegistry registry;
+    private final ErpRegistry registry;
 
-    public AuthServiceImpl(EripRegistry registry) {
+    public AuthServiceImpl(ErpRegistry registry) {
         this.registry = registry;
     }
 
@@ -61,12 +61,12 @@ public class AuthServiceImpl implements AuthService {
         if (!registeredUsers.add(player.toLowerCase())) {
             return; // 本进程已登记过
         }
-        for (SysUser u : DATA.select(SysUser.class)) {
+        for (ErpUser u : DATA.select(ErpUser.class)) {
             if (player.equalsIgnoreCase(u.getUserName())) {
                 return; // 已存在
             }
         }
-        SysUser u = new SysUser();
+        ErpUser u = new ErpUser();
         u.setUserId(player);
         u.setUserName(player);
         u.setNickName(player);
@@ -113,7 +113,7 @@ public class AuthServiceImpl implements AuthService {
         user.put("userName", player);
         user.put("nickName", player);
         user.put("avatar", "");
-        SysUser u = findUser(player);
+        ErpUser u = findUser(player);
         user.put("sex", u == null ? "0" : u.getSex());
         user.put("email", u == null ? "" : u.getEmail());
         user.put("phonenumber", u == null ? "" : u.getPhonenumber());
@@ -122,8 +122,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public SysUser findUser(String userName) {
-        for (SysUser u : DATA.select(SysUser.class)) {
+    public ErpUser findUser(String userName) {
+        for (ErpUser u : DATA.select(ErpUser.class)) {
             if (userName != null && userName.equalsIgnoreCase(u.getUserName())) {
                 return u;
             }
@@ -153,13 +153,13 @@ public class AuthServiceImpl implements AuthService {
     public List<String> permissionsOf(CredentialPresentation credential) {
         List<String> result = new ArrayList<>();
         // 内置 + 自定义菜单权限（erp_menu 表驱动，含初始化数据中的按钮 F 权限标识）
-        for (SysMenu m : DATA.select(SysMenu.class)) {
+        for (ErpMenu m : DATA.select(ErpMenu.class)) {
             String perm = m.getPerms();
             if (perm != null && !perm.isEmpty() && !result.contains(perm) && hasPermission(credential, perm)) {
                 result.add(perm);
             }
         }
-        for (EripModuleVO m : registry.getModules()) {
+        for (ErpModuleVO m : registry.getModules()) {
             collectPerms(m.getPermission(), credential, result);
             collectMenuPerms(m.getChildren(), credential, result);
         }
@@ -172,9 +172,9 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
-    private void collectMenuPerms(List<EripMenuVO> menus,
+    private void collectMenuPerms(List<ErpMenuVO> menus,
                                   CredentialPresentation credential, List<String> out) {
-        for (EripMenuVO m : menus) {
+        for (ErpMenuVO m : menus) {
             collectPerms(m.getPerms(), credential, out);
             collectMenuPerms(m.getChildren(), credential, out);
         }

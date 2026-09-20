@@ -1,7 +1,7 @@
 package com.github.cocosoys.mc.mcerp.controller;
 
-import com.github.cocosoys.mc.mcerp.entity.SysNotice;
-import com.github.cocosoys.mc.mcerp.service.SysNoticeService;
+import com.github.cocosoys.mc.mcerp.entity.ErpNotice;
+import com.github.cocosoys.mc.mcerp.service.ErpNoticeService;
 import com.github.cocosoys.mc.soyshttpovermc.util.TableDataInfo;
 import com.github.cocosoys.mc.soyshttpovermc.annotations.ApiName;
 import com.github.cocosoys.mc.soyshttpovermc.annotations.ApiPermission;
@@ -19,14 +19,14 @@ import com.github.cocosoys.mc.soyshttpovermc.web.gateway.policy.auth.issuer.Cred
 
 /**
  * 通知公告（若依契约）：路由 /api/plugins/MCERP/system/notice/*。
- * CRUD 全部委托 {@link SysNoticeService}。
+ * CRUD 全部委托 {@link ErpNoticeService}。
  */
 @RequestMapping("/system/notice")
-public class SysNoticeController {
+public class ErpNoticeController {
 
-    private final SysNoticeService noticeService;
+    private final ErpNoticeService noticeService;
 
-    public SysNoticeController(SysNoticeService noticeService) {
+    public ErpNoticeController(ErpNoticeService noticeService) {
         this.noticeService = noticeService;
     }
 
@@ -57,14 +57,14 @@ public class SysNoticeController {
     @ApiName("新增公告")
     @ApiPermission("system:notice:add")
     @PostMapping("")
-    public AjaxResult add(@RequestBody SysNotice notice, CredentialPresentation credential) {
+    public AjaxResult add(@RequestBody ErpNotice notice, CredentialPresentation credential) {
         return noticeService.add(notice, credential);
     }
 
     @ApiName("编辑公告")
     @ApiPermission("system:notice:edit")
     @PutMapping("/{noticeId}")
-    public AjaxResult update(@PathVariable(name = "noticeId") String noticeId, @RequestBody SysNotice notice) {
+    public AjaxResult update(@PathVariable(name = "noticeId") String noticeId, @RequestBody ErpNotice notice) {
         return noticeService.update(noticeId, notice);
     }
 

@@ -14,6 +14,10 @@ erp_menu:
     icon: system
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '2':
     menu_id: '2'
@@ -27,6 +31,10 @@ erp_menu:
     icon: user
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '3':
     menu_id: '3'
@@ -40,6 +48,10 @@ erp_menu:
     icon: tree
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '4':
     menu_id: '4'
@@ -53,6 +65,10 @@ erp_menu:
     icon: dict
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '5':
     menu_id: '5'
@@ -66,6 +82,10 @@ erp_menu:
     icon: form
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '6':
     menu_id: '6'
@@ -79,6 +99,10 @@ erp_menu:
     icon: message
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '7':
     menu_id: '7'
@@ -92,6 +116,10 @@ erp_menu:
     icon: log
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '8':
     menu_id: '8'
@@ -105,6 +133,10 @@ erp_menu:
     icon: table
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '9':
     menu_id: '9'
@@ -118,6 +150,10 @@ erp_menu:
     icon: logininfor
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   # ===== 按钮（F，不进路由，仅权限标识）=====
   '10':
@@ -132,6 +168,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '11':
     menu_id: '11'
@@ -145,6 +185,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '12':
     menu_id: '12'
@@ -158,6 +202,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '13':
     menu_id: '13'
@@ -171,6 +219,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '14':
     menu_id: '14'
@@ -184,6 +236,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '15':
     menu_id: '15'
@@ -197,6 +253,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '16':
     menu_id: '16'
@@ -210,6 +270,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '17':
     menu_id: '17'
@@ -223,6 +287,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '18':
     menu_id: '18'
@@ -236,6 +304,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '19':
     menu_id: '19'
@@ -249,6 +321,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '20':
     menu_id: '20'
@@ -262,6 +338,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '21':
     menu_id: '21'
@@ -275,6 +355,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '22':
     menu_id: '22'
@@ -288,6 +372,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '23':
     menu_id: '23'
@@ -301,6 +389,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '24':
     menu_id: '24'
@@ -314,6 +406,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '25':
     menu_id: '25'
@@ -327,6 +423,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '26':
     menu_id: '26'
@@ -340,6 +440,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '27':
     menu_id: '27'
@@ -353,6 +457,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '28':
     menu_id: '28'
@@ -366,6 +474,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '29':
     menu_id: '29'
@@ -379,6 +491,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '30':
     menu_id: '30'
@@ -392,6 +508,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '31':
     menu_id: '31'
@@ -405,6 +525,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '32':
     menu_id: '32'
@@ -418,6 +542,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '33':
     menu_id: '33'
@@ -431,6 +559,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '34':
     menu_id: '34'
@@ -444,6 +576,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '35':
     menu_id: '35'
@@ -457,6 +593,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '36':
     menu_id: '36'
@@ -470,6 +610,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '37':
     menu_id: '37'
@@ -483,6 +627,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '38':
     menu_id: '38'
@@ -496,6 +644,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '39':
     menu_id: '39'
@@ -509,6 +661,10 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y
   '40':
     menu_id: '40'
@@ -522,4 +678,8 @@ erp_menu:
     icon: ''
     visible: '0'
     status: '0'
+    query: ''
+    route_name: ''
+    is_frame: '1'
+    is_cache: '0'
     builtin: Y

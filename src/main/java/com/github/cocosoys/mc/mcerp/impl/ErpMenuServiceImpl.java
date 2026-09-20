@@ -1,12 +1,12 @@
 package com.github.cocosoys.mc.mcerp.impl;
 
-import com.github.cocosoys.mc.mcerp.EripRegistry;
-import com.github.cocosoys.mc.mcerp.entity.SysMenu;
-import com.github.cocosoys.mc.mcerp.entity.vo.EripMenuVO;
-import com.github.cocosoys.mc.mcerp.entity.vo.EripModuleVO;
+import com.github.cocosoys.mc.mcerp.ErpRegistry;
+import com.github.cocosoys.mc.mcerp.entity.ErpMenu;
+import com.github.cocosoys.mc.mcerp.entity.vo.ErpMenuVO;
+import com.github.cocosoys.mc.mcerp.entity.vo.ErpModuleVO;
 import com.github.cocosoys.mc.mcerp.entity.vo.TreeselectVO;
 import com.github.cocosoys.mc.mcerp.service.OperLogService;
-import com.github.cocosoys.mc.mcerp.service.SysMenuService;
+import com.github.cocosoys.mc.mcerp.service.ErpMenuService;
 import com.github.cocosoys.mc.soyshttpovermc.orm.DATA;
 import com.github.cocosoys.mc.soyshttpovermc.util.AjaxResult;
 
@@ -18,15 +18,15 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * 菜单管理实现（从 SysMenuController 迁入）：
+ * 菜单管理实现（从 ErpMenuController 迁入）：
  * 合成树（菜单表 ⊕ 插件登记菜单）+ CRUD；内置菜单（builtin='Y'）为初始化数据不可改删。
  */
-public class SysMenuServiceImpl implements SysMenuService {
+public class ErpMenuServiceImpl implements ErpMenuService {
 
-    private final EripRegistry registry;
+    private final ErpRegistry registry;
     private final OperLogService operLog;
 
-    public SysMenuServiceImpl(EripRegistry registry, OperLogService operLog) {
+    public ErpMenuServiceImpl(ErpRegistry registry, OperLogService operLog) {
         this.registry = registry;
         this.operLog = operLog;
     }
@@ -66,7 +66,7 @@ public class SysMenuServiceImpl implements SysMenuService {
 
     @Override
     public AjaxResult detail(String menuId) {
-        SysMenu m = DATA.get(SysMenu.class, menuId);
+        ErpMenu m = DATA.get(ErpMenu.class, menuId);
         if (m != null) {
             return AjaxResult.success(m);
         }
@@ -75,8 +75,8 @@ public class SysMenuServiceImpl implements SysMenuService {
     }
 
     @Override
-    public AjaxResult add(SysMenu menu) {
-        SysMenu m = new SysMenu();
+    public AjaxResult add(ErpMenu menu) {
+        ErpMenu m = new ErpMenu();
         m.setMenuId(UUID.randomUUID().toString());
         m.setParentId(menu.getParentId() == null || menu.getParentId().isEmpty() ? "0" : menu.getParentId());
         m.setMenuName(menu.getMenuName() == null ? "" : menu.getMenuName());
@@ -98,8 +98,8 @@ public class SysMenuServiceImpl implements SysMenuService {
     }
 
     @Override
-    public AjaxResult update(String menuId, SysMenu menu) {
-        SysMenu m = menuId == null || menuId.isEmpty() ? null : DATA.get(SysMenu.class, menuId);
+    public AjaxResult update(String menuId, ErpMenu menu) {
+        ErpMenu m = menuId == null || menuId.isEmpty() ? null : DATA.get(ErpMenu.class, menuId);
         if (m == null) {
             return AjaxResult.error("菜单不存在");
         }
@@ -148,20 +148,20 @@ public class SysMenuServiceImpl implements SysMenuService {
             if (id.trim().isEmpty()) {
                 continue;
             }
-            SysMenu m = DATA.get(SysMenu.class, id.trim());
+            ErpMenu m = DATA.get(ErpMenu.class, id.trim());
             if (m == null) {
                 continue;
             }
             if (isBuiltinMenu(m)) {
                 continue; // 内置菜单为初始化数据，跳过
             }
-            DATA.deleteById(SysMenu.class, id.trim());
+            DATA.deleteById(ErpMenu.class, id.trim());
             operLog.record("菜单管理", "删除菜单", m.getMenuName(), "删除成功");
         }
         return AjaxResult.success("删除成功");
     }
 
-    private static boolean isBuiltinMenu(SysMenu menu) {
+    private static boolean isBuiltinMenu(ErpMenu menu) {
         return menu != null && "Y".equals(menu.getBuiltin());
     }
 
@@ -181,9 +181,9 @@ public class SysMenuServiceImpl implements SysMenuService {
     public List<Map<String, Object>> buildMenuTree() {
         List<Map<String, Object>> top = new ArrayList<>();
         // 1. 菜单表（内置初始化数据 + 自定义 erp_menu）：统一按 parentId 组装
-        List<SysMenu> menus = DATA.select(SysMenu.class);
-        menus.sort(Comparator.comparingInt(SysMenu::getOrderNum));
-        for (SysMenu c : menus) {
+        List<ErpMenu> menus = DATA.select(ErpMenu.class);
+        menus.sort(Comparator.comparingInt(ErpMenu::getOrderNum));
+        for (ErpMenu c : menus) {
             if ("0".equals(c.getParentId()) || "".equals(c.getParentId()) || c.getParentId() == null) {
                 Map<String, Object> cn = sysMenuNode(c);
                 cn.put("children", menuChildren(menus, c.getMenuId()));
@@ -191,7 +191,7 @@ public class SysMenuServiceImpl implements SysMenuService {
             }
         }
         // 2. 插件登记模块
-        for (EripModuleVO m : registry.getModules()) {
+        for (ErpModuleVO m : registry.getModules()) {
             Map<String, Object> mod = node(m.getId(), "0", m.getDisplayName(), "M", "/" + m.getId().toLowerCase(),
                     "Layout", m.getPermission(), m.getIcon() == null ? "link" : m.getIcon(), 100 + m.getSortOrder());
             mod.put("children", menuNodes(m.getChildren(), m.getId()));
@@ -200,9 +200,9 @@ public class SysMenuServiceImpl implements SysMenuService {
         return top;
     }
 
-    private static List<Map<String, Object>> menuChildren(List<SysMenu> all, String parentId) {
+    private static List<Map<String, Object>> menuChildren(List<ErpMenu> all, String parentId) {
         List<Map<String, Object>> out = new ArrayList<>();
-        for (SysMenu c : all) {
+        for (ErpMenu c : all) {
             if (parentId != null && parentId.equals(c.getParentId())) {
                 Map<String, Object> cn = sysMenuNode(c);
                 cn.put("children", menuChildren(all, c.getMenuId()));
@@ -212,7 +212,7 @@ public class SysMenuServiceImpl implements SysMenuService {
         return out;
     }
 
-    private static Map<String, Object> sysMenuNode(SysMenu c) {
+    private static Map<String, Object> sysMenuNode(ErpMenu c) {
         Map<String, Object> n = new LinkedHashMap<>();
         n.put("menuId", c.getMenuId());
         n.put("parentId", c.getParentId());
@@ -230,20 +230,20 @@ public class SysMenuServiceImpl implements SysMenuService {
         return n;
     }
 
-    private List<Map<String, Object>> menuNodes(List<EripMenuVO> menus, String parentId) {
+    private List<Map<String, Object>> menuNodes(List<ErpMenuVO> menus, String parentId) {
         List<Map<String, Object>> out = new ArrayList<>();
         if (menus == null) {
             return out;
         }
-        for (EripMenuVO m : menus) {
+        for (ErpMenuVO m : menus) {
             Map<String, Object> n = new LinkedHashMap<>();
-            n.put("menuId", parentId + "_" + (m.getId() == null ? m.getTitle() : m.getId()));
+            n.put("menuId", parentId + "_" + (m.getMenuId() == null ? m.getMenuName() : m.getMenuId()));
             n.put("parentId", parentId);
-            n.put("menuName", m.getTitle());
-            n.put("orderNum", m.getSortOrder());
-            n.put("path", m.getPath() == null ? m.getId() : m.getPath());
-            n.put("component", "iframe:" + (m.getUrl() == null ? "" : m.getUrl()));
-            n.put("menuType", m.getType() == null ? "C" : m.getType());
+            n.put("menuName", m.getMenuName());
+            n.put("orderNum", m.getOrderNum());
+            n.put("path", m.getPath() == null ? m.getMenuId() : m.getPath());
+            n.put("component", "iframe:" + (m.getComponent() == null ? "" : m.getComponent()));
+            n.put("menuType", m.getMenuType() == null ? "C" : m.getMenuType());
             n.put("perms", m.getPerms());
             n.put("icon", m.getIcon());
             n.put("visible", m.isVisible() ? "0" : "1");

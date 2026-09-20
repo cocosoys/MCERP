@@ -16,12 +16,18 @@ CREATE TABLE IF NOT EXISTS erp_menu (
     order_num  INT          NOT NULL DEFAULT 0,
     path       VARCHAR(255) DEFAULT '',
     component  VARCHAR(255) DEFAULT NULL,
+    query      VARCHAR(255) DEFAULT '',
+    route_name VARCHAR(200) DEFAULT '',
+    is_frame   CHAR(1)      DEFAULT '1',
+    is_cache   CHAR(1)      DEFAULT '0',
     menu_type  CHAR(1)      DEFAULT 'C',
     perms      VARCHAR(128) DEFAULT NULL,
     icon       VARCHAR(64)  DEFAULT NULL,
     visible    CHAR(1)      DEFAULT '0',
     status     CHAR(1)      DEFAULT '0',
-    builtin    CHAR(1)      DEFAULT 'N'
+    builtin    CHAR(1)      DEFAULT 'N',
+    create_time VARCHAR(32) DEFAULT NULL,
+    update_time VARCHAR(32) DEFAULT NULL
 );
 
 -- ---------- 2. 参数配置表 ----------
@@ -32,7 +38,8 @@ CREATE TABLE IF NOT EXISTS erp_config (
     config_value VARCHAR(255) DEFAULT '',
     config_type  CHAR(1)      DEFAULT 'N',
     remark       VARCHAR(255) DEFAULT NULL,
-    create_time  VARCHAR(32)  DEFAULT NULL
+    create_time  VARCHAR(32)  DEFAULT NULL,
+    update_time  VARCHAR(32)  DEFAULT NULL
 );
 
 -- ---------- 3. 字典类型表 ----------
@@ -42,7 +49,8 @@ CREATE TABLE IF NOT EXISTS erp_dict_type (
     dict_type   VARCHAR(64)  NOT NULL DEFAULT '',
     status      CHAR(1)      DEFAULT '0',
     remark      VARCHAR(255) DEFAULT NULL,
-    create_time VARCHAR(32)  DEFAULT NULL
+    create_time VARCHAR(32)  DEFAULT NULL,
+    update_time VARCHAR(32)  DEFAULT NULL
 );
 
 -- ---------- 4. 字典数据表 ----------
@@ -53,7 +61,9 @@ CREATE TABLE IF NOT EXISTS erp_dict_data (
     dict_value VARCHAR(128) NOT NULL DEFAULT '',
     dict_type  VARCHAR(64)  NOT NULL DEFAULT '',
     status     CHAR(1)      DEFAULT '0',
-    remark     VARCHAR(255) DEFAULT NULL
+    remark     VARCHAR(255) DEFAULT NULL,
+    create_time VARCHAR(32) DEFAULT NULL,
+    update_time VARCHAR(32) DEFAULT NULL
 );
 
 -- ---------- 5. 通知公告表 ----------
@@ -64,7 +74,8 @@ CREATE TABLE IF NOT EXISTS erp_notice (
     notice_content TEXT,
     status         CHAR(1)      DEFAULT '0',
     create_by      VARCHAR(64)  DEFAULT '',
-    create_time    VARCHAR(32)  DEFAULT NULL
+    create_time    VARCHAR(32)  DEFAULT NULL,
+    update_time    VARCHAR(32)  DEFAULT NULL
 );
 
 -- ---------- 6. 用户表 ----------
@@ -77,7 +88,8 @@ CREATE TABLE IF NOT EXISTS erp_user (
     sex          CHAR(1)      DEFAULT '0',
     status       CHAR(1)      DEFAULT '0',
     remark       VARCHAR(255) DEFAULT NULL,
-    create_time  VARCHAR(32)  DEFAULT NULL
+    create_time  VARCHAR(32)  DEFAULT NULL,
+    update_time  VARCHAR(32)  DEFAULT NULL
 );
 
 -- ---------- 7. 操作日志表 ----------
@@ -94,7 +106,9 @@ CREATE TABLE IF NOT EXISTS erp_oper_log (
     json_result    TEXT,
     status         INT          DEFAULT 0,
     error_msg      TEXT,
-    oper_time      VARCHAR(32)  DEFAULT NULL
+    oper_time      VARCHAR(32)  DEFAULT NULL,
+    create_time    VARCHAR(32)  DEFAULT NULL,
+    update_time    VARCHAR(32)  DEFAULT NULL
 );
 
 -- ---------- 8. 登录日志表 ----------
@@ -104,7 +118,9 @@ CREATE TABLE IF NOT EXISTS erp_logininfor (
     ipaddr     VARCHAR(64)  DEFAULT '',
     status     CHAR(1)      DEFAULT '0',
     msg        VARCHAR(255) DEFAULT '',
-    login_time VARCHAR(32)  DEFAULT NULL
+    login_time VARCHAR(32)  DEFAULT NULL,
+    create_time VARCHAR(32) DEFAULT NULL,
+    update_time VARCHAR(32) DEFAULT NULL
 );
 
 -- ============================================================================
@@ -133,47 +149,47 @@ INSERT IGNORE INTO erp_dict_data (dict_code, dict_sort, dict_label, dict_value, 
 ('7', 2, '未知', '2', 'sys_user_sex',         '0');
 
 -- 菜单（40 条：9 菜单节点 + 31 按钮权限；ID 为自然数，builtin='Y' 标记内置，控制器据此禁止修改/删除）
-INSERT IGNORE INTO erp_menu (menu_id, parent_id, menu_name, order_num, path, component, menu_type, perms, icon, visible, status, builtin) VALUES
-('1', '0', '系统管理', 1, '/system', 'Layout',                  'M', 'system:dir:view',                    'system',    '0', '0', 'Y'),
-('2', '1', '用户管理', 1, 'user',      'system/user/index',         'C', 'system:user:list',           'user',      '0', '0', 'Y'),
-('3', '1', '菜单管理', 2, 'menu',      'system/menu/index',         'C', 'system:menu:list',           'menu',      '0', '0', 'Y'),
-('4', '1', '字典管理', 3, 'dict',      'system/dict/index',         'C', 'system:dict:list',           'dict',      '0', '0', 'Y'),
-('5', '1', '参数设置', 4, 'config',    'system/config/index',       'C', 'system:config:list',         'config',    '0', '0', 'Y'),
-('6', '1', '通知公告', 5, 'notice',    'system/notice/index',       'C', 'system:notice:list',         'notice',    '0', '0', 'Y'),
-('7', '1', '日志管理', 6, 'log',       'Layout',                    'M', 'monitor:dir:view',                    'log',       '0', '0', 'Y'),
-('8', '7', '操作日志', 1, 'operlog',   'monitor/operlog/index',     'C', 'monitor:operlog:list',       'operlog',   '0', '0', 'Y'),
-('9', '7', '登录日志', 2, 'logininfor','monitor/logininfor/index',  'C', 'monitor:logininfor:list',    'logininfor','0', '0', 'Y'),
-('10', '2', '用户查询', 1, '', '', 'F', 'system:user:query',      '', '0', '0', 'Y'),
-('11', '2', '用户新增', 2, '', '', 'F', 'system:user:add',        '', '0', '0', 'Y'),
-('12', '2', '用户修改', 3, '', '', 'F', 'system:user:edit',       '', '0', '0', 'Y'),
-('13', '2', '用户删除', 4, '', '', 'F', 'system:user:remove',     '', '0', '0', 'Y'),
-('14', '2', '重置密码', 5, '', '', 'F', 'system:user:resetPwd',   '', '0', '0', 'Y'),
-('15', '2', '用户状态', 6, '', '', 'F', 'system:user:changeStatus','', '0', '0', 'Y'),
-('16', '2', '用户导出', 7, '', '', 'F', 'system:user:export',     '', '0', '0', 'Y'),
-('17', '3', '菜单查询', 1, '', '', 'F', 'system:menu:query',      '', '0', '0', 'Y'),
-('18', '3', '菜单新增', 2, '', '', 'F', 'system:menu:add',        '', '0', '0', 'Y'),
-('19', '3', '菜单修改', 3, '', '', 'F', 'system:menu:edit',       '', '0', '0', 'Y'),
-('20', '3', '菜单删除', 4, '', '', 'F', 'system:menu:remove',     '', '0', '0', 'Y'),
-('21', '4', '字典查询', 1, '', '', 'F', 'system:dict:query',      '', '0', '0', 'Y'),
-('22', '4', '字典新增', 2, '', '', 'F', 'system:dict:add',        '', '0', '0', 'Y'),
-('23', '4', '字典修改', 3, '', '', 'F', 'system:dict:edit',       '', '0', '0', 'Y'),
-('24', '4', '字典删除', 4, '', '', 'F', 'system:dict:remove',     '', '0', '0', 'Y'),
-('25', '5', '参数查询', 1, '', '', 'F', 'system:config:query',    '', '0', '0', 'Y'),
-('26', '5', '参数新增', 2, '', '', 'F', 'system:config:add',      '', '0', '0', 'Y'),
-('27', '5', '参数修改', 3, '', '', 'F', 'system:config:edit',     '', '0', '0', 'Y'),
-('28', '5', '参数删除', 4, '', '', 'F', 'system:config:remove',   '', '0', '0', 'Y'),
-('29', '6', '公告查询', 1, '', '', 'F', 'system:notice:query',    '', '0', '0', 'Y'),
-('30', '6', '公告新增', 2, '', '', 'F', 'system:notice:add',      '', '0', '0', 'Y'),
-('31', '6', '公告修改', 3, '', '', 'F', 'system:notice:edit',     '', '0', '0', 'Y'),
-('32', '6', '公告删除', 4, '', '', 'F', 'system:notice:remove',   '', '0', '0', 'Y'),
-('33', '8', '日志查询', 1, '', '', 'F', 'monitor:operlog:query',  '', '0', '0', 'Y'),
-('34', '8', '日志导出', 2, '', '', 'F', 'monitor:operlog:export', '', '0', '0', 'Y'),
-('35', '8', '日志删除', 3, '', '', 'F', 'monitor:operlog:remove', '', '0', '0', 'Y'),
-('36', '8', '日志清空', 4, '', '', 'F', 'monitor:operlog:clean',  '', '0', '0', 'Y'),
-('37', '9', '日志查询', 1, '', '', 'F', 'monitor:logininfor:query',  '', '0', '0', 'Y'),
-('38', '9', '日志导出', 2, '', '', 'F', 'monitor:logininfor:export', '', '0', '0', 'Y'),
-('39', '9', '日志删除', 3, '', '', 'F', 'monitor:logininfor:remove', '', '0', '0', 'Y'),
-('40', '9', '日志清空', 4, '', '', 'F', 'monitor:logininfor:clean',  '', '0', '0', 'Y');
+INSERT IGNORE INTO erp_menu (menu_id, parent_id, menu_name, order_num, path, component, query, route_name, is_frame, is_cache, menu_type, perms, icon, visible, status, builtin) VALUES
+('1', '0', '系统管理', 1, '/system', 'Layout', '', '', '1', '0',                  'M', 'system:dir:view',                    'system',    '0', '0', 'Y'),
+('2', '1', '用户管理', 1, 'user',      'system/user/index', '', '', '1', '0',         'C', 'system:user:list',           'user',      '0', '0', 'Y'),
+('3', '1', '菜单管理', 2, 'menu',      'system/menu/index', '', '', '1', '0',         'C', 'system:menu:list',           'menu',      '0', '0', 'Y'),
+('4', '1', '字典管理', 3, 'dict',      'system/dict/index', '', '', '1', '0',         'C', 'system:dict:list',           'dict',      '0', '0', 'Y'),
+('5', '1', '参数设置', 4, 'config',    'system/config/index', '', '', '1', '0',       'C', 'system:config:list',         'config',    '0', '0', 'Y'),
+('6', '1', '通知公告', 5, 'notice',    'system/notice/index', '', '', '1', '0',       'C', 'system:notice:list',         'notice',    '0', '0', 'Y'),
+('7', '1', '日志管理', 6, 'log',       'Layout', '', '', '1', '0',                    'M', 'monitor:dir:view',                    'log',       '0', '0', 'Y'),
+('8', '7', '操作日志', 1, 'operlog',   'monitor/operlog/index', '', '', '1', '0',     'C', 'monitor:operlog:list',       'operlog',   '0', '0', 'Y'),
+('9', '7', '登录日志', 2, 'logininfor','monitor/logininfor/index', '', '', '1', '0',  'C', 'monitor:logininfor:list',    'logininfor','0', '0', 'Y'),
+('10', '2', '用户查询', 1, '', '', '', '', '1', '0', 'F', 'system:user:query',      '', '0', '0', 'Y'),
+('11', '2', '用户新增', 2, '', '', '', '', '1', '0', 'F', 'system:user:add',        '', '0', '0', 'Y'),
+('12', '2', '用户修改', 3, '', '', '', '', '1', '0', 'F', 'system:user:edit',       '', '0', '0', 'Y'),
+('13', '2', '用户删除', 4, '', '', '', '', '1', '0', 'F', 'system:user:remove',     '', '0', '0', 'Y'),
+('14', '2', '重置密码', 5, '', '', '', '', '1', '0', 'F', 'system:user:resetPwd',   '', '0', '0', 'Y'),
+('15', '2', '用户状态', 6, '', '', '', '', '1', '0', 'F', 'system:user:changeStatus','', '0', '0', 'Y'),
+('16', '2', '用户导出', 7, '', '', '', '', '1', '0', 'F', 'system:user:export',     '', '0', '0', 'Y'),
+('17', '3', '菜单查询', 1, '', '', '', '', '1', '0', 'F', 'system:menu:query',      '', '0', '0', 'Y'),
+('18', '3', '菜单新增', 2, '', '', '', '', '1', '0', 'F', 'system:menu:add',        '', '0', '0', 'Y'),
+('19', '3', '菜单修改', 3, '', '', '', '', '1', '0', 'F', 'system:menu:edit',       '', '0', '0', 'Y'),
+('20', '3', '菜单删除', 4, '', '', '', '', '1', '0', 'F', 'system:menu:remove',     '', '0', '0', 'Y'),
+('21', '4', '字典查询', 1, '', '', '', '', '1', '0', 'F', 'system:dict:query',      '', '0', '0', 'Y'),
+('22', '4', '字典新增', 2, '', '', '', '', '1', '0', 'F', 'system:dict:add',        '', '0', '0', 'Y'),
+('23', '4', '字典修改', 3, '', '', '', '', '1', '0', 'F', 'system:dict:edit',       '', '0', '0', 'Y'),
+('24', '4', '字典删除', 4, '', '', '', '', '1', '0', 'F', 'system:dict:remove',     '', '0', '0', 'Y'),
+('25', '5', '参数查询', 1, '', '', '', '', '1', '0', 'F', 'system:config:query',    '', '0', '0', 'Y'),
+('26', '5', '参数新增', 2, '', '', '', '', '1', '0', 'F', 'system:config:add',      '', '0', '0', 'Y'),
+('27', '5', '参数修改', 3, '', '', '', '', '1', '0', 'F', 'system:config:edit',     '', '0', '0', 'Y'),
+('28', '5', '参数删除', 4, '', '', '', '', '1', '0', 'F', 'system:config:remove',   '', '0', '0', 'Y'),
+('29', '6', '公告查询', 1, '', '', '', '', '1', '0', 'F', 'system:notice:query',    '', '0', '0', 'Y'),
+('30', '6', '公告新增', 2, '', '', '', '', '1', '0', 'F', 'system:notice:add',      '', '0', '0', 'Y'),
+('31', '6', '公告修改', 3, '', '', '', '', '1', '0', 'F', 'system:notice:edit',     '', '0', '0', 'Y'),
+('32', '6', '公告删除', 4, '', '', '', '', '1', '0', 'F', 'system:notice:remove',   '', '0', '0', 'Y'),
+('33', '8', '日志查询', 1, '', '', '', '', '1', '0', 'F', 'monitor:operlog:query',  '', '0', '0', 'Y'),
+('34', '8', '日志导出', 2, '', '', '', '', '1', '0', 'F', 'monitor:operlog:export', '', '0', '0', 'Y'),
+('35', '8', '日志删除', 3, '', '', '', '', '1', '0', 'F', 'monitor:operlog:remove', '', '0', '0', 'Y'),
+('36', '8', '日志清空', 4, '', '', '', '', '1', '0', 'F', 'monitor:operlog:clean',  '', '0', '0', 'Y'),
+('37', '9', '日志查询', 1, '', '', '', '', '1', '0', 'F', 'monitor:logininfor:query',  '', '0', '0', 'Y'),
+('38', '9', '日志导出', 2, '', '', '', '', '1', '0', 'F', 'monitor:logininfor:export', '', '0', '0', 'Y'),
+('39', '9', '日志删除', 3, '', '', '', '', '1', '0', 'F', 'monitor:logininfor:remove', '', '0', '0', 'Y'),
+('40', '9', '日志清空', 4, '', '', '', '', '1', '0', 'F', 'monitor:logininfor:clean',  '', '0', '0', 'Y');
 
 -- 旧版初始化数据清理（曾用 00000000-0000-4000-8000-000000000xxx 格式 UUID 主键；
 -- 升级到自然数 ID 后需先清理旧记录再导入，否则内置数据重复两份）：

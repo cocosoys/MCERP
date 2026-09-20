@@ -18,7 +18,7 @@ import java.util.List;
  * </ul>
  */
 @Data
-public class EripModuleVO {
+public class ErpModuleVO {
 
     /** 注册键 = 插件名 */
     private String id;
@@ -33,7 +33,7 @@ public class EripModuleVO {
     private String homeUrl;
 
     /** 子菜单分层 */
-    private List<EripMenuVO> children = new ArrayList<>();
+    private List<ErpMenuVO> children = new ArrayList<>();
 
     /** 排序号 */
     private int sortOrder;

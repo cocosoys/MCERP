@@ -101,6 +101,13 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/../SOYSHTTPOverMC/core/target/SOYSHTTPOverMC-1_12-${soys.version}.jar</systemPath>
         </dependency>
+        <!-- jackson-annotations：主插件 JsonWriter/BaseEntity 消费 @JsonFormat 等注解（版本与主插件一致 2.17.2）。
+             compile scope → shade 进 MCERP jar，保证实体注解运行时类可解析（主插件 classloader 隔离不共享）。 -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.17.2</version>
+        </dependency>
         <!-- Lombok：编译期注解处理（@Data 实体 / @CustomLog 日志），不打包 -->
         <dependency>
             <groupId>org.projectlombok</groupId>

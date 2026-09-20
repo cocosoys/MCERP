@@ -10,5 +10,6 @@ import java.util.List;
 @Data
 public class SavePermsVO {
 
+    /** SOYS 本地权限节点列表（菜单 perms / 数据权限 / 模块权限，全量覆盖式保存） */
     private List<String> permissions;
 }

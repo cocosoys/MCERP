@@ -1,9 +1,9 @@
 package com.github.cocosoys.mc.mcerp.impl;
 
-import com.github.cocosoys.mc.mcerp.entity.SysConfig;
+import com.github.cocosoys.mc.mcerp.entity.ErpConfig;
 import com.github.cocosoys.mc.mcerp.service.AuthService;
 import com.github.cocosoys.mc.mcerp.service.OperLogService;
-import com.github.cocosoys.mc.mcerp.service.SysConfigService;
+import com.github.cocosoys.mc.mcerp.service.ErpConfigService;
 import com.github.cocosoys.mc.soyshttpovermc.util.PageUtils;
 import com.github.cocosoys.mc.soyshttpovermc.util.TableDataInfo;
 import com.github.cocosoys.mc.soyshttpovermc.orm.DATA;
@@ -11,26 +11,27 @@ import com.github.cocosoys.mc.soyshttpovermc.util.AjaxResult;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 /**
- * 参数设置实现（从 SysConfigController 迁入）：CRUD + 按 key 查询；
+ * 参数设置实现（从 ErpConfigController 迁入）：CRUD + 按 key 查询；
  * 内置参数（configType=Y）不可修改/删除。
  */
-public class SysConfigServiceImpl implements SysConfigService {
+public class ErpConfigServiceImpl implements ErpConfigService {
 
     private final OperLogService operLog;
 
-    public SysConfigServiceImpl(OperLogService operLog) {
+    public ErpConfigServiceImpl(OperLogService operLog) {
         this.operLog = operLog;
     }
 
     @Override
     public TableDataInfo list(Integer pageNum, Integer pageSize, String configKey, String configName) {
-        List<SysConfig> all = DATA.select(SysConfig.class);
-        List<SysConfig> filtered = new ArrayList<>();
-        for (SysConfig c : all) {
+        List<ErpConfig> all = DATA.select(ErpConfig.class);
+        List<ErpConfig> filtered = new ArrayList<>();
+        for (ErpConfig c : all) {
             if (configKey != null && !configKey.isEmpty() && !contains(c.getConfigKey(), configKey)) {
                 continue;
             }
@@ -39,13 +40,13 @@ public class SysConfigServiceImpl implements SysConfigService {
             }
             filtered.add(c);
         }
-        filtered.sort(Comparator.comparing(SysConfig::getCreateTime, Comparator.nullsLast(String::compareTo)).reversed());
+        filtered.sort(Comparator.comparing(ErpConfig::getCreateTime, Comparator.nullsLast(Date::compareTo)).reversed());
         return PageUtils.page(filtered, pageNum, pageSize);
     }
 
     @Override
     public AjaxResult detail(String configId) {
-        SysConfig c = DATA.get(SysConfig.class, configId);
+        ErpConfig c = DATA.get(ErpConfig.class, configId);
         if (c == null) {
             return AjaxResult.error("参数不存在");
         }
@@ -58,7 +59,7 @@ public class SysConfigServiceImpl implements SysConfigService {
             return AjaxResult.error("缺少 configKey");
         }
         // 若依契约：getConfigKey 的响应 msg 携带配置值（前端 user/index.vue 读 response.msg 作为初始密码）
-        for (SysConfig c : DATA.select(SysConfig.class)) {
+        for (ErpConfig c : DATA.select(ErpConfig.class)) {
             if (configKey.equals(c.getConfigKey())) {
                 AjaxResult ok = AjaxResult.success();
                 ok.put("msg", c.getConfigValue() == null ? "" : c.getConfigValue());
@@ -72,17 +73,17 @@ public class SysConfigServiceImpl implements SysConfigService {
     }
 
     @Override
-    public AjaxResult add(SysConfig config) {
+    public AjaxResult add(ErpConfig config) {
         String key = config.getConfigKey() == null ? "" : config.getConfigKey().trim();
         if (key.isEmpty()) {
             return AjaxResult.error("参数键名不能为空");
         }
-        for (SysConfig c : DATA.select(SysConfig.class)) {
+        for (ErpConfig c : DATA.select(ErpConfig.class)) {
             if (key.equals(c.getConfigKey())) {
                 return AjaxResult.error("参数键名已存在");
             }
         }
-        SysConfig c = new SysConfig();
+        ErpConfig c = new ErpConfig();
         c.setConfigId(UUID.randomUUID().toString());
         c.setConfigName(config.getConfigName() == null || config.getConfigName().isEmpty() ? key : config.getConfigName());
         c.setConfigKey(key);
@@ -96,8 +97,8 @@ public class SysConfigServiceImpl implements SysConfigService {
     }
 
     @Override
-    public AjaxResult update(String configId, SysConfig config) {
-        SysConfig c = configId == null || configId.isEmpty() ? null : DATA.get(SysConfig.class, configId);
+    public AjaxResult update(String configId, ErpConfig config) {
+        ErpConfig c = configId == null || configId.isEmpty() ? null : DATA.get(ErpConfig.class, configId);
         if (c == null) {
             return AjaxResult.error("参数不存在");
         }
@@ -127,11 +128,11 @@ public class SysConfigServiceImpl implements SysConfigService {
             if (id.trim().isEmpty()) {
                 continue;
             }
-            SysConfig c = DATA.get(SysConfig.class, id.trim());
+            ErpConfig c = DATA.get(ErpConfig.class, id.trim());
             if (c != null && "Y".equals(c.getConfigType())) {
                 return AjaxResult.error("系统内置参数不可删除");
             }
-            DATA.deleteById(SysConfig.class, id.trim());
+            DATA.deleteById(ErpConfig.class, id.trim());
             if (c != null) {
                 operLog.record("参数设置", "删除参数", c.getConfigKey(), "删除成功");
             }

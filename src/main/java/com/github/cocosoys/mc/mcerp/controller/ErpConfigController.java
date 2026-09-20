@@ -1,7 +1,7 @@
 package com.github.cocosoys.mc.mcerp.controller;
 
-import com.github.cocosoys.mc.mcerp.entity.SysConfig;
-import com.github.cocosoys.mc.mcerp.service.SysConfigService;
+import com.github.cocosoys.mc.mcerp.entity.ErpConfig;
+import com.github.cocosoys.mc.mcerp.service.ErpConfigService;
 import com.github.cocosoys.mc.soyshttpovermc.util.TableDataInfo;
 import com.github.cocosoys.mc.soyshttpovermc.annotations.ApiName;
 import com.github.cocosoys.mc.soyshttpovermc.annotations.ApiPermission;
@@ -17,14 +17,14 @@ import com.github.cocosoys.mc.soyshttpovermc.util.AjaxResult;
 
 /**
  * 参数设置（若依契约）：路由 /api/plugins/MCERP/system/config/*。
- * CRUD 全部委托 {@link SysConfigService}。
+ * CRUD 全部委托 {@link ErpConfigService}。
  */
 @RequestMapping("/system/config")
-public class SysConfigController {
+public class ErpConfigController {
 
-    private final SysConfigService configService;
+    private final ErpConfigService configService;
 
-    public SysConfigController(SysConfigService configService) {
+    public ErpConfigController(ErpConfigService configService) {
         this.configService = configService;
     }
 
@@ -55,14 +55,14 @@ public class SysConfigController {
     @ApiName("新增参数")
     @ApiPermission("system:config:add")
     @PostMapping("")
-    public AjaxResult add(@RequestBody SysConfig config) {
+    public AjaxResult add(@RequestBody ErpConfig config) {
         return configService.add(config);
     }
 
     @ApiName("编辑参数")
     @ApiPermission("system:config:edit")
     @PutMapping("/{configId}")
-    public AjaxResult update(@PathVariable(name = "configId") String configId, @RequestBody SysConfig config) {
+    public AjaxResult update(@PathVariable(name = "configId") String configId, @RequestBody ErpConfig config) {
         return configService.update(configId, config);
     }
 

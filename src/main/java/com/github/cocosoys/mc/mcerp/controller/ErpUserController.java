@@ -1,10 +1,10 @@
 package com.github.cocosoys.mc.mcerp.controller;
 
-import com.github.cocosoys.mc.mcerp.entity.SysUser;
+import com.github.cocosoys.mc.mcerp.entity.ErpUser;
 import com.github.cocosoys.mc.mcerp.entity.vo.AuthRoleSaveVO;
 import com.github.cocosoys.mc.mcerp.entity.vo.ChangeStatusVO;
 import com.github.cocosoys.mc.mcerp.entity.vo.SavePermsVO;
-import com.github.cocosoys.mc.mcerp.service.SysUserService;
+import com.github.cocosoys.mc.mcerp.service.ErpUserService;
 import com.github.cocosoys.mc.soyshttpovermc.util.TableDataInfo;
 import com.github.cocosoys.mc.soyshttpovermc.annotations.ApiName;
 import com.github.cocosoys.mc.soyshttpovermc.annotations.ApiPermission;
@@ -22,14 +22,14 @@ import com.github.cocosoys.mc.soyshttpovermc.web.gateway.policy.auth.issuer.Cred
 
 /**
  * 用户管理（若依契约）：路由 /api/plugins/MCERP/system/user/*。
- * 仅做参数绑定与权限声明，业务逻辑（CRUD、状态、角色/权限同步）全部委托 {@link SysUserService}。
+ * 仅做参数绑定与权限声明，业务逻辑（CRUD、状态、角色/权限同步）全部委托 {@link ErpUserService}。
  */
 @RequestMapping("/system/user")
-public class SysUserController {
+public class ErpUserController {
 
-    private final SysUserService userService;
+    private final ErpUserService userService;
 
-    public SysUserController(SysUserService userService) {
+    public ErpUserController(ErpUserService userService) {
         this.userService = userService;
     }
 
@@ -61,14 +61,14 @@ public class SysUserController {
     @ApiName("新增用户")
     @ApiPermission("system:user:add")
     @PostMapping("")
-    public AjaxResult add(@RequestBody SysUser user) {
+    public AjaxResult add(@RequestBody ErpUser user) {
         return userService.add(user);
     }
 
     @ApiName("编辑用户")
     @ApiPermission("system:user:edit")
     @PutMapping("/{userId}")
-    public AjaxResult update(@PathVariable(name = "userId") String userId, @RequestBody SysUser user) {
+    public AjaxResult update(@PathVariable(name = "userId") String userId, @RequestBody ErpUser user) {
         return userService.update(userId, user);
     }
 
