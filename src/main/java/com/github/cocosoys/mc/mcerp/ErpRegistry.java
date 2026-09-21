@@ -19,7 +19,7 @@ import java.util.Set;
  * <p>设计理念：MCERP 是主插件 {@code SoysExpansion.REGISTERED} 的投影者——
  * 模块注册生命周期完全由主插件骨架管理（register/unregister/owner），本类只维护
  * "当前有哪些 ERP 模块"的轻量索引（identifier → owner 插件名）。模块内容
- * （menus()/routeTable()）在菜单/路由合成时<b>实时</b>从 REGISTERED 反查实例组装，
+ * （menus()/menusTable()）在菜单/路由合成时<b>实时</b>从 REGISTERED 反查实例组装，
  * 不做任何内容缓存——无陈旧、无残留、单一事实源。</p>
  *
  * <ul>
@@ -40,7 +40,7 @@ public class ErpRegistry {
      *
      * <p>基于当前投影索引架构：模块注册生命周期由主插件 {@code SoysExpansion.REGISTERED}
      * 管理（register/unregister/owner），本方法只记录"该模块属于 ERP 索引"的轻量标记
-     * （identifier）；模块内容（menus()/routeTable()）在菜单/路由合成时实时从 REGISTERED
+     * （identifier）；模块内容（menus()/menusTable()）在菜单/路由合成时实时从 REGISTERED
      * 反查实例组装，不做任何内容缓存。</p>
      *
      * <p>由 {@link McerpExpansion#onRegister()}（主通道）与 /mcerp reload、/soyshttp reload
@@ -112,7 +112,7 @@ public class ErpRegistry {
      * 已登记模块列表（按 sortOrder 升序）。
      *
      * <p>合成时按 id 实时从 {@code SoysExpansion.REGISTERED} 反查实例并组装 VO
-     * （menus()/routeTable() 即时生效）；索引有但实例已不在（极端时序残留）→
+     * （menus()/menusTable() 即时生效）；索引有但实例已不在（极端时序残留）→
      * 跳过该条，下次 reload 自动清。</p>
      */
     public synchronized List<ErpModuleVO> getModules() {

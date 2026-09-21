@@ -11,8 +11,8 @@ import java.util.function.Consumer;
 /**
  * ERP 菜单/路由声明式构建器（类 YAML 嵌套）。
  *
- * <p>由 {@link McerpExpansion#menus()} / {@link McerpExpansion#routeTable()} 返回，
- * 覆写者用 {@code dir/menu/perm/route} 链式声明，层级由 lambda 缩进（或 {@link #up()}）表达。
+ * <p>由 {@link McerpExpansion#menus()} 返回（menusTable() 直接返回 {@link List}&lt;{@link ErpMenuVO}&gt;，
+ * 不经本构建器），覆写者用 {@code dir/menu/perm/route} 链式声明，层级由 lambda 缩进（或 {@link #up()}）表达。
  * 全部属性直接使用 {@link ErpMenuVO}（继承 {@link com.github.cocosoys.mc.mcerp.entity.ErpMenu}）
  * 的表字段名：menuId / menuName / icon / menuType / path / component / perms / visible / orderNum 等。
  *
@@ -21,7 +21,7 @@ import java.util.function.Consumer;
  *     return ErpMenus.create()
  *         .dir("system", "系统管理", "system", d -> d        // M 目录，lambda 内为子级
  *             .menu("user", "用户列表", "user")              // C 菜单（叶子页面）
- *                 .perm("soys.erp.user.list")               // F 按钮（挂到最近声明的菜单下）
+ *                 .perm("soys.erp.user.list")               // F 按钮（挂到当前层级，与 menu 平级）
  *                 .perm("soys.erp.user.add")
  *             .menu("group", "权限组列表", "lock"))
  *         .menu("home", "首页", "home").component("erp/home"); // 顶层叶子
@@ -60,10 +60,16 @@ import java.util.function.Consumer;
  */
 public final class ErpMenus {
 
+    /** 根节点列表（当前栈为空时 attach 的节点落在根部）。 */
     private final List<ErpMenuVO> roots = new ArrayList<>();
+
+    /** 层级栈：dir 进入子级上下文时压栈，{@link #up()} / lambda 结束弹栈；栈顶即当前父节点。 */
     private final Deque<ErpMenuVO> stack = new ArrayDeque<>();
+
+    /** 最近一次声明/attach 的节点（链式 setter 的作用目标）。 */
     private ErpMenuVO last;
 
+    /** 私有构造器：统一经 {@link #create()} 创建（构建器无共享状态）。 */
     private ErpMenus() {
     }
 
@@ -262,8 +268,10 @@ public final class ErpMenus {
      */
     public static final class MenuSpec {
 
+        /** 被填充的目标节点（spec 所有 setter 最终写入该节点） */
         private final ErpMenuVO node;
 
+        /** 私有构造器：由 {@code dir/menu/perm(Consumer<MenuSpec>)} 传入待填充节点。 */
         private MenuSpec(ErpMenuVO node) {
             this.node = node;
         }
@@ -373,6 +381,15 @@ public final class ErpMenus {
 
     // ===== 内部 =====
 
+    /**
+     * 新建节点并初始化核心表字段。
+     *
+     * @param menuId   菜单 ID（表字段 menu_id）
+     * @param menuName 菜单名称（表字段 menu_name）
+     * @param menuType 菜单类型（表字段 menu_type：M 目录 / C 菜单 / F 按钮）
+     * @param icon     图标（表字段 icon，可空）
+     * @return 已初始化的节点 VO
+     */
     private ErpMenuVO node(String menuId, String menuName, String menuType, String icon) {
         ErpMenuVO node = new ErpMenuVO();
         node.setMenuId(menuId);
@@ -382,6 +399,12 @@ public final class ErpMenus {
         return node;
     }
 
+    /**
+     * 将节点挂入当前层级：栈非空 → 作为栈顶（当前父节点）的子节点；栈空 → 加入根节点列表。
+     * 同时更新 {@link #last}，使后续链式 setter 作用于该节点。
+     *
+     * @param node 待挂载节点
+     */
     private void attach(ErpMenuVO node) {
         if (!stack.isEmpty()) {
             stack.peek().getChildren().add(node);

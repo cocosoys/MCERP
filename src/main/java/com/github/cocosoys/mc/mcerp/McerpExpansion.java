@@ -19,7 +19,7 @@ import java.util.List;
  *   <li>SoysExpansion 骨架自动执行：端点批量登记（/api/plugins/&lt;id&gt;/*）、页面托管
  *       （/web/plugins/&lt;id&gt;/*）、数据层初始化（{@code dataRoots()/sqlRoots()/seedData()/
  *       schemaVersion()}，主插件内置事务 + meta 幂等）、CORS、冲突检测与失败回滚；</li>
- *   <li>本类 {@link #onRegister()} 默认实现：把模块（identifier/displayName/menus()/routeTable()…）
+ *   <li>本类 {@link #onRegister()} 默认实现：把模块（identifier/displayName/menus()/menusTable()…）
  *       登记到 MCERP {@link ErpRegistry} → 菜单/路由实时合成（即安即生效）；</li>
  *   <li>{@link #onUnregister()} 默认实现：摘除 ERP 登记（卸载同步清理）。</li>
  * </ul>
@@ -34,7 +34,7 @@ import java.util.List;
  *                 .menu("user", "用户列表", "user").perm("soys.erp.user.list")
  *                 .menu("group", "权限组列表", "lock"))
  *             .menu("home", "首页", "home").component("erp/home");
- *     }                                                        // 或 routeTable()
+ *     }                                                        // 或 menusTable()
  *     &#64;Override protected String[] dataRoots() { return new String[]{"data"}; }  // 继承自 SoysExpansion
  * }
  * // onEnable:
@@ -90,10 +90,14 @@ public abstract class McerpExpansion extends SoysExpansion {
     }
 
     /**
-     * 路由对照表（path→url 便捷生成 C 菜单；与 menus() 二选一，menus() 优先）。
+     * 菜单对照表（直接返回 {@link List}&lt;{@link ErpMenuVO}&gt; 树状结构；与 {@link #menus()} 二选一，{@link #menus()} 优先）。
+     *
+     * <p>与 DSL 构建器不同，本钩子让用户自行通过 {@code new ErpMenuVO()} 拼接树：
+     * 逐节点设置表字段（menuId/menuName/menuType/parentId/orderNum/path/component/perms/icon/visible…），
+     * 子节点放入父节点 {@code children} 列表即形成层级。
      * 选填项，若你希望通过数据库新增的方式，请向用户提供数据库代码(yml/sql)
      */
-    protected ErpMenus routeTable() {
+    protected List<ErpMenuVO> menusTable() {
         return null;
     }
 
@@ -137,7 +141,7 @@ public abstract class McerpExpansion extends SoysExpansion {
     // ===== 登记数据组装（onRegister 与 reload 兜底补登记共用）=====
 
     /**
-     * 组装 ErpModuleVO（id = getIdentifier()，菜单 = menus() 或 routeTable()）。
+     * 组装 ErpModuleVO（id = getIdentifier()，菜单 = menus() 或 menusTable()）。
      */
     public ErpModuleVO toModuleVO() {
         ErpModuleVO vo = new ErpModuleVO();
@@ -150,8 +154,10 @@ public abstract class McerpExpansion extends SoysExpansion {
         ErpMenus ms = menus();
         List<ErpMenuVO> children = ms == null ? null : ms.build();
         if (children == null || children.isEmpty()) {
-            ErpMenus rs = routeTable();
-            children = rs == null ? null : rs.build();
+            List<ErpMenuVO> direct = menusTable();
+            if (direct != null && !direct.isEmpty()) {
+                children = direct;
+            }
         }
         if (children != null) {
             vo.getChildren().addAll(children);
