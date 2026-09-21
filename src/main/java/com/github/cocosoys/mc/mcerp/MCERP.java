@@ -1,6 +1,7 @@
 package com.github.cocosoys.mc.mcerp;
 
 import com.github.cocosoys.mc.mcerp.entity.vo.ErpModuleVO;
+import com.github.cocosoys.mc.mcerp.i18n.McerpI18n;
 import com.github.cocosoys.mc.soyshttpovermc.HttpOverMcPlugin;
 import com.github.cocosoys.mc.soyshttpovermc.api.SoysExpansion;
 import com.github.cocosoys.mc.soyshttpovermc.api.event.SoysReadyEvent;
@@ -42,6 +43,7 @@ public class MCERP extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         instance = this;
+        McerpI18n.register(this); // 注册语言包到主插件 I18n（resources/language/zh_cn.yml）
         McerpExpansion.setMcerp(this); // 供附属 ERP 模块（McerpExpansion 子类）登记用
         registry = new ErpRegistry();
         getServer().getPluginManager().registerEvents(this, this);
@@ -58,7 +60,7 @@ public class MCERP extends JavaPlugin implements Listener {
         if (expansion != null) {
             expansion.unregister(); // SoysExpansion 精确反注册：批量端点 + expansion:MCERP 页面
         }
-        log.info("已禁用");
+        log.infoT("mcerp.log.plugin-disabled", "已禁用");
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -78,7 +80,7 @@ public class MCERP extends JavaPlugin implements Listener {
         }
         expansion = new McErpHostExpansion(instance);
         if (!expansion.register()) {
-            log.warn("McErpHostExpansion 注册失败：检查 identifier 冲突 / SOYS bootstrap 未就绪");
+            log.warnT("mcerp.log.host-register-fail", "McErpHostExpansion 注册失败：检查 identifier 冲突 / SOYS bootstrap 未就绪");
             expansion = null; // 失败置空，允许后续事件重试
             return;
         }
@@ -87,8 +89,8 @@ public class MCERP extends JavaPlugin implements Listener {
         if (soys != null && soys.getApi() != null) {
             soys.getApi().registerReloadHook(this::mcerpReload);
         }
-        log.info("SOYS 接入完成：SoysExpansion 门户注册（路由） + dist 托管（expansion:MCERP）");
-        log.info("已启用 (ERP 统一中控)");
+        log.infoT("mcerp.log.soys-ready", "SOYS 接入完成：SoysExpansion 门户注册（路由） + dist 托管（expansion:MCERP）");
+        log.infoT("mcerp.log.enabled", "已启用 (ERP 统一中控)");
     }
 
     /**
@@ -111,7 +113,7 @@ public class MCERP extends JavaPlugin implements Listener {
         for (McerpExpansion e : exps) {
             added += registry.registerModule(e);
         }
-        log.info("ERP 模块索引重建完成（移除残留 " + removed + "，新增 " + added + "）");
+        log.infoT("mcerp.log.rebuild-done", "ERP 模块索引重建完成（移除残留 {0}，新增 {1}）", removed, added);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -125,17 +127,17 @@ public class MCERP extends JavaPlugin implements Listener {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length > 0 && "reload".equalsIgnoreCase(args[0])) {
             mcerpReload(); // 以 SoysExpansion.REGISTERED 为准重建（清理残留 + 补登记），已无本地化文件可重载
-            sender.sendMessage("§a[MCERP] 注册中心已重载");
+            sender.sendMessage(McerpI18n.t("mcerp.cmd.reloaded", "§a[MCERP] 注册中心已重载"));
             return true;
         }
         if (args.length > 0 && "list".equalsIgnoreCase(args[0])) {
-            sender.sendMessage("§a[MCERP] 已登记模块 (" + registry.getModules().size() + "):");
+            sender.sendMessage(McerpI18n.t("mcerp.cmd.module-count", "§a[MCERP] 已登记模块 ({0}):", registry.getModules().size()));
             for (ErpModuleVO m : registry.getModules()) {
-                sender.sendMessage("§7  - §f" + m.getId() + " §8(" + m.getDisplayName() + ")");
+                sender.sendMessage(McerpI18n.t("mcerp.cmd.module-item", "§7  - §f{0} §8({1})", m.getId(), m.getDisplayName()));
             }
             return true;
         }
-        sender.sendMessage("§a[MCERP] 用法: /mcerp reload | /mcerp list");
+        sender.sendMessage(McerpI18n.t("mcerp.cmd.usage", "§a[MCERP] 用法: /mcerp reload | /mcerp list"));
         return true;
     }
 

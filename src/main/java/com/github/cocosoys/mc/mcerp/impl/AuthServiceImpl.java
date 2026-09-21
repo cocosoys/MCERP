@@ -1,5 +1,7 @@
 package com.github.cocosoys.mc.mcerp.impl;
 
+import static com.github.cocosoys.mc.mcerp.i18n.McerpI18n.t;
+
 import com.github.cocosoys.mc.mcerp.ErpRegistry;
 import com.github.cocosoys.mc.mcerp.entity.ErpMenu;
 import com.github.cocosoys.mc.mcerp.entity.ErpUser;
@@ -74,7 +76,7 @@ public class AuthServiceImpl implements AuthService {
         u.setPhonenumber("");
         u.setSex("0");
         u.setStatus("0");
-        u.setRemark("首次进入 ERP 自动登记");
+        u.setRemark(t("mcerp.user.auto-register-remark", "首次进入 ERP 自动登记"));
         u.setCreateTime(AuthService.now());
         DATA.insert(u);
     }
@@ -95,7 +97,7 @@ public class AuthServiceImpl implements AuthService {
     public AjaxResult getInfo(CredentialPresentation credential) {
         String player = currentPlayer(credential);
         if (player == null) {
-            return AjaxResult.error("未登录");
+            return AjaxResult.error(t("mcerp.common.not-logged-in", "未登录"));
         }
         // RuoYi 契约：user/roles/permissions 放顶层，前端 store/modules/user.js 直接读 res.user/res.roles/res.permissions
         AjaxResult ok = AjaxResult.success();

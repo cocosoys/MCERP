@@ -1,5 +1,7 @@
 package com.github.cocosoys.mc.mcerp.impl;
 
+import static com.github.cocosoys.mc.mcerp.i18n.McerpI18n.t;
+
 import com.github.cocosoys.mc.mcerp.entity.ErpLogininfor;
 import com.github.cocosoys.mc.mcerp.entity.ErpOperLog;
 import com.github.cocosoys.mc.mcerp.service.ErpLogService;
@@ -40,14 +42,14 @@ public class ErpLogServiceImpl implements ErpLogService {
     @Override
     public AjaxResult operlogRemove(String operIds) {
         if (operIds == null || operIds.isEmpty()) {
-            return AjaxResult.error("缺少 operId");
+            return AjaxResult.error(t("mcerp.log.missing-operId", "缺少 operId"));
         }
         for (String id : operIds.split(",")) {
             if (!id.trim().isEmpty()) {
                 DATA.deleteById(ErpOperLog.class, id.trim());
             }
         }
-        return AjaxResult.success("删除成功");
+        return AjaxResult.success(t("mcerp.common.delete-success", "删除成功"));
     }
 
     @Override
@@ -55,7 +57,7 @@ public class ErpLogServiceImpl implements ErpLogService {
         for (ErpOperLog l : DATA.select(ErpOperLog.class)) {
             DATA.deleteById(ErpOperLog.class, l.getOperId());
         }
-        return AjaxResult.success("清空成功");
+        return AjaxResult.success(t("mcerp.common.clear-success", "清空成功"));
     }
 
     // ===== 登录日志 =====
@@ -80,14 +82,14 @@ public class ErpLogServiceImpl implements ErpLogService {
     @Override
     public AjaxResult logininforRemove(String infoIds) {
         if (infoIds == null || infoIds.isEmpty()) {
-            return AjaxResult.error("缺少 infoId");
+            return AjaxResult.error(t("mcerp.log.missing-infoId", "缺少 infoId"));
         }
         for (String id : infoIds.split(",")) {
             if (!id.trim().isEmpty()) {
                 DATA.deleteById(ErpLogininfor.class, id.trim());
             }
         }
-        return AjaxResult.success("删除成功");
+        return AjaxResult.success(t("mcerp.common.delete-success", "删除成功"));
     }
 
     @Override
@@ -95,12 +97,12 @@ public class ErpLogServiceImpl implements ErpLogService {
         for (ErpLogininfor l : DATA.select(ErpLogininfor.class)) {
             DATA.deleteById(ErpLogininfor.class, l.getInfoId());
         }
-        return AjaxResult.success("清空成功");
+        return AjaxResult.success(t("mcerp.common.clear-success", "清空成功"));
     }
 
     @Override
     public AjaxResult unlock(String userName) {
-        return AjaxResult.success("解锁成功（由 AuthMe 管理）");
+        return AjaxResult.success(t("mcerp.log.unlock-success", "解锁成功（由 AuthMe 管理）"));
     }
 
     // ===== 内部 =====

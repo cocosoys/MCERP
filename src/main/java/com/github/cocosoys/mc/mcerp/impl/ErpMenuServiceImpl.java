@@ -1,5 +1,7 @@
 package com.github.cocosoys.mc.mcerp.impl;
 
+import static com.github.cocosoys.mc.mcerp.i18n.McerpI18n.t;
+
 import com.github.cocosoys.mc.mcerp.ErpRegistry;
 import com.github.cocosoys.mc.mcerp.entity.ErpMenu;
 import com.github.cocosoys.mc.mcerp.entity.vo.ErpMenuVO;
@@ -71,7 +73,7 @@ public class ErpMenuServiceImpl implements ErpMenuService {
             return AjaxResult.success(m);
         }
         // 插件登记菜单为代码声明，无实体记录——返回 404 语义由前端提示
-        return AjaxResult.error("仅可查看菜单表记录（插件菜单为代码声明）");
+        return AjaxResult.error(t("mcerp.menu.table-only", "仅可查看菜单表记录（插件菜单为代码声明）"));
     }
 
     @Override
@@ -90,21 +92,21 @@ public class ErpMenuServiceImpl implements ErpMenuService {
         m.setStatus(menu.getStatus() == null || menu.getStatus().isEmpty() ? "0" : menu.getStatus());
         m.setBuiltin("N"); // 运行时新增一律为自定义菜单
         if (m.getMenuName().isEmpty()) {
-            return AjaxResult.error("菜单名称不能为空");
+            return AjaxResult.error(t("mcerp.menu.name-empty", "菜单名称不能为空"));
         }
         DATA.insert(m);
-        operLog.record("菜单管理", "新增菜单", m.getMenuName(), "新增成功");
-        return AjaxResult.success("新增成功");
+        operLog.record(t("mcerp.operlog.module.menu", "菜单管理"), t("mcerp.operlog.action.add-menu", "新增菜单"), m.getMenuName(), t("mcerp.common.add-success", "新增成功"));
+        return AjaxResult.success(t("mcerp.common.add-success", "新增成功"));
     }
 
     @Override
     public AjaxResult update(String menuId, ErpMenu menu) {
         ErpMenu m = menuId == null || menuId.isEmpty() ? null : DATA.get(ErpMenu.class, menuId);
         if (m == null) {
-            return AjaxResult.error("菜单不存在");
+            return AjaxResult.error(t("mcerp.menu.not-found", "菜单不存在"));
         }
         if (isBuiltinMenu(m)) {
-            return AjaxResult.error("内置菜单为初始化数据，不可编辑");
+            return AjaxResult.error(t("mcerp.menu.builtin-readonly", "内置菜单为初始化数据，不可编辑"));
         }
         if (menu.getParentId() != null) {
             m.setParentId(menu.getParentId());
@@ -135,14 +137,14 @@ public class ErpMenuServiceImpl implements ErpMenuService {
             m.setStatus(menu.getStatus());
         }
         DATA.updateById(m);
-        operLog.record("菜单管理", "修改菜单", m.getMenuName(), "修改成功");
-        return AjaxResult.success("修改成功");
+        operLog.record(t("mcerp.operlog.module.menu", "菜单管理"), t("mcerp.operlog.action.edit-menu", "修改菜单"), m.getMenuName(), t("mcerp.common.edit-success", "修改成功"));
+        return AjaxResult.success(t("mcerp.common.edit-success", "修改成功"));
     }
 
     @Override
     public AjaxResult remove(String menuIds) {
         if (menuIds == null || menuIds.isEmpty()) {
-            return AjaxResult.error("缺少 menuId");
+            return AjaxResult.error(t("mcerp.menu.missing-id", "缺少 menuId"));
         }
         for (String id : menuIds.split(",")) {
             if (id.trim().isEmpty()) {
@@ -156,9 +158,9 @@ public class ErpMenuServiceImpl implements ErpMenuService {
                 continue; // 内置菜单为初始化数据，跳过
             }
             DATA.deleteById(ErpMenu.class, id.trim());
-            operLog.record("菜单管理", "删除菜单", m.getMenuName(), "删除成功");
+            operLog.record(t("mcerp.operlog.module.menu", "菜单管理"), t("mcerp.operlog.action.delete-menu", "删除菜单"), m.getMenuName(), t("mcerp.common.delete-success", "删除成功"));
         }
-        return AjaxResult.success("删除成功");
+        return AjaxResult.success(t("mcerp.common.delete-success", "删除成功"));
     }
 
     private static boolean isBuiltinMenu(ErpMenu menu) {
@@ -168,7 +170,7 @@ public class ErpMenuServiceImpl implements ErpMenuService {
     @Override
     public AjaxResult updateSort() {
         // 自定义菜单排序（简化：仅回执成功）
-        return AjaxResult.success("操作成功");
+        return AjaxResult.success(t("mcerp.common.operation-success", "操作成功"));
     }
 
     @Override

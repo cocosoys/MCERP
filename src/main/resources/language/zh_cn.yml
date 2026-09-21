@@ -1,0 +1,115 @@
+# ============================================================
+# MCERP 语言包（简体中文）
+# 由主插件 SOYSHTTPOverMC 的 I18n 机制加载：
+#   MCERP.onEnable → McerpI18n.register → I18n.registerLanguageSource(...)
+# key 统一 mcerp. 前缀（合并进主插件默认作用域，避免键冲突）
+# 占位符：{0} {1} ...（与 I18n.t 的 args 对应）
+# ============================================================
+
+# ---------- 通用 ----------
+mcerp.common.add-success: 新增成功
+mcerp.common.edit-success: 修改成功
+mcerp.common.delete-success: 删除成功
+mcerp.common.operation-success: 操作成功
+mcerp.common.refresh-success: 刷新成功
+mcerp.common.clear-success: 清空成功
+mcerp.common.not-logged-in: 未登录
+
+# ---------- 用户管理 ----------
+mcerp.user.not-found: 用户不存在
+mcerp.user.username-empty: 用户名不能为空
+mcerp.user.username-exists: 用户名已存在
+mcerp.user.missing-userId: 缺少 userId
+mcerp.user.cannot-delete-self: 不能删除当前登录账号
+mcerp.user.password-authme: 密码由游戏内 AuthMe 管理，请在游戏中使用 /changepassword 修改
+mcerp.user.soys-perm-unavailable: SOYS 权限存储不可用
+mcerp.user.role-sync-success: 角色同步成功
+mcerp.user.missing-username: 缺少用户名
+mcerp.user.perm-sync-success: 权限同步成功
+mcerp.user.avatar-not-enabled: 头像上传暂未启用（SOYS 上传接口未接入）
+mcerp.user.rolegroup-op: 超级管理员
+mcerp.user.rolegroup-player: 普通玩家
+mcerp.user.postgroup: ERP 后台
+mcerp.user.auto-register-remark: 首次进入 ERP 自动登记
+
+# ---------- 通知公告 ----------
+mcerp.notice.not-found: 公告不存在
+mcerp.notice.title-empty: 公告标题不能为空
+mcerp.notice.missing-id: 缺少 noticeId
+
+# ---------- 日志管理 ----------
+mcerp.log.missing-operId: 缺少 operId
+mcerp.log.missing-infoId: 缺少 infoId
+mcerp.log.unlock-success: 解锁成功（由 AuthMe 管理）
+
+# ---------- 字典管理 ----------
+mcerp.dict.type-not-found: 字典类型不存在
+mcerp.dict.type-code-empty: 字典类型编码不能为空
+mcerp.dict.type-exists: 字典类型已存在
+mcerp.dict.missing-id: 缺少 dictId
+mcerp.dict.data-not-found: 字典数据不存在
+mcerp.dict.type-empty: 字典类型不能为空
+mcerp.dict.missing-code: 缺少 dictCode
+
+# ---------- 菜单管理 ----------
+mcerp.menu.table-only: 仅可查看菜单表记录（插件菜单为代码声明）
+mcerp.menu.name-empty: 菜单名称不能为空
+mcerp.menu.not-found: 菜单不存在
+mcerp.menu.builtin-readonly: 内置菜单为初始化数据，不可编辑
+mcerp.menu.missing-id: 缺少 menuId
+
+# ---------- 参数配置 ----------
+mcerp.config.not-found: 参数不存在
+mcerp.config.missing-key: 缺少 configKey
+mcerp.config.key-empty: 参数键名不能为空
+mcerp.config.key-exists: 参数键名已存在
+mcerp.config.builtin-readonly: 系统内置参数不可修改
+mcerp.config.missing-id: 缺少 configId
+mcerp.config.builtin-nodelete: 系统内置参数不可删除
+
+# ---------- 操作日志记录（模块名 / 操作名） ----------
+mcerp.operlog.module.user: 用户管理
+mcerp.operlog.module.notice: 通知公告
+mcerp.operlog.module.dict: 字典管理
+mcerp.operlog.module.menu: 菜单管理
+mcerp.operlog.module.config: 参数设置
+mcerp.operlog.action.add-user: 新增用户
+mcerp.operlog.action.edit-user: 修改用户
+mcerp.operlog.action.delete-user: 删除用户
+mcerp.operlog.action.change-user-status: 修改用户状态
+mcerp.operlog.action.assign-role: 分配角色
+mcerp.operlog.action.assign-perm: 分配权限
+mcerp.operlog.action.add-notice: 新增公告
+mcerp.operlog.action.edit-notice: 修改公告
+mcerp.operlog.action.delete-notice: 删除公告
+mcerp.operlog.action.add-dict-type: 新增字典类型
+mcerp.operlog.action.edit-dict-type: 修改字典类型
+mcerp.operlog.action.delete-dict-type: 删除字典类型
+mcerp.operlog.action.add-dict-data: 新增字典数据
+mcerp.operlog.action.edit-dict-data: 修改字典数据
+mcerp.operlog.action.delete-dict-data: 删除字典数据
+mcerp.operlog.action.add-menu: 新增菜单
+mcerp.operlog.action.edit-menu: 修改菜单
+mcerp.operlog.action.delete-menu: 删除菜单
+mcerp.operlog.action.add-config: 新增参数
+mcerp.operlog.action.edit-config: 修改参数
+mcerp.operlog.action.delete-config: 删除参数
+
+# ---------- 命令（/mcerp） ----------
+mcerp.cmd.reloaded: '§a[MCERP] 注册中心已重载'
+mcerp.cmd.module-count: '§a[MCERP] 已登记模块 ({0}):'
+mcerp.cmd.module-item: '§7  - §f{0} §8({1})'
+mcerp.cmd.usage: '§a[MCERP] 用法: /mcerp reload | /mcerp list'
+
+# ---------- 服务端日志 ----------
+mcerp.log.plugin-disabled: 已禁用
+mcerp.log.host-register-fail: McErpHostExpansion 注册失败：检查 identifier 冲突 / SOYS bootstrap 未就绪
+mcerp.log.soys-ready: SOYS 接入完成：SoysExpansion 门户注册（路由） + dist 托管（expansion:MCERP）
+mcerp.log.enabled: 已启用 (ERP 统一中控)
+mcerp.log.rebuild-done: 'ERP 模块索引重建完成（移除残留 {0}，新增 {1}）'
+mcerp.log.registry-registered: 'ERP 模块已登记: {0}'
+mcerp.log.registry-unregistered: '插件禁用，摘除其 ERP 登记: {0}'
+mcerp.log.registry-removed: 'ERP 重建：移除已不在线的模块索引 {0}'
+mcerp.log.expansion-skip: 'MCERP 未就绪，跳过 ERP 登记（reload 时兜底补登记）: {0}'
+mcerp.log.expansion-no-displayname: 'ERP 模块缺少 displayName，拒绝登记: {0}'
+mcerp.log.expansion-no-owner: 'ERP 模块无法定位 owner 插件，拒绝登记: {0}'

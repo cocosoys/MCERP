@@ -1,5 +1,7 @@
 package com.github.cocosoys.mc.mcerp.impl;
 
+import static com.github.cocosoys.mc.mcerp.i18n.McerpI18n.t;
+
 import com.github.cocosoys.mc.mcerp.entity.ErpDictData;
 import com.github.cocosoys.mc.mcerp.entity.ErpDictType;
 import com.github.cocosoys.mc.mcerp.entity.vo.DictOptionVO;
@@ -52,7 +54,7 @@ public class ErpDictServiceImpl implements ErpDictService {
     public AjaxResult typeDetail(String dictId) {
         ErpDictType dt = DATA.get(ErpDictType.class, dictId);
         if (dt == null) {
-            return AjaxResult.error("字典类型不存在");
+            return AjaxResult.error(t("mcerp.dict.type-not-found", "字典类型不存在"));
         }
         return AjaxResult.success(dt);
     }
@@ -61,11 +63,11 @@ public class ErpDictServiceImpl implements ErpDictService {
     public AjaxResult typeAdd(ErpDictType body) {
         String type = body.getDictType() == null ? "" : body.getDictType().trim();
         if (type.isEmpty()) {
-            return AjaxResult.error("字典类型编码不能为空");
+            return AjaxResult.error(t("mcerp.dict.type-code-empty", "字典类型编码不能为空"));
         }
         for (ErpDictType t : DATA.select(ErpDictType.class)) {
             if (type.equals(t.getDictType())) {
-                return AjaxResult.error("字典类型已存在");
+                return AjaxResult.error(t("mcerp.dict.type-exists", "字典类型已存在"));
             }
         }
         ErpDictType dt = new ErpDictType();
@@ -76,15 +78,15 @@ public class ErpDictServiceImpl implements ErpDictService {
         dt.setRemark(body.getRemark() == null ? "" : body.getRemark());
         dt.setCreateTime(AuthService.now());
         DATA.insert(dt);
-        operLog.record("字典管理", "新增字典类型", type, "新增成功");
-        return AjaxResult.success("新增成功");
+        operLog.record(t("mcerp.operlog.module.dict", "字典管理"), t("mcerp.operlog.action.add-dict-type", "新增字典类型"), type, t("mcerp.common.add-success", "新增成功"));
+        return AjaxResult.success(t("mcerp.common.add-success", "新增成功"));
     }
 
     @Override
     public AjaxResult typeUpdate(String dictId, ErpDictType body) {
         ErpDictType dt = dictId == null || dictId.isEmpty() ? null : DATA.get(ErpDictType.class, dictId);
         if (dt == null) {
-            return AjaxResult.error("字典类型不存在");
+            return AjaxResult.error(t("mcerp.dict.type-not-found", "字典类型不存在"));
         }
         if (body.getDictName() != null) {
             dt.setDictName(body.getDictName());
@@ -99,14 +101,14 @@ public class ErpDictServiceImpl implements ErpDictService {
             dt.setRemark(body.getRemark());
         }
         DATA.updateById(dt);
-        operLog.record("字典管理", "修改字典类型", dt.getDictType(), "修改成功");
-        return AjaxResult.success("修改成功");
+        operLog.record(t("mcerp.operlog.module.dict", "字典管理"), t("mcerp.operlog.action.edit-dict-type", "修改字典类型"), dt.getDictType(), t("mcerp.common.edit-success", "修改成功"));
+        return AjaxResult.success(t("mcerp.common.edit-success", "修改成功"));
     }
 
     @Override
     public AjaxResult typeRemove(String dictIds) {
         if (dictIds == null || dictIds.isEmpty()) {
-            return AjaxResult.error("缺少 dictId");
+            return AjaxResult.error(t("mcerp.dict.missing-id", "缺少 dictId"));
         }
         for (String id : dictIds.split(",")) {
             if (id.trim().isEmpty()) {
@@ -121,10 +123,10 @@ public class ErpDictServiceImpl implements ErpDictService {
                         DATA.deleteById(ErpDictData.class, d.getDictCode());
                     }
                 }
-                operLog.record("字典管理", "删除字典类型", dt.getDictType(), "删除成功");
+                operLog.record(t("mcerp.operlog.module.dict", "字典管理"), t("mcerp.operlog.action.delete-dict-type", "删除字典类型"), dt.getDictType(), t("mcerp.common.delete-success", "删除成功"));
             }
         }
-        return AjaxResult.success("删除成功");
+        return AjaxResult.success(t("mcerp.common.delete-success", "删除成功"));
     }
 
     @Override
@@ -134,7 +136,7 @@ public class ErpDictServiceImpl implements ErpDictService {
 
     @Override
     public AjaxResult refreshCache() {
-        return AjaxResult.success("刷新成功");
+        return AjaxResult.success(t("mcerp.common.refresh-success", "刷新成功"));
     }
 
     // ===== 字典数据 =====
@@ -175,7 +177,7 @@ public class ErpDictServiceImpl implements ErpDictService {
     public AjaxResult dataDetail(String dictCode) {
         ErpDictData d = DATA.get(ErpDictData.class, dictCode);
         if (d == null) {
-            return AjaxResult.error("字典数据不存在");
+            return AjaxResult.error(t("mcerp.dict.data-not-found", "字典数据不存在"));
         }
         return AjaxResult.success(d);
     }
@@ -191,18 +193,18 @@ public class ErpDictServiceImpl implements ErpDictService {
         d.setStatus(body.getStatus() == null || body.getStatus().isEmpty() ? "0" : body.getStatus());
         d.setRemark(body.getRemark() == null ? "" : body.getRemark());
         if (d.getDictType().isEmpty()) {
-            return AjaxResult.error("字典类型不能为空");
+            return AjaxResult.error(t("mcerp.dict.type-empty", "字典类型不能为空"));
         }
         DATA.insert(d);
-        operLog.record("字典管理", "新增字典数据", d.getDictLabel(), "新增成功");
-        return AjaxResult.success("新增成功");
+        operLog.record(t("mcerp.operlog.module.dict", "字典管理"), t("mcerp.operlog.action.add-dict-data", "新增字典数据"), d.getDictLabel(), t("mcerp.common.add-success", "新增成功"));
+        return AjaxResult.success(t("mcerp.common.add-success", "新增成功"));
     }
 
     @Override
     public AjaxResult dataUpdate(String dictCode, ErpDictData body) {
         ErpDictData d = dictCode == null || dictCode.isEmpty() ? null : DATA.get(ErpDictData.class, dictCode);
         if (d == null) {
-            return AjaxResult.error("字典数据不存在");
+            return AjaxResult.error(t("mcerp.dict.data-not-found", "字典数据不存在"));
         }
         d.setDictSort(body.getDictSort());
         if (body.getDictLabel() != null) {
@@ -221,14 +223,14 @@ public class ErpDictServiceImpl implements ErpDictService {
             d.setRemark(body.getRemark());
         }
         DATA.updateById(d);
-        operLog.record("字典管理", "修改字典数据", d.getDictLabel(), "修改成功");
-        return AjaxResult.success("修改成功");
+        operLog.record(t("mcerp.operlog.module.dict", "字典管理"), t("mcerp.operlog.action.edit-dict-data", "修改字典数据"), d.getDictLabel(), t("mcerp.common.edit-success", "修改成功"));
+        return AjaxResult.success(t("mcerp.common.edit-success", "修改成功"));
     }
 
     @Override
     public AjaxResult dataRemove(String dictCodes) {
         if (dictCodes == null || dictCodes.isEmpty()) {
-            return AjaxResult.error("缺少 dictCode");
+            return AjaxResult.error(t("mcerp.dict.missing-code", "缺少 dictCode"));
         }
         for (String id : dictCodes.split(",")) {
             if (id.trim().isEmpty()) {
@@ -237,10 +239,10 @@ public class ErpDictServiceImpl implements ErpDictService {
             ErpDictData d = DATA.get(ErpDictData.class, id.trim());
             DATA.deleteById(ErpDictData.class, id.trim());
             if (d != null) {
-                operLog.record("字典管理", "删除字典数据", d.getDictLabel(), "删除成功");
+                operLog.record(t("mcerp.operlog.module.dict", "字典管理"), t("mcerp.operlog.action.delete-dict-data", "删除字典数据"), d.getDictLabel(), t("mcerp.common.delete-success", "删除成功"));
             }
         }
-        return AjaxResult.success("删除成功");
+        return AjaxResult.success(t("mcerp.common.delete-success", "删除成功"));
     }
 
     // ===== 内部 =====

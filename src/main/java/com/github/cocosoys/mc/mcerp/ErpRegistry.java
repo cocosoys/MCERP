@@ -63,7 +63,7 @@ public class ErpRegistry {
         }
         Plugin owner = exp.getOwner();
         dynamic.put(id, owner == null ? "?" : owner.getName());
-        log.info("ERP 模块已登记: " + id);
+        log.infoT("mcerp.log.registry-registered", "ERP 模块已登记: {0}", id);
         return 1;
     }
 
@@ -81,7 +81,7 @@ public class ErpRegistry {
             }
         }
         if (changed) {
-            log.info("插件禁用，摘除其 ERP 登记: " + ownerPluginName);
+            log.infoT("mcerp.log.registry-unregistered", "插件禁用，摘除其 ERP 登记: {0}", ownerPluginName);
         }
     }
 
@@ -103,7 +103,7 @@ public class ErpRegistry {
             }
         }
         if (removed > 0) {
-            log.info("ERP 重建：移除已不在线的模块索引 " + removed);
+            log.infoT("mcerp.log.registry-removed", "ERP 重建：移除已不在线的模块索引 {0}", removed);
         }
         return removed;
     }

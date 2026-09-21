@@ -1,5 +1,7 @@
 package com.github.cocosoys.mc.mcerp.impl;
 
+import static com.github.cocosoys.mc.mcerp.i18n.McerpI18n.t;
+
 import com.github.cocosoys.mc.mcerp.entity.ErpMenu;
 import com.github.cocosoys.mc.mcerp.entity.ErpUser;
 import com.github.cocosoys.mc.mcerp.entity.vo.MenuTreeVO;
@@ -91,7 +93,7 @@ public class ErpUserServiceImpl implements ErpUserService {
     public AjaxResult detail(String userId) {
         ErpUser u = userId == null ? null : DATA.get(ErpUser.class, userId);
         if (u == null) {
-            return AjaxResult.error("用户不存在");
+            return AjaxResult.error(t("mcerp.user.not-found", "用户不存在"));
         }
         UserDetailVO vo = new UserDetailVO();
         vo.setUserId(u.getUserId());
@@ -113,10 +115,10 @@ public class ErpUserServiceImpl implements ErpUserService {
     public AjaxResult add(ErpUser user) {
         String userName = user.getUserName() == null ? "" : user.getUserName().trim();
         if (userName.isEmpty()) {
-            return AjaxResult.error("用户名不能为空");
+            return AjaxResult.error(t("mcerp.user.username-empty", "用户名不能为空"));
         }
         if (auth.findUser(userName) != null) {
-            return AjaxResult.error("用户名已存在");
+            return AjaxResult.error(t("mcerp.user.username-exists", "用户名已存在"));
         }
         ErpUser u = new ErpUser();
         u.setUserId(UUID.randomUUID().toString());
@@ -129,15 +131,15 @@ public class ErpUserServiceImpl implements ErpUserService {
         u.setRemark(user.getRemark() == null ? "" : user.getRemark());
         u.setCreateTime(AuthService.now());
         DATA.insert(u);
-        operLog.record("用户管理", "新增用户", userName, "新增成功");
-        return AjaxResult.success("新增成功");
+        operLog.record(t("mcerp.operlog.module.user", "用户管理"), t("mcerp.operlog.action.add-user", "新增用户"), userName, t("mcerp.common.add-success", "新增成功"));
+        return AjaxResult.success(t("mcerp.common.add-success", "新增成功"));
     }
 
     @Override
     public AjaxResult update(String userId, ErpUser user) {
         ErpUser u = userId == null || userId.isEmpty() ? null : DATA.get(ErpUser.class, userId);
         if (u == null) {
-            return AjaxResult.error("用户不存在");
+            return AjaxResult.error(t("mcerp.user.not-found", "用户不存在"));
         }
         if (user.getNickName() != null) {
             u.setNickName(user.getNickName());
@@ -158,14 +160,14 @@ public class ErpUserServiceImpl implements ErpUserService {
             u.setRemark(user.getRemark());
         }
         DATA.updateById(u);
-        operLog.record("用户管理", "修改用户", u.getUserName(), "修改成功");
-        return AjaxResult.success("修改成功");
+        operLog.record(t("mcerp.operlog.module.user", "用户管理"), t("mcerp.operlog.action.edit-user", "修改用户"), u.getUserName(), t("mcerp.common.edit-success", "修改成功"));
+        return AjaxResult.success(t("mcerp.common.edit-success", "修改成功"));
     }
 
     @Override
     public AjaxResult remove(String userIds, CredentialPresentation credential) {
         if (userIds == null || userIds.isEmpty()) {
-            return AjaxResult.error("缺少 userId");
+            return AjaxResult.error(t("mcerp.user.missing-userId", "缺少 userId"));
         }
         String current = auth.currentPlayer(credential);
         for (String id : userIds.split(",")) {
@@ -174,12 +176,12 @@ public class ErpUserServiceImpl implements ErpUserService {
             }
             ErpUser u = DATA.get(ErpUser.class, id.trim());
             if (u != null && current != null && u.getUserName().equalsIgnoreCase(current)) {
-                return AjaxResult.error("不能删除当前登录账号");
+                return AjaxResult.error(t("mcerp.user.cannot-delete-self", "不能删除当前登录账号"));
             }
             DATA.deleteById(ErpUser.class, id.trim());
-            operLog.record("用户管理", "删除用户", u == null ? id.trim() : u.getUserName(), "删除成功");
+            operLog.record(t("mcerp.operlog.module.user", "用户管理"), t("mcerp.operlog.action.delete-user", "删除用户"), u == null ? id.trim() : u.getUserName(), t("mcerp.common.delete-success", "删除成功"));
         }
-        return AjaxResult.success("删除成功");
+        return AjaxResult.success(t("mcerp.common.delete-success", "删除成功"));
     }
 
     @Override
@@ -187,18 +189,18 @@ public class ErpUserServiceImpl implements ErpUserService {
         String userId = vo.getUserId() == null ? "" : vo.getUserId();
         ErpUser u = userId.isEmpty() ? null : DATA.get(ErpUser.class, userId);
         if (u == null) {
-            return AjaxResult.error("用户不存在");
+            return AjaxResult.error(t("mcerp.user.not-found", "用户不存在"));
         }
         u.setStatus(vo.getStatus() == null || vo.getStatus().isEmpty() ? "0" : vo.getStatus());
         DATA.updateById(u);
-        operLog.record("用户管理", "修改用户状态", u.getUserName(), "修改成功");
-        return AjaxResult.success("修改成功");
+        operLog.record(t("mcerp.operlog.module.user", "用户管理"), t("mcerp.operlog.action.change-user-status", "修改用户状态"), u.getUserName(), t("mcerp.common.edit-success", "修改成功"));
+        return AjaxResult.success(t("mcerp.common.edit-success", "修改成功"));
     }
 
     @Override
     public AjaxResult resetPwd() {
         // 密码完全由 AuthMe 管理（游戏内 /changepassword 或 SOYS 登录桥）
-        return AjaxResult.error("密码由游戏内 AuthMe 管理，请在游戏中使用 /changepassword 修改");
+        return AjaxResult.error(t("mcerp.user.password-authme", "密码由游戏内 AuthMe 管理，请在游戏中使用 /changepassword 修改"));
     }
 
     @Override
@@ -253,12 +255,12 @@ public class ErpUserServiceImpl implements ErpUserService {
         String userId = vo.getUserId() == null ? "" : vo.getUserId();
         ErpUser u = userId.isEmpty() ? null : DATA.get(ErpUser.class, userId);
         if (u == null) {
-            return AjaxResult.error("用户不存在");
+            return AjaxResult.error(t("mcerp.user.not-found", "用户不存在"));
         }
         String player = u.getUserName();
         LocalPermissionStore store = auth.getPermissionStore();
         if (store == null) {
-            return AjaxResult.error("SOYS 权限存储不可用");
+            return AjaxResult.error(t("mcerp.user.soys-perm-unavailable", "SOYS 权限存储不可用"));
         }
         // 目标组集合
         Set<String> target = new LinkedHashSet<>();
@@ -278,8 +280,8 @@ public class ErpUserServiceImpl implements ErpUserService {
         for (String g : target) {
             store.addUserGroup(player, g);
         }
-        operLog.record("用户管理", "分配角色", player, "角色同步成功");
-        return AjaxResult.success("角色同步成功");
+        operLog.record(t("mcerp.operlog.module.user", "用户管理"), t("mcerp.operlog.action.assign-role", "分配角色"), player, t("mcerp.user.role-sync-success", "角色同步成功"));
+        return AjaxResult.success(t("mcerp.user.role-sync-success", "角色同步成功"));
     }
 
     @Override
@@ -294,11 +296,11 @@ public class ErpUserServiceImpl implements ErpUserService {
     @Override
     public AjaxResult savePerms(String userName, SavePermsVO vo) {
         if (userName == null || userName.isEmpty()) {
-            return AjaxResult.error("缺少用户名");
+            return AjaxResult.error(t("mcerp.user.missing-username", "缺少用户名"));
         }
         LocalPermissionStore store = auth.getPermissionStore();
         if (store == null) {
-            return AjaxResult.error("SOYS 权限存储不可用");
+            return AjaxResult.error(t("mcerp.user.soys-perm-unavailable", "SOYS 权限存储不可用"));
         }
         Set<String> target = new LinkedHashSet<>();
         if (vo.getPermissions() != null) {
@@ -317,33 +319,33 @@ public class ErpUserServiceImpl implements ErpUserService {
         for (String p : target) {
             store.addUserPermission(userName, p);
         }
-        operLog.record("用户管理", "分配权限", userName, "权限同步成功");
-        return AjaxResult.success("权限同步成功");
+        operLog.record(t("mcerp.operlog.module.user", "用户管理"), t("mcerp.operlog.action.assign-perm", "分配权限"), userName, t("mcerp.user.perm-sync-success", "权限同步成功"));
+        return AjaxResult.success(t("mcerp.user.perm-sync-success", "权限同步成功"));
     }
 
     @Override
     public AjaxResult profile(CredentialPresentation credential) {
         String player = auth.currentPlayer(credential);
         if (player == null) {
-            return AjaxResult.error("未登录");
+            return AjaxResult.error(t("mcerp.common.not-logged-in", "未登录"));
         }
         ProfileVO vo = new ProfileVO();
         Map<String, Object> info = auth.getInfo(credential);
         Object user = info.get("data") instanceof Map ? ((Map<?, ?>) info.get("data")).get("user") : null;
         vo.setUser(user);
-        vo.setRoleGroup(auth.isOp(player) ? "超级管理员" : "普通玩家");
-        vo.setPostGroup("ERP 后台");
+        vo.setRoleGroup(auth.isOp(player) ? t("mcerp.user.rolegroup-op", "超级管理员") : t("mcerp.user.rolegroup-player", "普通玩家"));
+        vo.setPostGroup(t("mcerp.user.postgroup", "ERP 后台"));
         return AjaxResult.success(vo);
     }
 
     @Override
     public AjaxResult updatePwd() {
-        return AjaxResult.error("密码由游戏内 AuthMe 管理，请在游戏中使用 /changepassword 修改");
+        return AjaxResult.error(t("mcerp.user.password-authme", "密码由游戏内 AuthMe 管理，请在游戏中使用 /changepassword 修改"));
     }
 
     @Override
     public AjaxResult avatar() {
-        return AjaxResult.error("头像上传暂未启用（SOYS 上传接口未接入）");
+        return AjaxResult.error(t("mcerp.user.avatar-not-enabled", "头像上传暂未启用（SOYS 上传接口未接入）"));
     }
 
     // ===== SOYS 权限对接 =====

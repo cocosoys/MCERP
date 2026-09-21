@@ -107,17 +107,17 @@ public abstract class McerpExpansion extends SoysExpansion {
     public boolean onRegister() {
         MCERP m = mcerp;
         if (m == null) {
-            log.info("MCERP 未就绪，跳过 ERP 登记（reload 时兜底补登记）: {0}", getIdentifier());
+            log.infoT("mcerp.log.expansion-skip", "MCERP 未就绪，跳过 ERP 登记（reload 时兜底补登记）: {0}", getIdentifier());
             return true; // 静默，不阻断 SoysExpansion 正常注册
         }
         ErpModuleVO vo = toModuleVO();
         if (vo == null || vo.getDisplayName() == null || vo.getDisplayName().trim().isEmpty()) {
-            log.warn("ERP 模块缺少 displayName，拒绝登记: {0}", getIdentifier());
+            log.warnT("mcerp.log.expansion-no-displayname", "ERP 模块缺少 displayName，拒绝登记: {0}", getIdentifier());
             return false; // displayName 必填 → 整体回滚
         }
         Plugin owner = getOwner();
         if (owner == null) {
-            log.warn("ERP 模块无法定位 owner 插件，拒绝登记: {0}", getIdentifier());
+            log.warnT("mcerp.log.expansion-no-owner", "ERP 模块无法定位 owner 插件，拒绝登记: {0}", getIdentifier());
             return false;
         }
         // 写入索引（仅 identifier）：与 /mcerp reload 兜底同通道，幂等。
