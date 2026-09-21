@@ -205,7 +205,9 @@ public class MenuRouteServiceImpl implements MenuRouteService {
         route.put("name", name);
         route.put("path", menu.getPath() == null ? menu.getMenuId() : menu.getPath());
         route.put("hidden", false);
-        route.put("alwaysShow", true);
+        // 与菜单表路径 routeFromMenu 保持一致：仅 M 目录 alwaysShow=true，C 叶子必须 false，
+        // 否则前端把叶子菜单渲染成空 submenu（带展开箭头但 children=[]），点击无法跳转 iframe。
+        route.put("alwaysShow", "M".equals(type));
         Map<String, Object> meta = new LinkedHashMap<>();
         meta.put("title", menu.getMenuName());
         meta.put("icon", menu.getIcon() == null ? "form" : menu.getIcon());

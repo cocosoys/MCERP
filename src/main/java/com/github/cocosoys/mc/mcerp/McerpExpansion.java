@@ -83,6 +83,8 @@ public abstract class McerpExpansion extends SoysExpansion {
 
     /**
      * 菜单树（自带 component/perms/children），声明式构建器写法见 {@link ErpMenus}。
+     * 菜单下的按钮可免手写：menu 声明带 controller 类或链式 {@code permsFrom(Class...)}，
+     * 自动按 {@link ControllerPermScanner} 规则把端点方法投影为 F 按钮。
      * 选填项，若你希望通过数据库新增的方式，请向用户提供数据库代码(yml/sql)
      */
     protected ErpMenus menus() {

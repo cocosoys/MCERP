@@ -45,6 +45,21 @@ import java.util.function.Consumer;
  *   <li><b>流式 + up()</b>：{@code dir(menuId,menuName,icon)} 进入子级上下文，后续 add 挂入，{@link #up()} 返回上一级。</li>
  * </ul>
  *
+ * <p><b>自动按钮</b>（免手写 perm）：menu 声明时可带 controller 类（或链式
+ * {@code permsFrom(Class...)})，自动把该 controller 的端点方法（{@code @GetMapping/@PostMapping/...}）
+ * 按 {@code @ApiName/@ApiPermission/@ApiPublic/@Hidden} 投影为 F 按钮挂到该菜单下，
+ * 规则详见 {@link ControllerPermScanner}：</p>
+ *
+ * <pre>{@code
+ * @Override protected ErpMenus menus() {
+ *     return ErpMenus.create()
+ *         .dir("system", "系统管理", "system", d -> d
+ *             .menu("user", "用户列表", "user", ErpUserController.class) // 按钮自动生成
+ *             .menu("group", "权限组列表", "lock").permsFrom(ErpGroupController.class))
+ *         .menu("home", "首页", "home").component("erp/home");
+ * }
+ * }</pre>
+ *
  * <p>方法名定节点类型：{@code dir}=M 目录、{@code menu}=C 菜单、{@code perm}=F 按钮权限、
  * {@code route}=path→component 便捷 C 菜单。属性两种填法：
  * <ul>
@@ -141,6 +156,19 @@ public final class ErpMenus {
     /** C 菜单（叶子页面）。 */
     public ErpMenus menu(String menuId, String menuName, String icon) {
         attach(node(menuId, menuName, "C", icon));
+        return this;
+    }
+
+    /**
+     * C 菜单（叶子页面）+ 自动按钮：扫描指定 controller 的端点方法，
+     * 按 {@link ControllerPermScanner} 规则生成 F 按钮挂到该菜单下。
+     *
+     * @param controllers controller 类（可多个；null 元素忽略）
+     */
+    public ErpMenus menu(String menuId, String menuName, String icon, Class<?>... controllers) {
+        ErpMenuVO node = node(menuId, menuName, "C", icon);
+        attach(node);
+        attachPermsFrom(node, controllers);
         return this;
     }
 
@@ -251,6 +279,19 @@ public final class ErpMenus {
     public ErpMenus visible(boolean visible) {
         if (last != null) {
             last.setVisible(visible ? "0" : "1");
+        }
+        return this;
+    }
+
+    /**
+     * 链式自动按钮：把指定 controller 的端点方法按 {@link ControllerPermScanner} 规则
+     * 生成 F 按钮，挂到<b>最近声明</b>的节点（menu/dir/perm）下。
+     *
+     * @param controllers controller 类（可多个；null 元素忽略）
+     */
+    public ErpMenus permsFrom(Class<?>... controllers) {
+        if (last != null) {
+            attachPermsFrom(last, controllers);
         }
         return this;
     }
@@ -412,5 +453,26 @@ public final class ErpMenus {
             roots.add(node);
         }
         last = node;
+    }
+
+    /**
+     * 将指定 controller 的端点按钮扫描结果挂到父节点下（按声明顺序拼接，排序号连续）。
+     *
+     * @param parent      挂载目标（菜单/目录节点）
+     * @param controllers controller 类数组（null 元素忽略）
+     */
+    private void attachPermsFrom(ErpMenuVO parent, Class<?>[] controllers) {
+        if (controllers == null) {
+            return;
+        }
+        int order = 0;
+        for (Class<?> c : controllers) {
+            if (c == null) {
+                continue;
+            }
+            List<ErpMenuVO> buttons = ControllerPermScanner.scan(c, order);
+            parent.getChildren().addAll(buttons);
+            order += buttons.size();
+        }
     }
 }
