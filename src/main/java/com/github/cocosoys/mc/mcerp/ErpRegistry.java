@@ -30,6 +30,9 @@ import java.util.Set;
  * </ul>
  */
 @CustomLog
+/**
+ * ERP 模块注册表：维护已登记 McerpExpansion 索引，菜单/路由合成时实时反查实例组装。
+ */
 public class ErpRegistry {
 
     /** 在线 ERP 模块索引：identifier → owner 插件名 */

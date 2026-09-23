@@ -93,7 +93,7 @@ public class MenuRouteServiceImpl implements MenuRouteService {
         // 仅目录（M）强制 alwaysShow（前端据此渲染为可展开 el-submenu）；
         // C 菜单不设（undefined）→ 前端走 el-menu-item 直接跳转，否则叶子菜单会被渲染成空 submenu 无法点击
         route.put("alwaysShow", "M".equals(menu.getMenuType()));
-        // 顶级 M 目录用 Layout（整页框架）；二级及以下 M 目录用 ParentView（纯 <router-view> 容器），
+        // 顶级 M 目录用 Layout（整页框架）；二级及以下 M 目录用 ParentView（纯 &lt;router-view&gt; 容器），
         // 否则 Layout 嵌套 Layout 会重复渲染 sidebar/navbar/tags-view（顶栏菜单异常）。
         boolean topLevel = isTopLevel(menu);
         if ("M".equals(menu.getMenuType()) && !topLevel) {
@@ -163,8 +163,8 @@ public class MenuRouteServiceImpl implements MenuRouteService {
         if (hasChildren) {
             route.put("component", "Layout");
         } else {
-            // 主模块菜单兼按钮：直接 iframe 打开 homeUrl
-            route.put("component", iframeComponent(module.getHomeUrl()));
+            // 主模块菜单兼按钮：直接按模块模式打开 homeUrl（wujie / iframe）
+            route.put("component", urlComponent(module.getHomeUrl(), module.getComponentMode()));
         }
         Map<String, Object> meta = new LinkedHashMap<>();
         meta.put("title", module.getDisplayName());
@@ -172,12 +172,12 @@ public class MenuRouteServiceImpl implements MenuRouteService {
         meta.put("noCache", false);
         meta.put("link", null);
         route.put("meta", meta);
-        route.put("children", menuRoutes(module.getChildren(), id, credential));
+        route.put("children", menuRoutes(module.getChildren(), id, credential, module.getComponentMode()));
         return route;
     }
 
     private List<Map<String, Object>> menuRoutes(List<ErpMenuVO> menus, String parentName,
-                                                 CredentialPresentation credential) {
+                                                 CredentialPresentation credential, String mode) {
         List<Map<String, Object>> list = new ArrayList<>();
         if (menus == null) {
             return list;
@@ -190,7 +190,7 @@ public class MenuRouteServiceImpl implements MenuRouteService {
                     && !auth.hasPermission(credential, menu.getPerms())) {
                 continue;
             }
-            Map<String, Object> r = menuRoute(menu, parentName, credential);
+            Map<String, Object> r = menuRoute(menu, parentName, credential, mode);
             if (r != null) {
                 list.add(r);
             }
@@ -198,7 +198,7 @@ public class MenuRouteServiceImpl implements MenuRouteService {
         return list;
     }
 
-    private Map<String, Object> menuRoute(ErpMenuVO menu, String parentName, CredentialPresentation credential) {
+    private Map<String, Object> menuRoute(ErpMenuVO menu, String parentName, CredentialPresentation credential, String mode) {
         String type = menu.getMenuType() == null ? "C" : menu.getMenuType();
         String name = parentName + "_" + safeName(menu.getMenuId() == null ? menu.getMenuName() : menu.getMenuId());
         Map<String, Object> route = new LinkedHashMap<>();
@@ -218,27 +218,27 @@ public class MenuRouteServiceImpl implements MenuRouteService {
             // 目录：Layout + 子项
             route.put("redirect", "noRedirect");
             route.put("component", "Layout");
-            route.put("children", menuRoutes(menu.getChildren(), name, credential));
+            route.put("children", menuRoutes(menu.getChildren(), name, credential, mode));
         } else if ("F".equals(type)) {
             // 按钮：仅权限标识，不进路由
             return null;
         } else {
-            // C 菜单：iframe 打开目标页面
+            // C 菜单：按模块模式打开目标页面（wujie / iframe）
             route.put("redirect", "noRedirect");
-            route.put("component", iframeComponent(menu.getComponent()));
+            route.put("component", urlComponent(menu.getComponent(), mode));
             route.put("children", new ArrayList<>());
         }
         return route;
     }
 
     /**
-     * iframe 组件路径：绝对 URL 直接用，相对路径补 /plugins/ 前缀语义由插件自身页面地址保证。
+     * 子应用组件路径：WUJIE → wujie:&lt;url&gt;，其余 → iframe:&lt;url&gt;。
      */
-    private static String iframeComponent(String url) {
+    private static String urlComponent(String url, String mode) {
         if (url == null || url.isEmpty()) {
-            return "iframe:/";
+            url = "/";
         }
-        return "iframe:" + url;
+        return "WUJIE".equals(mode) ? "wujie:" + url : "iframe:" + url;
     }
 
     private static boolean hasVisibleMenu(List<ErpMenuVO> menus) {

@@ -15,6 +15,9 @@ import java.util.Date;
  */
 @TableName("erp_logininfor")
 @Data
+/**
+ * 登录日志实体（erp_logininfor 表）。
+ */
 public class ErpLogininfor extends BaseEntity {
 
     /** 访问 ID（主键） */

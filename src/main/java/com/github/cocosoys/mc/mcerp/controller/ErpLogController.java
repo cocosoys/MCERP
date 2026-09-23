@@ -16,6 +16,9 @@ import com.github.cocosoys.mc.soyshttpovermc.util.AjaxResult;
  * 列表/删除/清空全部委托 {@link ErpLogService}。
  */
 @RequestMapping("/monitor")
+/**
+ * 日志控制器：操作日志与登录日志查询/清理。
+ */
 public class ErpLogController {
 
     private final ErpLogService logService;
@@ -27,7 +30,7 @@ public class ErpLogController {
     // ===== 操作日志 =====
 
     @ApiName("操作日志列表")
-    @ApiPermission("monitor:operlog:list")
+    @ApiPermission("mcerp:monitor:operlog:list")
     @GetMapping("/operlog/list")
     public TableDataInfo operlogList(@RequestParam(name = "pageNum", required = false) Integer pageNum,
                                      @RequestParam(name = "pageSize", required = false) Integer pageSize,
@@ -37,14 +40,14 @@ public class ErpLogController {
     }
 
     @ApiName("删除操作日志")
-    @ApiPermission("monitor:operlog:remove")
+    @ApiPermission("mcerp:monitor:operlog:remove")
     @DeleteMapping("/operlog/{operIds}")
     public AjaxResult operlogRemove(@PathVariable(name = "operIds") String operIds) {
         return logService.operlogRemove(operIds);
     }
 
     @ApiName("清空操作日志")
-    @ApiPermission("monitor:operlog:clean")
+    @ApiPermission("mcerp:monitor:operlog:clean")
     @DeleteMapping("/operlog/clean")
     public AjaxResult operlogClean() {
         return logService.operlogClean();
@@ -53,7 +56,7 @@ public class ErpLogController {
     // ===== 登录日志 =====
 
     @ApiName("登录日志列表")
-    @ApiPermission("monitor:logininfor:list")
+    @ApiPermission("mcerp:monitor:logininfor:list")
     @GetMapping("/logininfor/list")
     public TableDataInfo logininforList(@RequestParam(name = "pageNum", required = false) Integer pageNum,
                                         @RequestParam(name = "pageSize", required = false) Integer pageSize,
@@ -63,21 +66,21 @@ public class ErpLogController {
     }
 
     @ApiName("删除登录日志")
-    @ApiPermission("monitor:logininfor:remove")
+    @ApiPermission("mcerp:monitor:logininfor:remove")
     @DeleteMapping("/logininfor/{infoIds}")
     public AjaxResult logininforRemove(@PathVariable(name = "infoIds") String infoIds) {
         return logService.logininforRemove(infoIds);
     }
 
     @ApiName("清空登录日志")
-    @ApiPermission("monitor:logininfor:clean")
+    @ApiPermission("mcerp:monitor:logininfor:clean")
     @DeleteMapping("/logininfor/clean")
     public AjaxResult logininforClean() {
         return logService.logininforClean();
     }
 
     @ApiName("解锁账号")
-    @ApiPermission("monitor:logininfor:unlock")
+    @ApiPermission("mcerp:monitor:logininfor:unlock")
     @GetMapping("/logininfor/unlock/{userName}")
     public AjaxResult unlock(@PathVariable(name = "userName") String userName) {
         return logService.unlock(userName);

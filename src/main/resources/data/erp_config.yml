@@ -3,25 +3,17 @@
 erp_config:
   '1':
     config_id: '1'
-    config_name: 验证码开关
-    config_key: sys.account.captchaEnabled
+    config_name: "示例boolean"
+    config_key: "example.test.boolean"
     config_value: 'false'
     config_type: Y
-    remark: 系统内置参数
+    remark: "示例boolean"
     create_time: '2026-09-11 00:00:00'
   '2':
     config_id: '2'
-    config_name: 注册用户开关
-    config_key: sys.account.registerUser
-    config_value: 'false'
-    config_type: Y
-    remark: 系统内置参数
-    create_time: '2026-09-11 00:00:00'
-  '3':
-    config_id: '3'
-    config_name: 用户初始密码
-    config_key: sys.user.initPassword
+    config_name: "示例string"
+    config_key: "example.test.string"
     config_value: '123456'
     config_type: Y
-    remark: 新增用户初始密码（若依契约，user 页读取）
+    remark: "示例string"
     create_time: '2026-09-11 00:00:00'

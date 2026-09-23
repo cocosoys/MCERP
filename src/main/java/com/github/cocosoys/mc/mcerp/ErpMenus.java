@@ -65,8 +65,8 @@ import java.util.function.Consumer;
  * <ul>
  *   <li><b>精简位置参数</b>：核心参数按位置（menuId、menuName、icon），其余（perms/orderNum/component/visible/path）
  *       用链式 setter 修饰<b>最近声明</b>的节点；lambda 结束后 setter 作用于目录本身（dir）而非其子级；</li>
- *   <li><b>全属性 spec</b>：{@code dir(Consumer<MenuSpec>, sub)} / {@code menu(Consumer<MenuSpec>)} /
- *       {@code perm(Consumer<MenuSpec>)}，spec 内所有表字段（menuId/menuName/icon/path/component/perms/visible/orderNum/...）一次填齐，
+ *   <li><b>全属性 spec</b>：{@code dir(Consumer&lt;MenuSpec&gt;, sub)} / {@code menu(Consumer&lt;MenuSpec&gt;)} /
+ *       {@code perm(Consumer&lt;MenuSpec&gt;)}，spec 内所有表字段（menuId/menuName/icon/path/component/perms/visible/orderNum/...）一次填齐，
  *       不依赖隐式状态。</li>
  * </ul>
  *
@@ -304,7 +304,7 @@ public final class ErpMenus {
     // ===== 全属性 spec =====
 
     /**
-     * 节点全属性填充器（配合 {@code dir(Consumer<MenuSpec>)} / {@code menu(...)} / {@code perm(...)}）。
+     * 节点全属性填充器（配合 {@code dir(Consumer&lt;MenuSpec&gt;)} / {@code menu(...)} / {@code perm(...)}）。
      * spec 内所有表字段可一次填齐；menuType 由方法名决定，不可填写。
      */
     public static final class MenuSpec {
@@ -312,7 +312,7 @@ public final class ErpMenus {
         /** 被填充的目标节点（spec 所有 setter 最终写入该节点） */
         private final ErpMenuVO node;
 
-        /** 私有构造器：由 {@code dir/menu/perm(Consumer<MenuSpec>)} 传入待填充节点。 */
+        /** 私有构造器：由 {@code dir/menu/perm(Consumer&lt;MenuSpec&gt;)} 传入待填充节点。 */
         private MenuSpec(ErpMenuVO node) {
             this.node = node;
         }

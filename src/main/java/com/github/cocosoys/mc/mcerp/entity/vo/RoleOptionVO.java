@@ -6,6 +6,9 @@ import lombok.Data;
  * 角色下拉选项 VO（若依 authRole/detail 契约的 {roleId, roleName, status} 实体化）。
  */
 @Data
+/**
+ * 角色选项 VO：角色 id + 名称。
+ */
 public class RoleOptionVO {
 
     /** 角色（SOYS 权限组）id */

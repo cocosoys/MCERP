@@ -6,6 +6,9 @@ import lombok.Data;
  * 个人中心 VO（若依 /profile 契约：user/roleGroup/postGroup 实体化）。
  */
 @Data
+/**
+ * 个人信息 VO：当前登录者资料。
+ */
 public class ProfileVO {
 
     /** 用户信息（复用 getInfo 的 user 结构） */

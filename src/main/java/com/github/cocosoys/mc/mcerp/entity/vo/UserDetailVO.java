@@ -11,6 +11,9 @@ import java.util.List;
  * 用户详情 VO（若依 user detail 契约：平铺 user 字段 + roles/roleIds/postIds 实体化）。
  */
 @Data
+/**
+ * 用户详情 VO：用户完整信息。
+ */
 public class UserDetailVO {
 
     /** 用户 ID（erp_user.user_id，SOYS 玩家 UUID） */

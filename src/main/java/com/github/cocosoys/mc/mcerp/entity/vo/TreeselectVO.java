@@ -9,6 +9,9 @@ import java.util.List;
  * 树选择节点 VO（若依 treeselect 契约：{id, label, children} 实体化）。
  */
 @Data
+/**
+ * 树选择器 VO：id/label/children。
+ */
 public class TreeselectVO {
 
     /** 节点 ID（对应菜单 menuId） */

@@ -13,6 +13,9 @@ import lombok.Data;
  */
 @TableName("erp_user")
 @Data
+/**
+ * 用户实体（erp_user 表）。
+ */
 public class ErpUser extends BaseEntity {
 
     /** 用户 ID（主键） */

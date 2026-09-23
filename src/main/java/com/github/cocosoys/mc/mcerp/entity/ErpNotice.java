@@ -11,6 +11,9 @@ import lombok.Data;
  */
 @TableName("erp_notice")
 @Data
+/**
+ * 通知公告实体（erp_notice 表）。
+ */
 public class ErpNotice extends BaseEntity {
 
     /** 公告 ID（主键） */

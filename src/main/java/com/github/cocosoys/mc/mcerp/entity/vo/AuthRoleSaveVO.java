@@ -8,6 +8,9 @@ import java.util.List;
  * 分配角色请求体（authRoleSave）：userId + roleIds（SOYS 权限组 id 列表）。
  */
 @Data
+/**
+ * 授权角色保存 VO：用户 id + 角色 id 列表。
+ */
 public class AuthRoleSaveVO {
 
     /** 用户 ID（erp_user.user_id） */

@@ -6,6 +6,9 @@ import lombok.Data;
  * 字典选项（dataByType 响应项）：若依前端 dict 下拉所需的三字段。
  */
 @Data
+/**
+ * 字典选项 VO：标签 + 值。
+ */
 public class DictOptionVO {
 
     /** 字典标签（下拉展示文案） */

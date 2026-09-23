@@ -1,6 +1,6 @@
 package com.github.cocosoys.mc.mcerp;
 
-import com.github.cocosoys.mc.mcerp.controller.AuthController;
+import com.github.cocosoys.mc.mcerp.controller.ErpAuthController;
 import com.github.cocosoys.mc.mcerp.controller.ErpConfigController;
 import com.github.cocosoys.mc.mcerp.controller.ErpDictController;
 import com.github.cocosoys.mc.mcerp.controller.ErpLogController;
@@ -68,7 +68,7 @@ public class McErpHostExpansion extends SoysExpansion {
         ErpLogService sysLogService = new ErpLogServiceImpl();
         // ===== 记录所有 controller 实例化 =====
         List<Object> list = new ArrayList<>();
-        list.add(new AuthController(authService, menuRouteService));
+        list.add(new ErpAuthController(authService, menuRouteService));
         list.add(new ErpUserController(sysUserService));
         list.add(new ErpMenuController(sysMenuService));
         list.add(new ErpDictController(sysDictService));
@@ -81,7 +81,7 @@ public class McErpHostExpansion extends SoysExpansion {
     /** 模块唯一标识（页面 tag / 冲突检测 / 文档展示） */
     @Override
     public String getIdentifier() {
-        return "MCERP";
+        return MCERP.getInstance().getName();
     }
 
     /**

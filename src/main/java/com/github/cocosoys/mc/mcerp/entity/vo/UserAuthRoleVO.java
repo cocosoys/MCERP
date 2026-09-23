@@ -9,6 +9,9 @@ import java.util.List;
  * 用户角色/权限编辑页 VO（若依 authRole 契约：roles/roleIds/allPerms/perms/user 实体化）。
  */
 @Data
+/**
+ * 用户授权角色 VO：用户当前已授权角色 id 列表。
+ */
 public class UserAuthRoleVO {
 
     /** 角色下拉选项（SOYS 权限组） */

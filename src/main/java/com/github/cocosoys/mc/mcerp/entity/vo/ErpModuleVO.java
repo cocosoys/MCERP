@@ -18,6 +18,9 @@ import java.util.List;
  * </ul>
  */
 @Data
+/**
+ * ERP 模块描述符 VO：插件 id/显示名/菜单树/渲染模式。
+ */
 public class ErpModuleVO {
 
     /** 注册键 = 插件名 */
@@ -40,4 +43,7 @@ public class ErpModuleVO {
 
     /** 访问权限标识（可选） */
     private String permission;
+
+    /** 子应用渲染模式：WUJIE（无界微前端，默认）/ IFRAME（传统 iframe）。 */
+    private String componentMode;
 }

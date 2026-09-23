@@ -9,6 +9,9 @@ import java.util.List;
  * 菜单权限树节点 VO（权限分配弹窗的 el-tree 数据：menuId/parentId/menuName/perms/menuType/children）。
  */
 @Data
+/**
+ * 菜单树 VO：菜单树节点（含 children）。
+ */
 public class MenuTreeVO {
 
     /** 菜单 ID（表 erp_menu.menu_id；插件声明菜单为合成键 parentId_声明id） */

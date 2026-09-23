@@ -11,6 +11,9 @@ import lombok.Data;
  */
 @TableName("erp_config")
 @Data
+/**
+ * 参数配置实体（erp_config 表）。
+ */
 public class ErpConfig extends BaseEntity {
 
     /** 参数主键 ID（主键） */

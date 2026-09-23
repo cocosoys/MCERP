@@ -21,6 +21,9 @@ import java.util.List;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+/**
+ * 菜单视图对象：继承 ErpMenu，含 children 树与插件声明字段。
+ */
 public class ErpMenuVO extends ErpMenu {
 
     /** 子节点（仅 M 目录可有；由 DSL 层级管理，MenuSpec 不提供） */

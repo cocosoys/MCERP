@@ -196,7 +196,7 @@ public class ErpMenuServiceImpl implements ErpMenuService {
         for (ErpModuleVO m : registry.getModules()) {
             Map<String, Object> mod = node(m.getId(), "0", m.getDisplayName(), "M", "/" + m.getId().toLowerCase(),
                     "Layout", m.getPermission(), m.getIcon() == null ? "link" : m.getIcon(), 100 + m.getSortOrder());
-            mod.put("children", menuNodes(m.getChildren(), m.getId()));
+            mod.put("children", menuNodes(m.getChildren(), m.getId(), m.getComponentMode()));
             top.add(mod);
         }
         return top;
@@ -232,7 +232,7 @@ public class ErpMenuServiceImpl implements ErpMenuService {
         return n;
     }
 
-    private List<Map<String, Object>> menuNodes(List<ErpMenuVO> menus, String parentId) {
+    private List<Map<String, Object>> menuNodes(List<ErpMenuVO> menus, String parentId, String mode) {
         List<Map<String, Object>> out = new ArrayList<>();
         if (menus == null) {
             return out;
@@ -244,13 +244,13 @@ public class ErpMenuServiceImpl implements ErpMenuService {
             n.put("menuName", m.getMenuName());
             n.put("orderNum", m.getOrderNum());
             n.put("path", m.getPath() == null ? m.getMenuId() : m.getPath());
-            n.put("component", "iframe:" + (m.getComponent() == null ? "" : m.getComponent()));
+            n.put("component", ("WUJIE".equals(mode) ? "wujie:" : "iframe:") + (m.getComponent() == null ? "" : m.getComponent()));
             n.put("menuType", m.getMenuType() == null ? "C" : m.getMenuType());
             n.put("perms", m.getPerms());
             n.put("icon", m.getIcon());
             n.put("visible", m.isVisible() ? "0" : "1");
             n.put("status", "0");
-            n.put("children", menuNodes(m.getChildren(), (String) n.get("menuId")));
+            n.put("children", menuNodes(m.getChildren(), (String) n.get("menuId"), mode));
             out.add(n);
         }
         return out;

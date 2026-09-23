@@ -20,6 +20,9 @@ import com.github.cocosoys.mc.soyshttpovermc.util.AjaxResult;
  * CRUD 全部委托 {@link ErpConfigService}。
  */
 @RequestMapping("/system/config")
+/**
+ * 参数配置控制器：参数查询/新增/修改/删除。
+ */
 public class ErpConfigController {
 
     private final ErpConfigService configService;
@@ -29,7 +32,7 @@ public class ErpConfigController {
     }
 
     @ApiName("参数列表")
-    @ApiPermission("system:config:list")
+    @ApiPermission("mcerp:system:config:list")
     @GetMapping("/list")
     public TableDataInfo list(@RequestParam(name = "pageNum", required = false) Integer pageNum,
                               @RequestParam(name = "pageSize", required = false) Integer pageSize,
@@ -39,42 +42,42 @@ public class ErpConfigController {
     }
 
     @ApiName("参数详情")
-    @ApiPermission("system:config:query")
+    @ApiPermission("mcerp:system:config:query")
     @GetMapping("/{configId}")
     public AjaxResult detail(@PathVariable(name = "configId") String configId) {
         return configService.detail(configId);
     }
 
     @ApiName("按键取参数")
-    @ApiPermission("system:config:query")
+    @ApiPermission("mcerp:system:config:query")
     @GetMapping("/configKey/{configKey}")
     public AjaxResult byKey(@PathVariable(name = "configKey") String configKey) {
         return configService.byKey(configKey);
     }
 
     @ApiName("新增参数")
-    @ApiPermission("system:config:add")
+    @ApiPermission("mcerp:system:config:add")
     @PostMapping("")
     public AjaxResult add(@RequestBody ErpConfig config) {
         return configService.add(config);
     }
 
     @ApiName("编辑参数")
-    @ApiPermission("system:config:edit")
+    @ApiPermission("mcerp:system:config:edit")
     @PutMapping("/{configId}")
     public AjaxResult update(@PathVariable(name = "configId") String configId, @RequestBody ErpConfig config) {
         return configService.update(configId, config);
     }
 
     @ApiName("删除参数")
-    @ApiPermission("system:config:remove")
+    @ApiPermission("mcerp:system:config:remove")
     @DeleteMapping("/{configIds}")
     public AjaxResult remove(@PathVariable(name = "configIds") String configIds) {
         return configService.remove(configIds);
     }
 
     @ApiName("刷新参数缓存")
-    @ApiPermission("system:config:remove")
+    @ApiPermission("mcerp:system:config:remove")
     @GetMapping("/refreshCache")
     public AjaxResult refreshCache() {
         return configService.refreshCache();

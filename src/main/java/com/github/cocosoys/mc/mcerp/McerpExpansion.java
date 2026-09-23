@@ -49,6 +49,9 @@ import java.util.List;
  * /soyshttp reload 兜底补登记。</p>
  */
 @CustomLog
+/**
+ * ERP 模块扩展基类：附属插件继承本类即自动完成 SoysExpansion 骨架 + MCERP 登记。
+ */
 public abstract class McerpExpansion extends SoysExpansion {
 
     /** MCERP 宿主引用（MCERP onEnable 时经 {@link #setMcerp(MCERP)} 注入；未绑定 = MCERP 未装/未就绪）。 */
@@ -79,6 +82,14 @@ public abstract class McerpExpansion extends SoysExpansion {
     /** 无子菜单时的默认页地址。 */
     protected String homeUrl() {
         return null;
+    }
+
+    /**
+     * 子应用渲染模式：true=wujie（无界微前端，默认）；false=传统 iframe。
+     * 子应用需配合：history 路由 + 绝对 publicPath + 空 Layout（见 C 阶段改造）。
+     */
+    protected boolean wujie() {
+        return true;
     }
 
     /**
@@ -153,6 +164,7 @@ public abstract class McerpExpansion extends SoysExpansion {
         vo.setHomeUrl(homeUrl());
         vo.setPermission(permission());
         vo.setSortOrder(sortOrder());
+        vo.setComponentMode(wujie() ? "WUJIE" : "IFRAME");
         ErpMenus ms = menus();
         List<ErpMenuVO> children = ms == null ? null : ms.build();
         if (children == null || children.isEmpty()) {

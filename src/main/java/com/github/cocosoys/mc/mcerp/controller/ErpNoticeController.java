@@ -22,6 +22,9 @@ import com.github.cocosoys.mc.soyshttpovermc.web.gateway.policy.auth.issuer.Cred
  * CRUD 全部委托 {@link ErpNoticeService}。
  */
 @RequestMapping("/system/notice")
+/**
+ * 通知公告控制器：公告 CRUD。
+ */
 public class ErpNoticeController {
 
     private final ErpNoticeService noticeService;
@@ -31,7 +34,7 @@ public class ErpNoticeController {
     }
 
     @ApiName("公告列表")
-    @ApiPermission("system:notice:list")
+    @ApiPermission("mcerp:system:notice:list")
     @GetMapping("/list")
     public TableDataInfo list(@RequestParam(name = "pageNum", required = false) Integer pageNum,
                               @RequestParam(name = "pageSize", required = false) Integer pageSize,
@@ -48,28 +51,28 @@ public class ErpNoticeController {
     }
 
     @ApiName("公告详情")
-    @ApiPermission("system:notice:query")
+    @ApiPermission("mcerp:system:notice:query")
     @GetMapping("/{noticeId}")
     public AjaxResult detail(@PathVariable(name = "noticeId") String noticeId) {
         return noticeService.detail(noticeId);
     }
 
     @ApiName("新增公告")
-    @ApiPermission("system:notice:add")
+    @ApiPermission("mcerp:system:notice:add")
     @PostMapping("")
     public AjaxResult add(@RequestBody ErpNotice notice, CredentialPresentation credential) {
         return noticeService.add(notice, credential);
     }
 
     @ApiName("编辑公告")
-    @ApiPermission("system:notice:edit")
+    @ApiPermission("mcerp:system:notice:edit")
     @PutMapping("/{noticeId}")
     public AjaxResult update(@PathVariable(name = "noticeId") String noticeId, @RequestBody ErpNotice notice) {
         return noticeService.update(noticeId, notice);
     }
 
     @ApiName("删除公告")
-    @ApiPermission("system:notice:remove")
+    @ApiPermission("mcerp:system:notice:remove")
     @DeleteMapping("/{noticeIds}")
     public AjaxResult remove(@PathVariable(name = "noticeIds") String noticeIds) {
         return noticeService.remove(noticeIds);
@@ -90,7 +93,7 @@ public class ErpNoticeController {
     }
 
     @ApiName("已读用户")
-    @ApiPermission("system:notice:list")
+    @ApiPermission("mcerp:system:notice:list")
     @GetMapping("/readUsers/list")
     public TableDataInfo readUsers() {
         return noticeService.readUsers();

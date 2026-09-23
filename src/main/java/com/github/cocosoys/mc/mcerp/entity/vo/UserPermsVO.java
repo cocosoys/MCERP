@@ -8,6 +8,9 @@ import java.util.List;
  * 用户权限列表 VO（若依 /permissions/{userName} 契约：all/direct/owned 实体化）。
  */
 @Data
+/**
+ * 用户权限 VO：当前用户权限标识列表。
+ */
 public class UserPermsVO {
 
     /** 可分配权限节点全集 */

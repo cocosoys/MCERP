@@ -18,6 +18,9 @@ import com.github.cocosoys.mc.soyshttpovermc.util.AjaxResult;
  * 合成树（菜单表 ⊕ 插件登记菜单）与 CRUD 全部委托 {@link ErpMenuService}。
  */
 @RequestMapping("/system/menu")
+/**
+ * 菜单管理控制器：菜单树查询/CRUD/权限分配。
+ */
 public class ErpMenuController {
 
     private final ErpMenuService menuService;
@@ -27,56 +30,56 @@ public class ErpMenuController {
     }
 
     @ApiName("菜单列表")
-    @ApiPermission("system:menu:list")
+    @ApiPermission("mcerp:system:menu:list")
     @GetMapping("/list")
     public AjaxResult list() {
         return menuService.list();
     }
 
     @ApiName("菜单树选择")
-    @ApiPermission("system:menu:list")
+    @ApiPermission("mcerp:system:menu:list")
     @GetMapping("/treeselect")
     public AjaxResult treeselect() {
         return menuService.treeselect();
     }
 
     @ApiName("菜单详情")
-    @ApiPermission("system:menu:query")
+    @ApiPermission("mcerp:system:menu:query")
     @GetMapping("/{menuId}")
     public AjaxResult detail(@PathVariable(name = "menuId") String menuId) {
         return menuService.detail(menuId);
     }
 
     @ApiName("新增菜单")
-    @ApiPermission("system:menu:add")
+    @ApiPermission("mcerp:system:menu:add")
     @PostMapping("")
     public AjaxResult add(@RequestBody ErpMenu menu) {
         return menuService.add(menu);
     }
 
     @ApiName("编辑菜单")
-    @ApiPermission("system:menu:edit")
+    @ApiPermission("mcerp:system:menu:edit")
     @PutMapping("/{menuId}")
     public AjaxResult update(@PathVariable(name = "menuId") String menuId, @RequestBody ErpMenu menu) {
         return menuService.update(menuId, menu);
     }
 
     @ApiName("删除菜单")
-    @ApiPermission("system:menu:remove")
+    @ApiPermission("mcerp:system:menu:remove")
     @DeleteMapping("/{menuIds}")
     public AjaxResult remove(@PathVariable(name = "menuIds") String menuIds) {
         return menuService.remove(menuIds);
     }
 
     @ApiName("菜单排序")
-    @ApiPermission("system:menu:edit")
+    @ApiPermission("mcerp:system:menu:edit")
     @PutMapping("/updateSort")
     public AjaxResult updateSort() {
         return menuService.updateSort();
     }
 
     @ApiName("角色菜单树")
-    @ApiPermission("system:menu:list")
+    @ApiPermission("mcerp:system:menu:list")
     @GetMapping("/roleMenuTreeselect/{roleId}")
     public AjaxResult roleMenuTreeselect(@PathVariable(name = "roleId") String roleId) {
         return menuService.roleMenuTreeselect(roleId);

@@ -15,6 +15,9 @@ import java.util.Date;
  */
 @TableName("erp_oper_log")
 @Data
+/**
+ * 操作日志实体（erp_oper_log 表）。
+ */
 public class ErpOperLog extends BaseEntity {
 
     /** 日志主键 ID */

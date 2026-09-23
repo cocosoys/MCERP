@@ -33,6 +33,9 @@ import java.util.Set;
  */
 @CustomLog
 @Getter
+/**
+ * MCERP 主插件入口：初始化 Service 层、Controller 层、前端托管、i18n 与指令注册。
+ */
 public class MCERP extends JavaPlugin implements Listener {
 
     private @Getter static MCERP instance;

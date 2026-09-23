@@ -11,6 +11,9 @@ import lombok.Data;
  */
 @TableName("erp_dict_type")
 @Data
+/**
+ * 字典类型实体（erp_dict_type 表）。
+ */
 public class ErpDictType extends BaseEntity {
 
     /** 字典主键 ID */

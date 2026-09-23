@@ -46,7 +46,7 @@ public final class McerpI18n {
         } catch (IllegalArgumentException e) {
             // jar 内无该资源（异常情况）：跳过释放，后续注册仍可用已存在的文件
         }
-        // 2. 注册语言源：language 文件夹按 <folder>/<语言>.yml 约定取 zh_cn.yml
+        // 2. 注册语言源：language 文件夹按 &lt;folder&gt;/&lt;语言&gt;.yml 约定取 zh_cn.yml
         File folder = new File(plugin.getDataFolder(), "language");
         I18n.registerLanguageSource(
                 Platforms.getOrNull(), SOURCE_NAME, SOURCE_DESC, LANGUAGE, folder.getAbsolutePath());

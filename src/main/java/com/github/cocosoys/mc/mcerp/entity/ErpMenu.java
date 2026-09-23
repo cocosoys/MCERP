@@ -13,6 +13,9 @@ import lombok.Data;
  */
 @TableName("erp_menu")
 @Data
+/**
+ * 菜单实体（erp_menu 表）。
+ */
 public class ErpMenu extends BaseEntity {
 
     /** 菜单 ID（主键，自然数或 UUID） */
