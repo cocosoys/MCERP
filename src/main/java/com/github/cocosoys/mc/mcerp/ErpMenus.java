@@ -333,13 +333,44 @@ public final class ErpMenus {
         return this;
     }
 
-    /** 构建菜单树（根节点列表快照）。 */
+    /** 构建菜单树（根节点列表快照）。C 菜单未写 component 时自动用 menuId 拼接。 */
     public List<ErpMenuVO> build() {
+        for (ErpMenuVO root : roots) {
+            fillComponentIfAbsent(root);
+        }
         return new ArrayList<>(roots);
     }
 
-    // ===== 全属性 spec =====
+    /** 递归填充 C 菜单 component：未写时自动拼 basePrefix + 父级 dir 链 + menuId。 */
+    private void fillComponentIfAbsent(ErpMenuVO node) {
+        fillComponentIfAbsent(node, "");
+    }
 
+    /**
+     * 递归填充 C 菜单 component。
+     * @param parentPath 父级 dir 链（如 "/system"、"/system/dict"），根节点传空串
+     */
+    private void fillComponentIfAbsent(ErpMenuVO node, String parentPath) {
+        if (node == null) {
+            return;
+        }
+        String nodePath = parentPath;
+        // dir 节点：把自身 menuId 拼入路径栈，供子级使用
+        if ("M".equals(node.getMenuType()) && node.getMenuId() != null && !node.getMenuId().isEmpty()) {
+            nodePath = parentPath + "/" + node.getMenuId();
+        }
+        // C 菜单：未写 component 时自动拼 basePrefix + 父级 dir 链 + "/" + menuId
+        if ("C".equals(node.getMenuType())
+                && (node.getComponent() == null || node.getComponent().isEmpty())
+                && node.getMenuId() != null && !node.getMenuId().isEmpty()) {
+            node.setComponent(basePrefix + nodePath + "/" + node.getMenuId());
+        }
+        if (node.getChildren() != null) {
+            for (ErpMenuVO child : node.getChildren()) {
+                fillComponentIfAbsent(child, nodePath);
+            }
+        }
+    }
     /**
      * 节点全属性填充器（配合 {@code dir(Consumer&lt;MenuSpec&gt;)} / {@code menu(...)} / {@code perm(...)}）。
      * spec 内所有表字段可一次填齐；menuType 由方法名决定，不可填写。
