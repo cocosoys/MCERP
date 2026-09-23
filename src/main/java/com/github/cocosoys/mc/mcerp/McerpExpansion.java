@@ -2,7 +2,9 @@ package com.github.cocosoys.mc.mcerp;
 
 import com.github.cocosoys.mc.mcerp.entity.vo.ErpMenuVO;
 import com.github.cocosoys.mc.mcerp.entity.vo.ErpModuleVO;
+import com.github.cocosoys.mc.mcerp.util.NameSafe;
 import com.github.cocosoys.mc.soyshttpovermc.api.SoysExpansion;
+import com.github.cocosoys.mc.soyshttpovermc.api.SoysHttpOverMcApi;
 import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Setter;
@@ -49,9 +51,6 @@ import java.util.List;
  * /soyshttp reload 兜底补登记。</p>
  */
 @CustomLog
-/**
- * ERP 模块扩展基类：附属插件继承本类即自动完成 SoysExpansion 骨架 + MCERP 登记。
- */
 public abstract class McerpExpansion extends SoysExpansion {
 
     /** MCERP 宿主引用（MCERP onEnable 时经 {@link #setMcerp(MCERP)} 注入；未绑定 = MCERP 未装/未就绪）。 */
@@ -82,6 +81,33 @@ public abstract class McerpExpansion extends SoysExpansion {
     /** 无子菜单时的默认页地址。 */
     protected String homeUrl() {
         return null;
+    }
+
+    /**
+     * 页面 URL 前缀：/web/plugins/&lt;插件名&gt;（SOYS 页面托管根路径）。
+     * 不手写常量，随插件 identifier 自动生成。
+     */
+    public String pageRoot() {
+        SoysHttpOverMcApi api = getApi();
+        if (api == null) {
+            return "/web/plugins/" + getIdentifier();
+        }
+        String prefix = api.getToolkit().pageFullPrefix(getIdentifier());
+        if (prefix == null || prefix.isEmpty()) {
+            return "/web/plugins/" + getIdentifier();
+        }
+        return prefix;
+    }
+
+    /**
+     * 菜单 component 默认前缀：/web/plugins/&lt;插件名&gt;/&lt;安全目录名&gt;。
+     * 安全目录名 = {@link NameSafe#path(String)}（identifier 过滤非法字符 + 转小写），
+     * 例如 SOYSHTTPOverMC-ERP → soyshttpovermcerp。
+     *
+     * <p>开发者在 {@code .component("erp/user")} 时无需手写前缀，本方法自动拼接。</p>
+     */
+    public String pageDirRoot() {
+        return pageRoot() + "/" + NameSafe.path(getIdentifier());
     }
 
     /**
@@ -166,7 +192,7 @@ public abstract class McerpExpansion extends SoysExpansion {
         vo.setSortOrder(sortOrder());
         vo.setComponentMode(wujie() ? "WUJIE" : "IFRAME");
         ErpMenus ms = menus();
-        List<ErpMenuVO> children = ms == null ? null : ms.build();
+        List<ErpMenuVO> children = ms == null ? null : ms.setBasePrefix(pageDirRoot()).setRootPrefix(pageRoot()).build();
         if (children == null || children.isEmpty()) {
             List<ErpMenuVO> direct = menusTable();
             if (direct != null && !direct.isEmpty()) {

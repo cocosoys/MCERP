@@ -84,6 +84,27 @@ public final class ErpMenus {
     /** 最近一次声明/attach 的节点（链式 setter 的作用目标）。 */
     private ErpMenuVO last;
 
+    /** component 默认前缀（由 McerpExpansion 在 build 前注入 pageDirRoot()）。 */
+    private String basePrefix = "";
+
+    /** componentFull 前缀（由 McerpExpansion 注入 pageRoot()，只补 /web/plugins/<id>）。 */
+    private String rootPrefix = "";
+
+    /**
+     * 设置 component 默认前缀（由 McerpExpansion 注入 pageDirRoot()，开发者无需调用）。
+     * @param prefix 前缀，如 /web/plugins/SOYSHTTPOverMC-ERP/soyshttpovermcerp
+     */
+    public ErpMenus setBasePrefix(String prefix) {
+        this.basePrefix = prefix == null ? "" : prefix;
+        return this;
+    }
+
+    /** 设置 componentFull 前缀（由 McerpExpansion 注入 pageRoot()）。 */
+    public ErpMenus setRootPrefix(String prefix) {
+        this.rootPrefix = prefix == null ? "" : prefix;
+        return this;
+    }
+
     /** 私有构造器：统一经 {@link #create()} 创建（构建器无共享状态）。 */
     private ErpMenus() {
     }
@@ -130,7 +151,7 @@ public final class ErpMenus {
     public ErpMenus dir(Consumer<MenuSpec> spec, Consumer<ErpMenus> sub) {
         ErpMenuVO node = node(null, null, "M", null);
         if (spec != null) {
-            spec.accept(new MenuSpec(node));
+            spec.accept(new MenuSpec(node, basePrefix, rootPrefix));
         }
         attach(node);
         stack.push(node);
@@ -146,7 +167,7 @@ public final class ErpMenus {
     public ErpMenus dir(Consumer<MenuSpec> spec) {
         ErpMenuVO node = node(null, null, "M", null);
         if (spec != null) {
-            spec.accept(new MenuSpec(node));
+            spec.accept(new MenuSpec(node, basePrefix, rootPrefix));
         }
         attach(node);
         stack.push(node);
@@ -181,7 +202,7 @@ public final class ErpMenus {
     public ErpMenus menu(Consumer<MenuSpec> spec) {
         ErpMenuVO node = node(null, null, "C", null);
         if (spec != null) {
-            spec.accept(new MenuSpec(node));
+            spec.accept(new MenuSpec(node, basePrefix, rootPrefix));
         }
         attach(node);
         return this;
@@ -204,7 +225,7 @@ public final class ErpMenus {
     public ErpMenus perm(Consumer<MenuSpec> spec) {
         ErpMenuVO node = node(null, null, "F", null);
         if (spec != null) {
-            spec.accept(new MenuSpec(node));
+            spec.accept(new MenuSpec(node, basePrefix, rootPrefix));
         }
         attach(node);
         return this;
@@ -260,13 +281,29 @@ public final class ErpMenus {
     }
 
     /** 组件路径/页面地址（type=C 时作为 iframe 目标，表字段 component）。 */
+    /** 组件路径/页面地址（type=C 时作为 iframe 目标，表字段 component）。自动拼 basePrefix。 */
     public ErpMenus component(String component) {
+        if (last != null) {
+            last.setComponent(basePrefix + component);
+        }
+        return this;
+    }
+
+    /** 组件路径（只补 /web/plugins/<id> 前缀，不补安全目录名）。 */
+    public ErpMenus componentFull(String component) {
+        if (last != null) {
+            last.setComponent(rootPrefix + component);
+        }
+        return this;
+    }
+
+    /** 组件完整 URL（不拼任何前缀，开发者自行填写如 https://example.com/page）。 */
+    public ErpMenus componentFullURL(String component) {
         if (last != null) {
             last.setComponent(component);
         }
         return this;
     }
-
     /** 路由路径（相对父级，默认按 menuId）。 */
     public ErpMenus path(String path) {
         if (last != null) {
@@ -311,10 +348,16 @@ public final class ErpMenus {
 
         /** 被填充的目标节点（spec 所有 setter 最终写入该节点） */
         private final ErpMenuVO node;
+        /** component 默认前缀（外部 ErpMenus 注入）。 */
+        private final String basePrefix;
+        /** componentFull 前缀（外部 ErpMenus 注入 rootPrefix）。 */
+        private final String rootPrefix;
 
         /** 私有构造器：由 {@code dir/menu/perm(Consumer&lt;MenuSpec&gt;)} 传入待填充节点。 */
-        private MenuSpec(ErpMenuVO node) {
+        private MenuSpec(ErpMenuVO node, String basePrefix, String rootPrefix) {
             this.node = node;
+            this.basePrefix = basePrefix == null ? "" : basePrefix;
+            this.rootPrefix = rootPrefix == null ? "" : rootPrefix;
         }
 
         /** 菜单 ID（表字段，同层级内建议唯一）。 */
@@ -348,11 +391,23 @@ public final class ErpMenus {
         }
 
         /** 组件路径/页面地址（表字段；M 目录为 Layout/ParentView，C 菜单为页面组件/iframe 目标）。 */
+        /** 组件路径/页面地址（表字段；自动拼 basePrefix）。 */
         public MenuSpec component(String component) {
-            node.setComponent(component);
+            node.setComponent(basePrefix + component);
             return this;
         }
 
+        /** 组件路径（只补 /web/plugins/<id> 前缀，不补安全目录名）。 */
+        public MenuSpec componentFull(String component) {
+            node.setComponent(rootPrefix + component);
+            return this;
+        }
+
+        /** 组件完整 URL（不拼任何前缀）。 */
+        public MenuSpec componentFullURL(String component) {
+            node.setComponent(component);
+            return this;
+        }
         /** 路由参数（表字段，非空时拼接到路由 path 后）。 */
         public MenuSpec query(String query) {
             node.setQuery(query);
