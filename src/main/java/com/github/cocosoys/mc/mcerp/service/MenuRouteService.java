@@ -1,18 +1,18 @@
 package com.github.cocosoys.mc.mcerp.service;
 
+import com.github.cocosoys.mc.mcerp.entity.vo.RouterVO;
 import com.github.cocosoys.mc.soyshttpovermc.web.gateway.policy.auth.issuer.CredentialPresentation;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * getRouters 路由合成服务（抽象契约）：菜单表（内置初始化数据 ⊕ 自定义 erp_menu）⊕ 已登记 ERP 模块菜单。
- * 实现见 {@link MenuRouteServiceImpl}。
+ * 实现见 {@link com.github.cocosoys.mc.mcerp.impl.MenuRouteServiceImpl}。
  */
 public interface MenuRouteService {
 
     /**
      * 合成当前凭证可见的路由树（若依 getRouters 契约）。
      */
-    List<Map<String, Object>> buildRoutes(CredentialPresentation credential);
+    List<RouterVO> buildRoutes(CredentialPresentation credential);
 }

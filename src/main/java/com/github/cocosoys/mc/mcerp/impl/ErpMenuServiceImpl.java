@@ -14,9 +14,7 @@ import com.github.cocosoys.mc.soyshttpovermc.util.AjaxResult;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -41,27 +39,27 @@ public class ErpMenuServiceImpl implements ErpMenuService {
     @Override
     public AjaxResult treeselect() {
         List<TreeselectVO> tree = new ArrayList<>();
-        for (Map<String, Object> node : buildMenuTree()) {
+        for (ErpMenuVO node : buildMenuTree()) {
             tree.add(toTreeselectNode(node));
         }
         return AjaxResult.success(tree);
     }
 
-    private static TreeselectVO toTreeselectNode(Map<String, Object> node) {
+    private static TreeselectVO toTreeselectNode(ErpMenuVO node) {
         TreeselectVO vo = new TreeselectVO();
-        Object id = node.get("menuId");
-        vo.setId(id == null ? "" : String.valueOf(id));
-        Object label = node.get("menuName");
-        vo.setLabel(label == null ? "" : String.valueOf(label));
-        vo.setChildren(toTreeselectChildren((List<?>) node.get("children")));
+        vo.setId(node.getMenuId() == null ? "" : node.getMenuId());
+        vo.setLabel(node.getMenuName() == null ? "" : node.getMenuName());
+        vo.setChildren(toTreeselectChildren(node.getChildren()));
         return vo;
     }
 
-    @SuppressWarnings("unchecked")
-    private static List<TreeselectVO> toTreeselectChildren(List<?> children) {
+    private static List<TreeselectVO> toTreeselectChildren(List<ErpMenuVO> children) {
         List<TreeselectVO> out = new ArrayList<>();
-        for (Object o : children == null ? new ArrayList<>() : children) {
-            out.add(toTreeselectNode((Map<String, Object>) o));
+        if (children == null) {
+            return out;
+        }
+        for (ErpMenuVO c : children) {
+            out.add(toTreeselectNode(c));
         }
         return out;
     }
@@ -72,7 +70,6 @@ public class ErpMenuServiceImpl implements ErpMenuService {
         if (m != null) {
             return AjaxResult.success(m);
         }
-        // 插件登记菜单为代码声明，无实体记录——返回 404 语义由前端提示
         return AjaxResult.error(t("mcerp.menu.table-only", "仅可查看菜单表记录（插件菜单为代码声明）"));
     }
 
@@ -90,7 +87,7 @@ public class ErpMenuServiceImpl implements ErpMenuService {
         m.setIcon(menu.getIcon() == null ? "" : menu.getIcon());
         m.setVisible(menu.getVisible() == null || menu.getVisible().isEmpty() ? "0" : menu.getVisible());
         m.setStatus(menu.getStatus() == null || menu.getStatus().isEmpty() ? "0" : menu.getStatus());
-        m.setBuiltin("N"); // 运行时新增一律为自定义菜单
+        m.setBuiltin("N");
         if (m.getMenuName().isEmpty()) {
             return AjaxResult.error(t("mcerp.menu.name-empty", "菜单名称不能为空"));
         }
@@ -155,7 +152,7 @@ public class ErpMenuServiceImpl implements ErpMenuService {
                 continue;
             }
             if (isBuiltinMenu(m)) {
-                continue; // 内置菜单为初始化数据，跳过
+                continue;
             }
             DATA.deleteById(ErpMenu.class, id.trim());
             operLog.record(t("mcerp.operlog.module.menu", "菜单管理"), t("mcerp.operlog.action.delete-menu", "删除菜单"), m.getMenuName(), t("mcerp.common.delete-success", "删除成功"));
@@ -169,7 +166,6 @@ public class ErpMenuServiceImpl implements ErpMenuService {
 
     @Override
     public AjaxResult updateSort() {
-        // 自定义菜单排序（简化：仅回执成功）
         return AjaxResult.success(t("mcerp.common.operation-success", "操作成功"));
     }
 
@@ -180,97 +176,88 @@ public class ErpMenuServiceImpl implements ErpMenuService {
 
     // ===== 合成树 =====
 
-    public List<Map<String, Object>> buildMenuTree() {
-        List<Map<String, Object>> top = new ArrayList<>();
-        // 1. 菜单表（内置初始化数据 + 自定义 erp_menu）：统一按 parentId 组装
+    public List<ErpMenuVO> buildMenuTree() {
+        List<ErpMenuVO> top = new ArrayList<>();
         List<ErpMenu> menus = DATA.select(ErpMenu.class);
         menus.sort(Comparator.comparingInt(ErpMenu::getOrderNum));
         for (ErpMenu c : menus) {
             if ("0".equals(c.getParentId()) || "".equals(c.getParentId()) || c.getParentId() == null) {
-                Map<String, Object> cn = sysMenuNode(c);
-                cn.put("children", menuChildren(menus, c.getMenuId()));
+                ErpMenuVO cn = toMenuVO(c);
+                cn.setChildren(menuChildren(menus, c.getMenuId()));
                 top.add(cn);
             }
         }
-        // 2. 插件登记模块
         for (ErpModuleVO m : registry.getModules()) {
-            Map<String, Object> mod = node(m.getId(), "0", m.getDisplayName(), "M", "/" + m.getId().toLowerCase(),
-                    "Layout", m.getPermission(), m.getIcon() == null ? "link" : m.getIcon(), 100 + m.getSortOrder());
-            mod.put("children", menuNodes(m.getChildren(), m.getId(), m.getComponentMode()));
+            ErpMenuVO mod = new ErpMenuVO();
+            mod.setMenuId(m.getId());
+            mod.setParentId("0");
+            mod.setMenuName(m.getDisplayName());
+            mod.setOrderNum(100 + m.getSortOrder());
+            mod.setPath("/" + m.getId().toLowerCase());
+            mod.setComponent("Layout");
+            mod.setMenuType("M");
+            mod.setPerms(m.getPermission());
+            mod.setIcon(m.getIcon() == null ? "link" : m.getIcon());
+            mod.setVisible("0");
+            mod.setStatus("0");
+            mod.setChildren(menuNodes(m.getChildren(), m.getId(), m.getComponentMode()));
             top.add(mod);
         }
         return top;
     }
 
-    private static List<Map<String, Object>> menuChildren(List<ErpMenu> all, String parentId) {
-        List<Map<String, Object>> out = new ArrayList<>();
+    private static List<ErpMenuVO> menuChildren(List<ErpMenu> all, String parentId) {
+        List<ErpMenuVO> out = new ArrayList<>();
         for (ErpMenu c : all) {
             if (parentId != null && parentId.equals(c.getParentId())) {
-                Map<String, Object> cn = sysMenuNode(c);
-                cn.put("children", menuChildren(all, c.getMenuId()));
+                ErpMenuVO cn = toMenuVO(c);
+                cn.setChildren(menuChildren(all, c.getMenuId()));
                 out.add(cn);
             }
         }
         return out;
     }
 
-    private static Map<String, Object> sysMenuNode(ErpMenu c) {
-        Map<String, Object> n = new LinkedHashMap<>();
-        n.put("menuId", c.getMenuId());
-        n.put("parentId", c.getParentId());
-        n.put("menuName", c.getMenuName());
-        n.put("orderNum", c.getOrderNum());
-        n.put("path", c.getPath());
-        n.put("component", c.getComponent());
-        n.put("menuType", c.getMenuType());
-        n.put("perms", c.getPerms());
-        n.put("icon", c.getIcon());
-        n.put("visible", c.getVisible());
-        n.put("status", c.getStatus());
-        n.put("builtin", c.getBuiltin());
-        n.put("children", new ArrayList<>());
-        return n;
+    private static ErpMenuVO toMenuVO(ErpMenu c) {
+        ErpMenuVO vo = new ErpMenuVO();
+        vo.setMenuId(c.getMenuId());
+        vo.setParentId(c.getParentId());
+        vo.setMenuName(c.getMenuName());
+        vo.setOrderNum(c.getOrderNum());
+        vo.setPath(c.getPath());
+        vo.setComponent(c.getComponent());
+        vo.setMenuType(c.getMenuType());
+        vo.setPerms(c.getPerms());
+        vo.setIcon(c.getIcon());
+        vo.setVisible(c.getVisible());
+        vo.setStatus(c.getStatus());
+        vo.setBuiltin(c.getBuiltin());
+        return vo;
     }
 
-    private List<Map<String, Object>> menuNodes(List<ErpMenuVO> menus, String parentId, String mode) {
-        List<Map<String, Object>> out = new ArrayList<>();
+    private List<ErpMenuVO> menuNodes(List<ErpMenuVO> menus, String parentId, String mode) {
+        List<ErpMenuVO> out = new ArrayList<>();
         if (menus == null) {
             return out;
         }
         for (ErpMenuVO m : menus) {
-            Map<String, Object> n = new LinkedHashMap<>();
-            n.put("menuId", parentId + "_" + (m.getMenuId() == null ? m.getMenuName() : m.getMenuId()));
-            n.put("parentId", parentId);
-            n.put("menuName", m.getMenuName());
-            n.put("orderNum", m.getOrderNum());
-            n.put("path", m.getPath() == null ? m.getMenuId() : m.getPath());
-            n.put("component", ("WUJIE".equals(mode) ? "wujie:" : "iframe:") + (m.getComponent() == null ? "" : m.getComponent()));
-            n.put("menuType", m.getMenuType() == null ? "C" : m.getMenuType());
-            n.put("perms", m.getPerms());
-            n.put("icon", m.getIcon());
-            n.put("visible", m.isVisible() ? "0" : "1");
-            n.put("status", "0");
-            n.put("children", menuNodes(m.getChildren(), (String) n.get("menuId"), mode));
+            ErpMenuVO n = new ErpMenuVO();
+            String childId = m.getMenuId() == null ? m.getMenuName() : m.getMenuId();
+            n.setMenuId(parentId + "_" + childId);
+            n.setParentId(parentId);
+            n.setMenuName(m.getMenuName());
+            n.setOrderNum(m.getOrderNum());
+            n.setPath(m.getPath() == null ? m.getMenuId() : m.getPath());
+            String prefix = "WUJIE".equals(mode) ? "wujie:" : "iframe:";
+            n.setComponent(prefix + (m.getComponent() == null ? "" : m.getComponent()));
+            n.setMenuType(m.getMenuType() == null ? "C" : m.getMenuType());
+            n.setPerms(m.getPerms());
+            n.setIcon(m.getIcon());
+            n.setVisible(m.isVisible() ? "0" : "1");
+            n.setStatus("0");
+            n.setChildren(menuNodes(m.getChildren(), n.getMenuId(), mode));
             out.add(n);
         }
         return out;
-    }
-
-    private static Map<String, Object> node(String menuId, String parentId, String menuName, String menuType,
-                                            String path, String component, String perms, String icon, int order) {
-        Map<String, Object> n = new LinkedHashMap<>();
-        n.put("menuId", menuId);
-        n.put("parentId", parentId);
-        n.put("menuName", menuName);
-        n.put("orderNum", order);
-        n.put("path", path);
-        n.put("component", component);
-        n.put("menuType", menuType);
-        n.put("perms", perms);
-        n.put("icon", icon);
-        n.put("visible", "0");
-        n.put("status", "0");
-        n.put("children", new ArrayList<>());
-        return n;
     }
 }

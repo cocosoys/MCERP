@@ -13,6 +13,7 @@ import com.github.cocosoys.mc.mcerp.entity.vo.AuthRoleSaveVO;
 import com.github.cocosoys.mc.mcerp.entity.vo.ChangeStatusVO;
 import com.github.cocosoys.mc.mcerp.entity.vo.SavePermsVO;
 import com.github.cocosoys.mc.mcerp.entity.vo.UserPermsVO;
+import com.github.cocosoys.mc.mcerp.entity.vo.UserInfoVO;
 import com.github.cocosoys.mc.mcerp.service.AuthService;
 import com.github.cocosoys.mc.mcerp.service.OperLogService;
 import com.github.cocosoys.mc.mcerp.service.ErpUserService;
@@ -76,11 +77,11 @@ public class ErpUserServiceImpl implements ErpUserService {
     public AjaxResult formInit(CredentialPresentation credential) {
         AjaxResult ok = AjaxResult.success();
         // 当前登录者（新增表单顶部展示 / 创建人）
-        Map<String, Object> user = new LinkedHashMap<>();
         String player = auth.currentPlayer(credential);
-        user.put("userId", player == null ? "" : player);
-        user.put("userName", player == null ? "" : player);
-        user.put("nickName", player == null ? "" : player);
+        UserInfoVO user = new UserInfoVO();
+        user.setUserId(player == null ? "" : player);
+        user.setUserName(player == null ? "" : player);
+        user.setNickName(player == null ? "" : player);
         ok.put("user", user);
         // 角色下拉（SOYS 权限组）
         ok.put("roles", roleOptions());
@@ -330,8 +331,10 @@ public class ErpUserServiceImpl implements ErpUserService {
             return AjaxResult.error(t("mcerp.common.not-logged-in", "未登录"));
         }
         ProfileVO vo = new ProfileVO();
-        Map<String, Object> info = auth.getInfo(credential);
-        Object user = info.get("data") instanceof Map ? ((Map<?, ?>) info.get("data")).get("user") : null;
+        UserInfoVO user = new UserInfoVO();
+        user.setUserId(player);
+        user.setUserName(player);
+        user.setNickName(player);
         vo.setUser(user);
         vo.setRoleGroup(auth.isOp(player) ? t("mcerp.user.rolegroup-op", "超级管理员") : t("mcerp.user.rolegroup-player", "普通玩家"));
         vo.setPostGroup(t("mcerp.user.postgroup", "ERP 后台"));

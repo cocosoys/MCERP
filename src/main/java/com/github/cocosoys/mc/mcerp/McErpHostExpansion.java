@@ -2,6 +2,7 @@ package com.github.cocosoys.mc.mcerp;
 
 import com.github.cocosoys.mc.mcerp.controller.ErpAuthController;
 import com.github.cocosoys.mc.mcerp.controller.ErpConfigController;
+import com.github.cocosoys.mc.mcerp.controller.ErpDashboardController;
 import com.github.cocosoys.mc.mcerp.controller.ErpDictController;
 import com.github.cocosoys.mc.mcerp.controller.ErpLogController;
 import com.github.cocosoys.mc.mcerp.controller.ErpMenuController;
@@ -75,6 +76,7 @@ public class McErpHostExpansion extends SoysExpansion {
         list.add(new ErpConfigController(sysConfigService));
         list.add(new ErpNoticeController(sysNoticeService));
         list.add(new ErpLogController(sysLogService));
+        list.add(new ErpDashboardController(registry));
         this.controllers = list;
     }
 

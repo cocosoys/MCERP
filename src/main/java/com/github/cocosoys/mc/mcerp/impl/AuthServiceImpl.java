@@ -7,6 +7,7 @@ import com.github.cocosoys.mc.mcerp.entity.ErpMenu;
 import com.github.cocosoys.mc.mcerp.entity.ErpUser;
 import com.github.cocosoys.mc.mcerp.entity.vo.ErpMenuVO;
 import com.github.cocosoys.mc.mcerp.entity.vo.ErpModuleVO;
+import com.github.cocosoys.mc.mcerp.entity.vo.UserInfoVO;
 import com.github.cocosoys.mc.mcerp.service.AuthService;
 import com.github.cocosoys.mc.soyshttpovermc.HttpOverMcPlugin;
 import com.github.cocosoys.mc.soyshttpovermc.orm.DATA;
@@ -109,17 +110,17 @@ public class AuthServiceImpl implements AuthService {
         return ok;
     }
 
-    private Map<String, Object> userInfo(String player) {
-        Map<String, Object> user = new LinkedHashMap<>();
-        user.put("userId", player);
-        user.put("userName", player);
-        user.put("nickName", player);
-        user.put("avatar", "");
+    private UserInfoVO userInfo(String player) {
+        UserInfoVO user = new UserInfoVO();
+        user.setUserId(player);
+        user.setUserName(player);
+        user.setNickName(player);
+        user.setAvatar("");
         ErpUser u = findUser(player);
-        user.put("sex", u == null ? "0" : u.getSex());
-        user.put("email", u == null ? "" : u.getEmail());
-        user.put("phonenumber", u == null ? "" : u.getPhonenumber());
-        user.put("status", u == null ? "0" : u.getStatus());
+        user.setSex(u == null ? "0" : u.getSex());
+        user.setEmail(u == null ? "" : u.getEmail());
+        user.setPhonenumber(u == null ? "" : u.getPhonenumber());
+        user.setStatus(u == null ? "0" : u.getStatus());
         return user;
     }
 
