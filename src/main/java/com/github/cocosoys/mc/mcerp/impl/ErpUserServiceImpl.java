@@ -14,6 +14,9 @@ import com.github.cocosoys.mc.mcerp.entity.vo.ChangeStatusVO;
 import com.github.cocosoys.mc.mcerp.entity.vo.SavePermsVO;
 import com.github.cocosoys.mc.mcerp.entity.vo.UserPermsVO;
 import com.github.cocosoys.mc.mcerp.entity.vo.UserInfoVO;
+import com.github.cocosoys.mc.mcerp.ErpRegistry;
+import com.github.cocosoys.mc.mcerp.entity.vo.ErpMenuVO;
+import com.github.cocosoys.mc.mcerp.entity.vo.ErpModuleVO;
 import com.github.cocosoys.mc.mcerp.service.AuthService;
 import com.github.cocosoys.mc.mcerp.service.OperLogService;
 import com.github.cocosoys.mc.mcerp.service.ErpUserService;
@@ -47,10 +50,12 @@ public class ErpUserServiceImpl implements ErpUserService {
 
     private final AuthService auth;
     private final OperLogService operLog;
+    private final ErpRegistry registry;
 
-    public ErpUserServiceImpl(AuthService auth, OperLogService operLog) {
+    public ErpUserServiceImpl(AuthService auth, OperLogService operLog, ErpRegistry registry) {
         this.auth = auth;
         this.operLog = operLog;
+        this.registry = registry;
     }
 
     @Override
@@ -226,7 +231,7 @@ public class ErpUserServiceImpl implements ErpUserService {
         return AjaxResult.success(vo);
     }
 
-    /** 菜单权限树：从 erp_menu 构建（menuId/parentId/menuName/perms/menuType/children）。 */
+    /** 菜单权限树：erp_menu 表 + 扩展插件登记菜单合并构建（menuId/parentId/menuName/perms/menuType/children）。 */
     private List<MenuTreeVO> buildMenuTree() {
         List<ErpMenu> all = DATA.select(ErpMenu.class);
         Map<String, MenuTreeVO> byId = new LinkedHashMap<>();
@@ -239,6 +244,20 @@ public class ErpUserServiceImpl implements ErpUserService {
             v.setMenuType(m.getMenuType());
             byId.put(m.getMenuId(), v);
         }
+        // 合并扩展插件登记菜单
+        if (registry != null) {
+            for (ErpModuleVO module : registry.getModules()) {
+                String modId = module.getId();
+                MenuTreeVO modNode = new MenuTreeVO();
+                modNode.setMenuId(modId);
+                modNode.setParentId("0");
+                modNode.setMenuName(module.getDisplayName());
+                modNode.setPerms(module.getPermission());
+                modNode.setMenuType("M");
+                byId.put(modId, modNode);
+                addExtMenuNodes(byId, module.getChildren(), modId, modId);
+            }
+        }
         List<MenuTreeVO> roots = new ArrayList<>();
         for (MenuTreeVO v : byId.values()) {
             MenuTreeVO parent = byId.get(v.getParentId());
@@ -249,6 +268,25 @@ public class ErpUserServiceImpl implements ErpUserService {
             }
         }
         return roots;
+    }
+
+    /** 递归添加扩展插件菜单节点到权限树。childId 用 parentId 链拼路径，避免跨层级 menuId 冲突覆盖。 */
+    private void addExtMenuNodes(Map<String, MenuTreeVO> byId, List<ErpMenuVO> menus, String parentId, String moduleId) {
+        if (menus == null) {
+            return;
+        }
+        for (ErpMenuVO m : menus) {
+            String rawId = m.getMenuId() == null ? m.getMenuName() : m.getMenuId();
+            String childId = parentId + "_" + rawId;
+            MenuTreeVO v = new MenuTreeVO();
+            v.setMenuId(childId);
+            v.setParentId(parentId);
+            v.setMenuName(m.getMenuName());
+            v.setPerms(m.getPerms());
+            v.setMenuType(m.getMenuType() == null ? "C" : m.getMenuType());
+            byId.put(childId, v);
+            addExtMenuNodes(byId, m.getChildren(), childId, moduleId);
+        }
     }
 
     @Override
