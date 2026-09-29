@@ -6,16 +6,17 @@ import com.github.cocosoys.mc.mcerp.entity.ErpConfig;
 import com.github.cocosoys.mc.mcerp.service.AuthService;
 import com.github.cocosoys.mc.mcerp.service.OperLogService;
 import com.github.cocosoys.mc.mcerp.service.ErpConfigService;
+import com.github.cocosoys.mc.mcerp.util.Ids;
 import com.github.cocosoys.mc.soyshttpovermc.util.PageUtils;
 import com.github.cocosoys.mc.soyshttpovermc.util.TableDataInfo;
 import com.github.cocosoys.mc.soyshttpovermc.orm.DATA;
 import com.github.cocosoys.mc.soyshttpovermc.util.AjaxResult;
+import com.github.cocosoys.mc.soyshttpovermc.web.gateway.policy.auth.issuer.CredentialPresentation;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * 参数设置实现（从 ErpConfigController 迁入）：CRUD + 按 key 查询；
@@ -48,7 +49,7 @@ public class ErpConfigServiceImpl implements ErpConfigService {
 
     @Override
     public AjaxResult detail(String configId) {
-        ErpConfig c = DATA.get(ErpConfig.class, configId);
+        ErpConfig c = DATA.get(ErpConfig.class, Ids.parse(configId));
         if (c == null) {
             return AjaxResult.error(t("mcerp.config.not-found", "参数不存在"));
         }
@@ -75,7 +76,7 @@ public class ErpConfigServiceImpl implements ErpConfigService {
     }
 
     @Override
-    public AjaxResult add(ErpConfig config) {
+    public AjaxResult add(ErpConfig config, CredentialPresentation credential) {
         String key = config.getConfigKey() == null ? "" : config.getConfigKey().trim();
         if (key.isEmpty()) {
             return AjaxResult.error(t("mcerp.config.key-empty", "参数键名不能为空"));
@@ -86,7 +87,6 @@ public class ErpConfigServiceImpl implements ErpConfigService {
             }
         }
         ErpConfig c = new ErpConfig();
-        c.setConfigId(UUID.randomUUID().toString());
         c.setConfigName(config.getConfigName() == null || config.getConfigName().isEmpty() ? key : config.getConfigName());
         c.setConfigKey(key);
         c.setConfigValue(config.getConfigValue() == null ? "" : config.getConfigValue());
@@ -94,13 +94,13 @@ public class ErpConfigServiceImpl implements ErpConfigService {
         c.setRemark(config.getRemark() == null ? "" : config.getRemark());
         c.setCreateTime(AuthService.now());
         DATA.insert(c);
-        operLog.record(t("mcerp.operlog.module.config", "参数设置"), t("mcerp.operlog.action.add-config", "新增参数"), key, t("mcerp.common.add-success", "新增成功"));
+        operLog.record(credential, t("mcerp.operlog.module.config", "参数设置"), t("mcerp.operlog.action.add-config", "新增参数"), key, t("mcerp.common.add-success", "新增成功"));
         return AjaxResult.success(t("mcerp.common.add-success", "新增成功"));
     }
 
     @Override
-    public AjaxResult update(String configId, ErpConfig config) {
-        ErpConfig c = configId == null || configId.isEmpty() ? null : DATA.get(ErpConfig.class, configId);
+    public AjaxResult update(String configId, ErpConfig config, CredentialPresentation credential) {
+        ErpConfig c = configId == null || configId.isEmpty() ? null : DATA.get(ErpConfig.class, Ids.parse(configId));
         if (c == null) {
             return AjaxResult.error(t("mcerp.config.not-found", "参数不存在"));
         }
@@ -117,12 +117,12 @@ public class ErpConfigServiceImpl implements ErpConfigService {
             c.setRemark(config.getRemark());
         }
         DATA.updateById(c);
-        operLog.record(t("mcerp.operlog.module.config", "参数设置"), t("mcerp.operlog.action.edit-config", "修改参数"), c.getConfigKey(), t("mcerp.common.edit-success", "修改成功"));
+        operLog.record(credential, t("mcerp.operlog.module.config", "参数设置"), t("mcerp.operlog.action.edit-config", "修改参数"), c.getConfigKey(), t("mcerp.common.edit-success", "修改成功"));
         return AjaxResult.success(t("mcerp.common.edit-success", "修改成功"));
     }
 
     @Override
-    public AjaxResult remove(String configIds) {
+    public AjaxResult remove(String configIds, CredentialPresentation credential) {
         if (configIds == null || configIds.isEmpty()) {
             return AjaxResult.error(t("mcerp.config.missing-id", "缺少 configId"));
         }
@@ -130,13 +130,14 @@ public class ErpConfigServiceImpl implements ErpConfigService {
             if (id.trim().isEmpty()) {
                 continue;
             }
-            ErpConfig c = DATA.get(ErpConfig.class, id.trim());
+            Long cid = Ids.parse(id);
+            ErpConfig c = cid == null ? null : DATA.get(ErpConfig.class, cid);
             if (c != null && "Y".equals(c.getConfigType())) {
                 return AjaxResult.error(t("mcerp.config.builtin-nodelete", "系统内置参数不可删除"));
             }
-            DATA.deleteById(ErpConfig.class, id.trim());
+            DATA.deleteById(ErpConfig.class, cid);
             if (c != null) {
-                operLog.record(t("mcerp.operlog.module.config", "参数设置"), t("mcerp.operlog.action.delete-config", "删除参数"), c.getConfigKey(), t("mcerp.common.delete-success", "删除成功"));
+                operLog.record(credential, t("mcerp.operlog.module.config", "参数设置"), t("mcerp.operlog.action.delete-config", "删除参数"), c.getConfigKey(), t("mcerp.common.delete-success", "删除成功"));
             }
         }
         return AjaxResult.success(t("mcerp.common.delete-success", "删除成功"));

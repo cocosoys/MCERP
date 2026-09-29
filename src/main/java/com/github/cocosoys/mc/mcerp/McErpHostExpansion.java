@@ -62,7 +62,7 @@ public class McErpHostExpansion extends SoysExpansion {
         // ===== Service 层 =====
         AuthService authService = new AuthServiceImpl(registry);
         MenuRouteService menuRouteService = new MenuRouteServiceImpl(registry, authService);
-        OperLogService operLogService = new OperLogServiceImpl();
+        OperLogService operLogService = new OperLogServiceImpl(authService);
         ErpUserService sysUserService = new ErpUserServiceImpl(authService, operLogService, registry);
         ErpMenuService sysMenuService = new ErpMenuServiceImpl(registry, operLogService);
         ErpDictService sysDictService = new ErpDictServiceImpl(operLogService);

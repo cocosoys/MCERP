@@ -19,9 +19,9 @@ public interface ErpNoticeService {
 
     AjaxResult add(ErpNotice notice, CredentialPresentation credential);
 
-    AjaxResult update(String noticeId, ErpNotice notice);
+    AjaxResult update(String noticeId, ErpNotice notice, CredentialPresentation credential);
 
-    AjaxResult remove(String noticeIds);
+    AjaxResult remove(String noticeIds, CredentialPresentation credential);
 
     AjaxResult markRead();
 

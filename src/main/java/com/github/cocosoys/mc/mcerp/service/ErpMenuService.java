@@ -2,6 +2,7 @@ package com.github.cocosoys.mc.mcerp.service;
 
 import com.github.cocosoys.mc.mcerp.entity.ErpMenu;
 import com.github.cocosoys.mc.soyshttpovermc.util.AjaxResult;
+import com.github.cocosoys.mc.soyshttpovermc.web.gateway.policy.auth.issuer.CredentialPresentation;
 
 /**
  * 菜单管理服务（抽象契约）：菜单表（内置 ⊕ 自定义）⊕ 插件登记菜单的合成树、CRUD。
@@ -16,11 +17,11 @@ public interface ErpMenuService {
 
     AjaxResult detail(String menuId);
 
-    AjaxResult add(ErpMenu menu);
+    AjaxResult add(ErpMenu menu, CredentialPresentation credential);
 
-    AjaxResult update(String menuId, ErpMenu menu);
+    AjaxResult update(String menuId, ErpMenu menu, CredentialPresentation credential);
 
-    AjaxResult remove(String menuIds);
+    AjaxResult remove(String menuIds, CredentialPresentation credential);
 
     AjaxResult updateSort();
 

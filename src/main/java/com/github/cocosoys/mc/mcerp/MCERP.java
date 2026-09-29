@@ -2,6 +2,7 @@ package com.github.cocosoys.mc.mcerp;
 
 import com.github.cocosoys.mc.mcerp.entity.vo.ErpModuleVO;
 import com.github.cocosoys.mc.mcerp.i18n.McerpI18n;
+import com.github.cocosoys.mc.mcerp.listener.LoginLogListener;
 import com.github.cocosoys.mc.soyshttpovermc.HttpOverMcPlugin;
 import com.github.cocosoys.mc.soyshttpovermc.api.SoysExpansion;
 import com.github.cocosoys.mc.soyshttpovermc.api.event.SoysReadyEvent;
@@ -50,6 +51,8 @@ public class MCERP extends JavaPlugin implements Listener {
         McerpExpansion.setMcerp(this); // 供附属 ERP 模块（McerpExpansion 子类）登记用
         registry = new ErpRegistry();
         getServer().getPluginManager().registerEvents(this, this);
+        // 登录日志旁路记账：挂 SOYS 网关事件（登录成功/失败）写 erp_logininfor
+        getServer().getPluginManager().registerEvents(new LoginLogListener(), this);
         // 服务器完全启动后（所有插件 enable 完成）再扫描一次 ERP 模块索引兜底：
         Bukkit.getScheduler().runTaskLater(this, this::mcerpReload, 20L);
         // SOYS 可能已先启用（SoysReadyEvent 在监听器注册前已广播）→ 就绪则直接注册

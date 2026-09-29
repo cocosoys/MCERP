@@ -1,6 +1,7 @@
 package com.github.cocosoys.mc.mcerp.entity;
 
 
+import com.dlz.db.annotation.IdType;
 import com.dlz.db.annotation.TableId;
 import com.dlz.db.annotation.TableName;
 import com.github.cocosoys.mc.soyshttpovermc.spring.entity.BaseEntity;
@@ -16,9 +17,9 @@ import lombok.Data;
  */
 public class ErpDictData extends BaseEntity {
 
-    /** 字典编码（主键） */
-    @TableId
-    private String dictCode;
+    /** 字典编码（主键，自增） */
+    @TableId(type = IdType.AUTO)
+    private Long dictCode;
 
     /** 字典排序（小在前） */
     private int dictSort;

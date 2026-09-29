@@ -14,6 +14,7 @@ import com.github.cocosoys.mc.soyshttpovermc.annotations.RequestBody;
 import com.github.cocosoys.mc.soyshttpovermc.annotations.RequestMapping;
 import com.github.cocosoys.mc.soyshttpovermc.annotations.RequestParam;
 import com.github.cocosoys.mc.soyshttpovermc.util.AjaxResult;
+import com.github.cocosoys.mc.soyshttpovermc.web.gateway.policy.auth.issuer.CredentialPresentation;
 
 /**
  * 参数设置（若依契约）：路由 /api/plugins/MCERP/system/config/*。
@@ -58,22 +59,22 @@ public class ErpConfigController {
     @ApiName("新增参数")
     @ApiPermission("mcerp:system:config:add")
     @PostMapping("")
-    public AjaxResult add(@RequestBody ErpConfig config) {
-        return configService.add(config);
+    public AjaxResult add(@RequestBody ErpConfig config, CredentialPresentation credential) {
+        return configService.add(config, credential);
     }
 
     @ApiName("编辑参数")
     @ApiPermission("mcerp:system:config:edit")
     @PutMapping("/{configId}")
-    public AjaxResult update(@PathVariable(name = "configId") String configId, @RequestBody ErpConfig config) {
-        return configService.update(configId, config);
+    public AjaxResult update(@PathVariable(name = "configId") String configId, @RequestBody ErpConfig config, CredentialPresentation credential) {
+        return configService.update(configId, config, credential);
     }
 
     @ApiName("删除参数")
     @ApiPermission("mcerp:system:config:remove")
     @DeleteMapping("/{configIds}")
-    public AjaxResult remove(@PathVariable(name = "configIds") String configIds) {
-        return configService.remove(configIds);
+    public AjaxResult remove(@PathVariable(name = "configIds") String configIds, CredentialPresentation credential) {
+        return configService.remove(configIds, credential);
     }
 
     @ApiName("刷新参数缓存")

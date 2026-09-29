@@ -11,8 +11,8 @@ import lombok.Data;
  */
 public class ChangeStatusVO {
 
-    /** 用户 ID（erp_user.user_id） */
-    private String userId;
+    /** 用户 ID（erp_user.user_id，自增主键） */
+    private Long userId;
 
     /** 目标状态：'0' 正常 / '1' 停用 */
     private String status;

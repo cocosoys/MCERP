@@ -12,6 +12,7 @@ import com.github.cocosoys.mc.soyshttpovermc.annotations.PutMapping;
 import com.github.cocosoys.mc.soyshttpovermc.annotations.RequestBody;
 import com.github.cocosoys.mc.soyshttpovermc.annotations.RequestMapping;
 import com.github.cocosoys.mc.soyshttpovermc.util.AjaxResult;
+import com.github.cocosoys.mc.soyshttpovermc.web.gateway.policy.auth.issuer.CredentialPresentation;
 
 /**
  * 菜单管理（若依契约）：路由 /api/plugins/MCERP/system/menu/*。
@@ -53,22 +54,22 @@ public class ErpMenuController {
     @ApiName("新增菜单")
     @ApiPermission("mcerp:system:menu:add")
     @PostMapping("")
-    public AjaxResult add(@RequestBody ErpMenu menu) {
-        return menuService.add(menu);
+    public AjaxResult add(@RequestBody ErpMenu menu, CredentialPresentation credential) {
+        return menuService.add(menu, credential);
     }
 
     @ApiName("编辑菜单")
     @ApiPermission("mcerp:system:menu:edit")
     @PutMapping("/{menuId}")
-    public AjaxResult update(@PathVariable(name = "menuId") String menuId, @RequestBody ErpMenu menu) {
-        return menuService.update(menuId, menu);
+    public AjaxResult update(@PathVariable(name = "menuId") String menuId, @RequestBody ErpMenu menu, CredentialPresentation credential) {
+        return menuService.update(menuId, menu, credential);
     }
 
     @ApiName("删除菜单")
     @ApiPermission("mcerp:system:menu:remove")
     @DeleteMapping("/{menuIds}")
-    public AjaxResult remove(@PathVariable(name = "menuIds") String menuIds) {
-        return menuService.remove(menuIds);
+    public AjaxResult remove(@PathVariable(name = "menuIds") String menuIds, CredentialPresentation credential) {
+        return menuService.remove(menuIds, credential);
     }
 
     @ApiName("菜单排序")

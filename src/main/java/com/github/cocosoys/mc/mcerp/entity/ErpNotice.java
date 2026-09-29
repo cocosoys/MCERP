@@ -1,6 +1,7 @@
 package com.github.cocosoys.mc.mcerp.entity;
 
 
+import com.dlz.db.annotation.IdType;
 import com.dlz.db.annotation.TableId;
 import com.dlz.db.annotation.TableName;
 import com.github.cocosoys.mc.soyshttpovermc.spring.entity.BaseEntity;
@@ -16,9 +17,9 @@ import lombok.Data;
  */
 public class ErpNotice extends BaseEntity {
 
-    /** 公告 ID（主键） */
-    @TableId
-    private String noticeId;
+    /** 公告 ID（主键，自增） */
+    @TableId(type = IdType.AUTO)
+    private Long noticeId;
 
     /** 公告标题 */
     private String noticeTitle;

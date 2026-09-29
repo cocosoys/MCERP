@@ -1,5 +1,6 @@
 package com.github.cocosoys.mc.mcerp.entity;
 
+import com.dlz.db.annotation.IdType;
 import com.dlz.db.annotation.TableId;
 import com.dlz.db.annotation.TableName;
 import com.github.cocosoys.mc.soyshttpovermc.spring.entity.BaseEntity;
@@ -18,15 +19,15 @@ import lombok.Data;
  */
 public class ErpMenu extends BaseEntity {
 
-    /** 菜单 ID（主键，自然数或 UUID） */
-    @TableId
-    private String menuId;
+    /** 菜单 ID（主键，自增数字） */
+    @TableId(type = IdType.AUTO)
+    private Long menuId;
 
     /** 菜单名称 */
     private String menuName;
 
-    /** 父菜单 ID（顶层为 '0'） */
-    private String parentId;
+    /** 父菜单 ID（顶层为 0） */
+    private Long parentId;
 
     /** 显示顺序（小在前） */
     private int orderNum;

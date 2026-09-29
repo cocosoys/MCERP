@@ -70,7 +70,6 @@ public class AuthServiceImpl implements AuthService {
             }
         }
         ErpUser u = new ErpUser();
-        u.setUserId(player);
         u.setUserName(player);
         u.setNickName(player);
         u.setEmail("");
@@ -111,12 +110,12 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private UserInfoVO userInfo(String player) {
+        ErpUser u = findUser(player);
         UserInfoVO user = new UserInfoVO();
         user.setUserId(player);
         user.setUserName(player);
-        user.setNickName(player);
+        user.setNickName(u != null && u.getNickName() != null && !u.getNickName().isEmpty() ? u.getNickName() : player);
         user.setAvatar("");
-        ErpUser u = findUser(player);
         user.setSex(u == null ? "0" : u.getSex());
         user.setEmail(u == null ? "" : u.getEmail());
         user.setPhonenumber(u == null ? "" : u.getPhonenumber());

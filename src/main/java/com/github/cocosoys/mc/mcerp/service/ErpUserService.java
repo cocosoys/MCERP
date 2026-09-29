@@ -25,26 +25,33 @@ public interface ErpUserService {
 
     AjaxResult detail(String userId);
 
-    AjaxResult add(ErpUser user);
+    AjaxResult add(ErpUser user, CredentialPresentation credential);
 
-    AjaxResult update(String userId, ErpUser user);
+    AjaxResult update(String userId, ErpUser user, CredentialPresentation credential);
 
     AjaxResult remove(String userIds, CredentialPresentation credential);
 
-    AjaxResult changeStatus(ChangeStatusVO vo);
+    AjaxResult changeStatus(ChangeStatusVO vo, CredentialPresentation credential);
 
     AjaxResult resetPwd();
 
 
     AjaxResult authRole(String userId);
 
-    AjaxResult authRoleSave(AuthRoleSaveVO vo);
+    AjaxResult authRoleSave(AuthRoleSaveVO vo, CredentialPresentation credential);
 
     AjaxResult listPerms(String userName);
 
-    AjaxResult savePerms(String userName, SavePermsVO vo);
+    AjaxResult savePerms(String userName, SavePermsVO vo, CredentialPresentation credential);
 
     AjaxResult profile(CredentialPresentation credential);
+
+    /**
+     * 更新个人资料（RuoYi 前端个人中心保存调 PUT /system/user/profile）：
+     * 按当前登录玩家（凭证主体）定位 erp_user，未登记时自动补登记；
+     * 仅更新可编辑字段（昵称/邮箱/手机/性别/备注）。
+     */
+    AjaxResult updateProfile(ErpUser user, CredentialPresentation credential);
 
     AjaxResult updatePwd();
 

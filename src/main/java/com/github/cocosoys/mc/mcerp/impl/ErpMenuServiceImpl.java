@@ -9,13 +9,14 @@ import com.github.cocosoys.mc.mcerp.entity.vo.ErpModuleVO;
 import com.github.cocosoys.mc.mcerp.entity.vo.TreeselectVO;
 import com.github.cocosoys.mc.mcerp.service.OperLogService;
 import com.github.cocosoys.mc.mcerp.service.ErpMenuService;
+import com.github.cocosoys.mc.mcerp.util.Ids;
 import com.github.cocosoys.mc.soyshttpovermc.orm.DATA;
 import com.github.cocosoys.mc.soyshttpovermc.util.AjaxResult;
+import com.github.cocosoys.mc.soyshttpovermc.web.gateway.policy.auth.issuer.CredentialPresentation;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * 菜单管理实现（从 ErpMenuController 迁入）：
@@ -66,7 +67,8 @@ public class ErpMenuServiceImpl implements ErpMenuService {
 
     @Override
     public AjaxResult detail(String menuId) {
-        ErpMenu m = DATA.get(ErpMenu.class, menuId);
+        Long id = Ids.parse(menuId);
+        ErpMenu m = id == null ? null : DATA.get(ErpMenu.class, id);
         if (m != null) {
             return AjaxResult.success(m);
         }
@@ -74,10 +76,9 @@ public class ErpMenuServiceImpl implements ErpMenuService {
     }
 
     @Override
-    public AjaxResult add(ErpMenu menu) {
+    public AjaxResult add(ErpMenu menu, CredentialPresentation credential) {
         ErpMenu m = new ErpMenu();
-        m.setMenuId(UUID.randomUUID().toString());
-        m.setParentId(menu.getParentId() == null || menu.getParentId().isEmpty() ? "0" : menu.getParentId());
+        m.setParentId(menu.getParentId() == null ? 0L : menu.getParentId());
         m.setMenuName(menu.getMenuName() == null ? "" : menu.getMenuName());
         m.setOrderNum(menu.getOrderNum());
         m.setPath(menu.getPath() == null ? "" : menu.getPath());
@@ -92,13 +93,14 @@ public class ErpMenuServiceImpl implements ErpMenuService {
             return AjaxResult.error(t("mcerp.menu.name-empty", "菜单名称不能为空"));
         }
         DATA.insert(m);
-        operLog.record(t("mcerp.operlog.module.menu", "菜单管理"), t("mcerp.operlog.action.add-menu", "新增菜单"), m.getMenuName(), t("mcerp.common.add-success", "新增成功"));
+        operLog.record(credential, t("mcerp.operlog.module.menu", "菜单管理"), t("mcerp.operlog.action.add-menu", "新增菜单"), m.getMenuName(), t("mcerp.common.add-success", "新增成功"));
         return AjaxResult.success(t("mcerp.common.add-success", "新增成功"));
     }
 
     @Override
-    public AjaxResult update(String menuId, ErpMenu menu) {
-        ErpMenu m = menuId == null || menuId.isEmpty() ? null : DATA.get(ErpMenu.class, menuId);
+    public AjaxResult update(String menuId, ErpMenu menu, CredentialPresentation credential) {
+        Long id = Ids.parse(menuId);
+        ErpMenu m = id == null ? null : DATA.get(ErpMenu.class, id);
         if (m == null) {
             return AjaxResult.error(t("mcerp.menu.not-found", "菜单不存在"));
         }
@@ -134,12 +136,12 @@ public class ErpMenuServiceImpl implements ErpMenuService {
             m.setStatus(menu.getStatus());
         }
         DATA.updateById(m);
-        operLog.record(t("mcerp.operlog.module.menu", "菜单管理"), t("mcerp.operlog.action.edit-menu", "修改菜单"), m.getMenuName(), t("mcerp.common.edit-success", "修改成功"));
+        operLog.record(credential, t("mcerp.operlog.module.menu", "菜单管理"), t("mcerp.operlog.action.edit-menu", "修改菜单"), m.getMenuName(), t("mcerp.common.edit-success", "修改成功"));
         return AjaxResult.success(t("mcerp.common.edit-success", "修改成功"));
     }
 
     @Override
-    public AjaxResult remove(String menuIds) {
+    public AjaxResult remove(String menuIds, CredentialPresentation credential) {
         if (menuIds == null || menuIds.isEmpty()) {
             return AjaxResult.error(t("mcerp.menu.missing-id", "缺少 menuId"));
         }
@@ -147,15 +149,16 @@ public class ErpMenuServiceImpl implements ErpMenuService {
             if (id.trim().isEmpty()) {
                 continue;
             }
-            ErpMenu m = DATA.get(ErpMenu.class, id.trim());
+            Long menuId = Ids.parse(id.trim());
+            ErpMenu m = menuId == null ? null : DATA.get(ErpMenu.class, menuId);
             if (m == null) {
                 continue;
             }
             if (isBuiltinMenu(m)) {
                 continue;
             }
-            DATA.deleteById(ErpMenu.class, id.trim());
-            operLog.record(t("mcerp.operlog.module.menu", "菜单管理"), t("mcerp.operlog.action.delete-menu", "删除菜单"), m.getMenuName(), t("mcerp.common.delete-success", "删除成功"));
+            DATA.deleteById(ErpMenu.class, menuId);
+            operLog.record(credential, t("mcerp.operlog.module.menu", "菜单管理"), t("mcerp.operlog.action.delete-menu", "删除菜单"), m.getMenuName(), t("mcerp.common.delete-success", "删除成功"));
         }
         return AjaxResult.success(t("mcerp.common.delete-success", "删除成功"));
     }
@@ -181,7 +184,7 @@ public class ErpMenuServiceImpl implements ErpMenuService {
         List<ErpMenu> menus = DATA.select(ErpMenu.class);
         menus.sort(Comparator.comparingInt(ErpMenu::getOrderNum));
         for (ErpMenu c : menus) {
-            if ("0".equals(c.getParentId()) || "".equals(c.getParentId()) || c.getParentId() == null) {
+            if (c.getParentId() == null || c.getParentId() == 0) {
                 ErpMenuVO cn = toMenuVO(c);
                 cn.setChildren(menuChildren(menus, c.getMenuId()));
                 top.add(cn);
@@ -206,7 +209,7 @@ public class ErpMenuServiceImpl implements ErpMenuService {
         return top;
     }
 
-    private static List<ErpMenuVO> menuChildren(List<ErpMenu> all, String parentId) {
+    private static List<ErpMenuVO> menuChildren(List<ErpMenu> all, Long parentId) {
         List<ErpMenuVO> out = new ArrayList<>();
         for (ErpMenu c : all) {
             if (parentId != null && parentId.equals(c.getParentId())) {
@@ -220,12 +223,16 @@ public class ErpMenuServiceImpl implements ErpMenuService {
 
     private static ErpMenuVO toMenuVO(ErpMenu c) {
         ErpMenuVO vo = new ErpMenuVO();
-        vo.setMenuId(c.getMenuId());
-        vo.setParentId(c.getParentId());
+        vo.setMenuId(c.getMenuId() == null ? null : String.valueOf(c.getMenuId()));
+        vo.setParentId(c.getParentId() == null ? "0" : String.valueOf(c.getParentId()));
         vo.setMenuName(c.getMenuName());
         vo.setOrderNum(c.getOrderNum());
         vo.setPath(c.getPath());
         vo.setComponent(c.getComponent());
+        vo.setQuery(c.getQuery());
+        vo.setRouteName(c.getRouteName());
+        vo.setIsFrame(c.getIsFrame());
+        vo.setIsCache(c.getIsCache());
         vo.setMenuType(c.getMenuType());
         vo.setPerms(c.getPerms());
         vo.setIcon(c.getIcon());

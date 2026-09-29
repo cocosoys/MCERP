@@ -20,6 +20,7 @@ import com.github.cocosoys.mc.mcerp.entity.vo.ErpModuleVO;
 import com.github.cocosoys.mc.mcerp.service.AuthService;
 import com.github.cocosoys.mc.mcerp.service.OperLogService;
 import com.github.cocosoys.mc.mcerp.service.ErpUserService;
+import com.github.cocosoys.mc.mcerp.util.Ids;
 import com.github.cocosoys.mc.soyshttpovermc.util.PageUtils;
 import com.github.cocosoys.mc.soyshttpovermc.util.TableDataInfo;
 import com.github.cocosoys.mc.soyshttpovermc.orm.DATA;
@@ -37,7 +38,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * 用户管理实现（从 ErpUserController 迁入）：CRUD、状态、角色/权限同步。
@@ -92,7 +92,8 @@ public class ErpUserServiceImpl implements ErpUserService {
 
     @Override
     public AjaxResult detail(String userId) {
-        ErpUser u = userId == null ? null : DATA.get(ErpUser.class, userId);
+        Long id = Ids.parse(userId);
+        ErpUser u = id == null ? null : DATA.get(ErpUser.class, id);
         if (u == null) {
             return AjaxResult.error(t("mcerp.user.not-found", "用户不存在"));
         }
@@ -112,7 +113,7 @@ public class ErpUserServiceImpl implements ErpUserService {
     }
 
     @Override
-    public AjaxResult add(ErpUser user) {
+    public AjaxResult add(ErpUser user, CredentialPresentation credential) {
         String userName = user.getUserName() == null ? "" : user.getUserName().trim();
         if (userName.isEmpty()) {
             return AjaxResult.error(t("mcerp.user.username-empty", "用户名不能为空"));
@@ -121,7 +122,6 @@ public class ErpUserServiceImpl implements ErpUserService {
             return AjaxResult.error(t("mcerp.user.username-exists", "用户名已存在"));
         }
         ErpUser u = new ErpUser();
-        u.setUserId(UUID.randomUUID().toString());
         u.setUserName(userName);
         u.setNickName(user.getNickName() == null || user.getNickName().isEmpty() ? userName : user.getNickName());
         u.setEmail(user.getEmail() == null ? "" : user.getEmail());
@@ -131,13 +131,14 @@ public class ErpUserServiceImpl implements ErpUserService {
         u.setRemark(user.getRemark() == null ? "" : user.getRemark());
         u.setCreateTime(AuthService.now());
         DATA.insert(u);
-        operLog.record(t("mcerp.operlog.module.user", "用户管理"), t("mcerp.operlog.action.add-user", "新增用户"), userName, t("mcerp.common.add-success", "新增成功"));
+        operLog.record(credential, t("mcerp.operlog.module.user", "用户管理"), t("mcerp.operlog.action.add-user", "新增用户"), userName, t("mcerp.common.add-success", "新增成功"));
         return AjaxResult.success(t("mcerp.common.add-success", "新增成功"));
     }
 
     @Override
-    public AjaxResult update(String userId, ErpUser user) {
-        ErpUser u = userId == null || userId.isEmpty() ? null : DATA.get(ErpUser.class, userId);
+    public AjaxResult update(String userId, ErpUser user, CredentialPresentation credential) {
+        Long id = Ids.parse(userId);
+        ErpUser u = id == null ? null : DATA.get(ErpUser.class, id);
         if (u == null) {
             return AjaxResult.error(t("mcerp.user.not-found", "用户不存在"));
         }
@@ -160,7 +161,7 @@ public class ErpUserServiceImpl implements ErpUserService {
             u.setRemark(user.getRemark());
         }
         DATA.updateById(u);
-        operLog.record(t("mcerp.operlog.module.user", "用户管理"), t("mcerp.operlog.action.edit-user", "修改用户"), u.getUserName(), t("mcerp.common.edit-success", "修改成功"));
+        operLog.record(credential, t("mcerp.operlog.module.user", "用户管理"), t("mcerp.operlog.action.edit-user", "修改用户"), u.getUserName(), t("mcerp.common.edit-success", "修改成功"));
         return AjaxResult.success(t("mcerp.common.edit-success", "修改成功"));
     }
 
@@ -174,26 +175,26 @@ public class ErpUserServiceImpl implements ErpUserService {
             if (id.trim().isEmpty()) {
                 continue;
             }
-            ErpUser u = DATA.get(ErpUser.class, id.trim());
+            Long uid = Ids.parse(id);
+            ErpUser u = uid == null ? null : DATA.get(ErpUser.class, uid);
             if (u != null && current != null && u.getUserName().equalsIgnoreCase(current)) {
                 return AjaxResult.error(t("mcerp.user.cannot-delete-self", "不能删除当前登录账号"));
             }
-            DATA.deleteById(ErpUser.class, id.trim());
-            operLog.record(t("mcerp.operlog.module.user", "用户管理"), t("mcerp.operlog.action.delete-user", "删除用户"), u == null ? id.trim() : u.getUserName(), t("mcerp.common.delete-success", "删除成功"));
+            DATA.deleteById(ErpUser.class, uid);
+            operLog.record(credential, t("mcerp.operlog.module.user", "用户管理"), t("mcerp.operlog.action.delete-user", "删除用户"), u == null ? id.trim() : u.getUserName(), t("mcerp.common.delete-success", "删除成功"));
         }
         return AjaxResult.success(t("mcerp.common.delete-success", "删除成功"));
     }
 
     @Override
-    public AjaxResult changeStatus(ChangeStatusVO vo) {
-        String userId = vo.getUserId() == null ? "" : vo.getUserId();
-        ErpUser u = userId.isEmpty() ? null : DATA.get(ErpUser.class, userId);
+    public AjaxResult changeStatus(ChangeStatusVO vo, CredentialPresentation credential) {
+        ErpUser u = vo.getUserId() == null ? null : DATA.get(ErpUser.class, vo.getUserId());
         if (u == null) {
             return AjaxResult.error(t("mcerp.user.not-found", "用户不存在"));
         }
         u.setStatus(vo.getStatus() == null || vo.getStatus().isEmpty() ? "0" : vo.getStatus());
         DATA.updateById(u);
-        operLog.record(t("mcerp.operlog.module.user", "用户管理"), t("mcerp.operlog.action.change-user-status", "修改用户状态"), u.getUserName(), t("mcerp.common.edit-success", "修改成功"));
+        operLog.record(credential, t("mcerp.operlog.module.user", "用户管理"), t("mcerp.operlog.action.change-user-status", "修改用户状态"), u.getUserName(), t("mcerp.common.edit-success", "修改成功"));
         return AjaxResult.success(t("mcerp.common.edit-success", "修改成功"));
     }
 
@@ -206,7 +207,7 @@ public class ErpUserServiceImpl implements ErpUserService {
 
     @Override
     public AjaxResult authRole(String userId) {
-        ErpUser u = DATA.get(ErpUser.class, userId);
+        ErpUser u = DATA.get(ErpUser.class, Ids.parse(userId));
         String player = u == null ? "" : u.getUserName();
         UserAuthRoleVO vo = new UserAuthRoleVO();
         vo.setRoles(roleOptions());
@@ -227,12 +228,12 @@ public class ErpUserServiceImpl implements ErpUserService {
         Map<String, MenuTreeVO> byId = new LinkedHashMap<>();
         for (ErpMenu m : all) {
             MenuTreeVO v = new MenuTreeVO();
-            v.setMenuId(m.getMenuId());
-            v.setParentId(m.getParentId());
+            v.setMenuId(m.getMenuId() == null ? null : String.valueOf(m.getMenuId()));
+            v.setParentId(m.getParentId() == null ? "0" : String.valueOf(m.getParentId()));
             v.setMenuName(m.getMenuName());
             v.setPerms(m.getPerms());
             v.setMenuType(m.getMenuType());
-            byId.put(m.getMenuId(), v);
+            byId.put(v.getMenuId(), v);
         }
         // 合并扩展插件登记菜单
         if (registry != null) {
@@ -280,9 +281,8 @@ public class ErpUserServiceImpl implements ErpUserService {
     }
 
     @Override
-    public AjaxResult authRoleSave(AuthRoleSaveVO vo) {
-        String userId = vo.getUserId() == null ? "" : vo.getUserId();
-        ErpUser u = userId.isEmpty() ? null : DATA.get(ErpUser.class, userId);
+    public AjaxResult authRoleSave(AuthRoleSaveVO vo, CredentialPresentation credential) {
+        ErpUser u = vo.getUserId() == null ? null : DATA.get(ErpUser.class, vo.getUserId());
         if (u == null) {
             return AjaxResult.error(t("mcerp.user.not-found", "用户不存在"));
         }
@@ -309,7 +309,7 @@ public class ErpUserServiceImpl implements ErpUserService {
         for (String g : target) {
             store.addUserGroup(player, g);
         }
-        operLog.record(t("mcerp.operlog.module.user", "用户管理"), t("mcerp.operlog.action.assign-role", "分配角色"), player, t("mcerp.user.role-sync-success", "角色同步成功"));
+        operLog.record(credential, t("mcerp.operlog.module.user", "用户管理"), t("mcerp.operlog.action.assign-role", "分配角色"), player, t("mcerp.user.role-sync-success", "角色同步成功"));
         return AjaxResult.success(t("mcerp.user.role-sync-success", "角色同步成功"));
     }
 
@@ -323,7 +323,7 @@ public class ErpUserServiceImpl implements ErpUserService {
     }
 
     @Override
-    public AjaxResult savePerms(String userName, SavePermsVO vo) {
+    public AjaxResult savePerms(String userName, SavePermsVO vo, CredentialPresentation credential) {
         if (userName == null || userName.isEmpty()) {
             return AjaxResult.error(t("mcerp.user.missing-username", "缺少用户名"));
         }
@@ -348,7 +348,7 @@ public class ErpUserServiceImpl implements ErpUserService {
         for (String p : target) {
             store.addUserPermission(userName, p);
         }
-        operLog.record(t("mcerp.operlog.module.user", "用户管理"), t("mcerp.operlog.action.assign-perm", "分配权限"), userName, t("mcerp.user.perm-sync-success", "权限同步成功"));
+        operLog.record(credential, t("mcerp.operlog.module.user", "用户管理"), t("mcerp.operlog.action.assign-perm", "分配权限"), userName, t("mcerp.user.perm-sync-success", "权限同步成功"));
         return AjaxResult.success(t("mcerp.user.perm-sync-success", "权限同步成功"));
     }
 
@@ -358,14 +358,60 @@ public class ErpUserServiceImpl implements ErpUserService {
         if (player == null) {
             return AjaxResult.error(t("mcerp.common.not-logged-in", "未登录"));
         }
+        ErpUser u = auth.findUser(player);
         ProfileVO vo = new ProfileVO();
         UserInfoVO user = new UserInfoVO();
         user.setUserId(player);
         user.setUserName(player);
-        user.setNickName(player);
+        user.setNickName(u != null && u.getNickName() != null && !u.getNickName().isEmpty() ? u.getNickName() : player);
+        user.setAvatar("");
+        user.setSex(u == null ? "0" : u.getSex());
+        user.setEmail(u == null ? "" : u.getEmail());
+        user.setPhonenumber(u == null ? "" : u.getPhonenumber());
+        user.setStatus(u == null ? "0" : u.getStatus());
         vo.setUser(user);
         vo.setRoleGroup(auth.isOp(player) ? t("mcerp.user.rolegroup-op", "超级管理员") : t("mcerp.user.rolegroup-player", "普通玩家"));
         return AjaxResult.success(vo);
+    }
+
+    @Override
+    public AjaxResult updateProfile(ErpUser user, CredentialPresentation credential) {
+        String player = auth.currentPlayer(credential);
+        if (player == null) {
+            return AjaxResult.error(t("mcerp.common.not-logged-in", "未登录"));
+        }
+        ErpUser u = auth.findUser(player);
+        boolean created = false;
+        if (u == null) {
+            // 当前玩家未登记过：按个人资料保存补登记（与首次进入自动登记同一字段口径）
+            u = new ErpUser();
+            u.setUserName(player);
+            u.setStatus("0");
+            u.setCreateTime(AuthService.now());
+            created = true;
+        }
+        if (user.getNickName() != null && !user.getNickName().isEmpty()) {
+            u.setNickName(user.getNickName());
+        }
+        if (user.getEmail() != null) {
+            u.setEmail(user.getEmail());
+        }
+        if (user.getPhonenumber() != null) {
+            u.setPhonenumber(user.getPhonenumber());
+        }
+        if (user.getSex() != null) {
+            u.setSex(user.getSex());
+        }
+        if (user.getRemark() != null) {
+            u.setRemark(user.getRemark());
+        }
+        if (created) {
+            DATA.insert(u);
+        } else {
+            DATA.updateById(u);
+        }
+        operLog.record(credential, t("mcerp.operlog.module.user", "用户管理"), t("mcerp.operlog.action.edit-user", "修改用户"), player, t("mcerp.common.edit-success", "修改成功"));
+        return AjaxResult.success(t("mcerp.common.edit-success", "修改成功"));
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.github.cocosoys.mc.mcerp.entity.ErpNotice;
 import com.github.cocosoys.mc.mcerp.service.AuthService;
 import com.github.cocosoys.mc.mcerp.service.OperLogService;
 import com.github.cocosoys.mc.mcerp.service.ErpNoticeService;
+import com.github.cocosoys.mc.mcerp.util.Ids;
 import com.github.cocosoys.mc.soyshttpovermc.util.PageUtils;
 import com.github.cocosoys.mc.soyshttpovermc.util.TableDataInfo;
 import com.github.cocosoys.mc.soyshttpovermc.orm.DATA;
@@ -16,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * 通知公告实现（从 ErpNoticeController 迁入）：CRUD + 首页 Top5。
@@ -56,7 +56,7 @@ public class ErpNoticeServiceImpl implements ErpNoticeService {
 
     @Override
     public AjaxResult detail(String noticeId) {
-        ErpNotice n = DATA.get(ErpNotice.class, noticeId);
+        ErpNotice n = DATA.get(ErpNotice.class, Ids.parse(noticeId));
         if (n == null) {
             return AjaxResult.error(t("mcerp.notice.not-found", "公告不存在"));
         }
@@ -66,7 +66,6 @@ public class ErpNoticeServiceImpl implements ErpNoticeService {
     @Override
     public AjaxResult add(ErpNotice notice, CredentialPresentation credential) {
         ErpNotice n = new ErpNotice();
-        n.setNoticeId(UUID.randomUUID().toString());
         n.setNoticeTitle(notice.getNoticeTitle() == null ? "" : notice.getNoticeTitle());
         n.setNoticeType(notice.getNoticeType() == null || notice.getNoticeType().isEmpty() ? "1" : notice.getNoticeType());
         n.setNoticeContent(notice.getNoticeContent() == null ? "" : notice.getNoticeContent());
@@ -77,13 +76,13 @@ public class ErpNoticeServiceImpl implements ErpNoticeService {
             return AjaxResult.error(t("mcerp.notice.title-empty", "公告标题不能为空"));
         }
         DATA.insert(n);
-        operLog.record(t("mcerp.operlog.module.notice", "通知公告"), t("mcerp.operlog.action.add-notice", "新增公告"), n.getNoticeTitle(), t("mcerp.common.add-success", "新增成功"));
+        operLog.record(credential, t("mcerp.operlog.module.notice", "通知公告"), t("mcerp.operlog.action.add-notice", "新增公告"), n.getNoticeTitle(), t("mcerp.common.add-success", "新增成功"));
         return AjaxResult.success(t("mcerp.common.add-success", "新增成功"));
     }
 
     @Override
-    public AjaxResult update(String noticeId, ErpNotice notice) {
-        ErpNotice n = noticeId == null || noticeId.isEmpty() ? null : DATA.get(ErpNotice.class, noticeId);
+    public AjaxResult update(String noticeId, ErpNotice notice, CredentialPresentation credential) {
+        ErpNotice n = noticeId == null || noticeId.isEmpty() ? null : DATA.get(ErpNotice.class, Ids.parse(noticeId));
         if (n == null) {
             return AjaxResult.error(t("mcerp.notice.not-found", "公告不存在"));
         }
@@ -100,12 +99,12 @@ public class ErpNoticeServiceImpl implements ErpNoticeService {
             n.setStatus(notice.getStatus());
         }
         DATA.updateById(n);
-        operLog.record(t("mcerp.operlog.module.notice", "通知公告"), t("mcerp.operlog.action.edit-notice", "修改公告"), n.getNoticeTitle(), t("mcerp.common.edit-success", "修改成功"));
+        operLog.record(credential, t("mcerp.operlog.module.notice", "通知公告"), t("mcerp.operlog.action.edit-notice", "修改公告"), n.getNoticeTitle(), t("mcerp.common.edit-success", "修改成功"));
         return AjaxResult.success(t("mcerp.common.edit-success", "修改成功"));
     }
 
     @Override
-    public AjaxResult remove(String noticeIds) {
+    public AjaxResult remove(String noticeIds, CredentialPresentation credential) {
         if (noticeIds == null || noticeIds.isEmpty()) {
             return AjaxResult.error(t("mcerp.notice.missing-id", "缺少 noticeId"));
         }
@@ -113,10 +112,11 @@ public class ErpNoticeServiceImpl implements ErpNoticeService {
             if (id.trim().isEmpty()) {
                 continue;
             }
-            ErpNotice n = DATA.get(ErpNotice.class, id.trim());
-            DATA.deleteById(ErpNotice.class, id.trim());
+            Long nid = Ids.parse(id);
+            ErpNotice n = nid == null ? null : DATA.get(ErpNotice.class, nid);
+            DATA.deleteById(ErpNotice.class, nid);
             if (n != null) {
-                operLog.record(t("mcerp.operlog.module.notice", "通知公告"), t("mcerp.operlog.action.delete-notice", "删除公告"), n.getNoticeTitle(), t("mcerp.common.delete-success", "删除成功"));
+                operLog.record(credential, t("mcerp.operlog.module.notice", "通知公告"), t("mcerp.operlog.action.delete-notice", "删除公告"), n.getNoticeTitle(), t("mcerp.common.delete-success", "删除成功"));
             }
         }
         return AjaxResult.success(t("mcerp.common.delete-success", "删除成功"));

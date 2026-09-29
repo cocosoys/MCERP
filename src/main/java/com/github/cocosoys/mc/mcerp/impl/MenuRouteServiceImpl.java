@@ -54,7 +54,7 @@ public class MenuRouteServiceImpl implements MenuRouteService {
     }
 
     private static boolean isTopLevel(ErpMenu m) {
-        return m.getParentId() == null || m.getParentId().isEmpty() || "0".equals(m.getParentId());
+        return m.getParentId() == null || m.getParentId() == 0;
     }
 
     private RouterVO routeFromMenu(ErpMenu menu, List<ErpMenu> all,
@@ -111,7 +111,7 @@ public class MenuRouteServiceImpl implements MenuRouteService {
         return routeName(path);
     }
 
-    private List<RouterVO> menuChildren(String parentId, List<ErpMenu> all,
+    private List<RouterVO> menuChildren(Long parentId, List<ErpMenu> all,
                                        CredentialPresentation credential) {
         List<RouterVO> list = new ArrayList<>();
         for (ErpMenu m : all) {

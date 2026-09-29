@@ -1,4 +1,4 @@
--- ============================================================================
+﻿-- ============================================================================
 -- MCERP 初始化 SQL（SQL 存储模式：MySQL / SQLite）
 -- 使用方式：
 --   1) 插件已在 SOYS config.yml 启用 storage.backends.mysql / sqlite（SQL 后端装配后
@@ -10,8 +10,8 @@
 
 -- ---------- 1. 菜单表（内置菜单为下方初始化数据 builtin='Y'，自定义菜单运行时写入 builtin='N'） ----------
 CREATE TABLE IF NOT EXISTS erp_menu (
-    menu_id    VARCHAR(36)  PRIMARY KEY,
-    parent_id  VARCHAR(36)  DEFAULT NULL,
+    menu_id    BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    parent_id  BIGINT       DEFAULT 0,
     menu_name  VARCHAR(128) NOT NULL DEFAULT '',
     order_num  INT          NOT NULL DEFAULT 0,
     path       VARCHAR(255) DEFAULT '',
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS erp_menu (
 
 -- ---------- 2. 参数配置表 ----------
 CREATE TABLE IF NOT EXISTS erp_config (
-    config_id    VARCHAR(36)  PRIMARY KEY,
+    config_id    BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
     config_name  VARCHAR(128) NOT NULL DEFAULT '',
     config_key   VARCHAR(128) NOT NULL DEFAULT '',
     config_value VARCHAR(255) DEFAULT '',
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS erp_config (
 
 -- ---------- 3. 字典类型表 ----------
 CREATE TABLE IF NOT EXISTS erp_dict_type (
-    dict_id     VARCHAR(36)  PRIMARY KEY,
+    dict_id     BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
     dict_name   VARCHAR(128) NOT NULL DEFAULT '',
     dict_type   VARCHAR(64)  NOT NULL DEFAULT '',
     status      CHAR(1)      DEFAULT '0',
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS erp_dict_type (
 
 -- ---------- 4. 字典数据表 ----------
 CREATE TABLE IF NOT EXISTS erp_dict_data (
-    dict_code  VARCHAR(36)  PRIMARY KEY,
+    dict_code  BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
     dict_sort  INT          NOT NULL DEFAULT 0,
     dict_label VARCHAR(128) NOT NULL DEFAULT '',
     dict_value VARCHAR(128) NOT NULL DEFAULT '',
@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS erp_dict_data (
 
 -- ---------- 5. 通知公告表 ----------
 CREATE TABLE IF NOT EXISTS erp_notice (
-    notice_id      VARCHAR(36)  PRIMARY KEY,
+    notice_id      BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
     notice_title   VARCHAR(128) NOT NULL DEFAULT '',
     notice_type    CHAR(1)      DEFAULT '1',
     notice_content TEXT,
@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS erp_notice (
 
 -- ---------- 6. 用户表 ----------
 CREATE TABLE IF NOT EXISTS erp_user (
-    user_id      VARCHAR(36)  PRIMARY KEY,
+    user_id      BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
     user_name    VARCHAR(64)  NOT NULL DEFAULT '',
     nick_name    VARCHAR(64)  NOT NULL DEFAULT '',
     email        VARCHAR(128) DEFAULT '',
@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS erp_user (
 
 -- ---------- 7. 操作日志表 ----------
 CREATE TABLE IF NOT EXISTS erp_oper_log (
-    oper_id        VARCHAR(36)  PRIMARY KEY,
+    oper_id        BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
     title          VARCHAR(128) DEFAULT '',
     business_type  INT          DEFAULT 0,
     method         VARCHAR(255) DEFAULT '',
@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS erp_oper_log (
 
 -- ---------- 8. 登录日志表 ----------
 CREATE TABLE IF NOT EXISTS erp_logininfor (
-    info_id    VARCHAR(36) PRIMARY KEY,
+    info_id    BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
     user_name  VARCHAR(64)  DEFAULT '',
     ipaddr     VARCHAR(64)  DEFAULT '',
     status     CHAR(1)      DEFAULT '0',

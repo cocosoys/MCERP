@@ -64,15 +64,15 @@ public class ErpUserController {
     @ApiName("新增用户")
     @ApiPermission("mcerp:system:user:add")
     @PostMapping("")
-    public AjaxResult add(@RequestBody ErpUser user) {
-        return userService.add(user);
+    public AjaxResult add(@RequestBody ErpUser user, CredentialPresentation credential) {
+        return userService.add(user, credential);
     }
 
     @ApiName("编辑用户")
     @ApiPermission("mcerp:system:user:edit")
     @PutMapping("/{userId}")
-    public AjaxResult update(@PathVariable(name = "userId") String userId, @RequestBody ErpUser user) {
-        return userService.update(userId, user);
+    public AjaxResult update(@PathVariable(name = "userId") String userId, @RequestBody ErpUser user, CredentialPresentation credential) {
+        return userService.update(userId, user, credential);
     }
 
     @ApiName("删除用户")
@@ -86,8 +86,8 @@ public class ErpUserController {
     @ApiName("用户状态修改")
     @ApiPermission("mcerp:system:user:changeStatus")
     @PutMapping("/changeStatus")
-    public AjaxResult changeStatus(@RequestBody ChangeStatusVO vo) {
-        return userService.changeStatus(vo);
+    public AjaxResult changeStatus(@RequestBody ChangeStatusVO vo, CredentialPresentation credential) {
+        return userService.changeStatus(vo, credential);
     }
 
     @ApiName("重置密码")
@@ -108,8 +108,8 @@ public class ErpUserController {
     @ApiName("用户角色保存")
     @ApiPermission("mcerp:system:user:edit")
     @PutMapping("/authRole")
-    public AjaxResult authRoleSave(@RequestBody AuthRoleSaveVO vo) {
-        return userService.authRoleSave(vo);
+    public AjaxResult authRoleSave(@RequestBody AuthRoleSaveVO vo, CredentialPresentation credential) {
+        return userService.authRoleSave(vo, credential);
     }
 
     @ApiName("用户权限列表")
@@ -122,8 +122,8 @@ public class ErpUserController {
     @ApiName("用户权限保存")
     @ApiPermission("mcerp:system:user:edit")
     @PutMapping("/permissions/{userName}")
-    public AjaxResult savePerms(@PathVariable(name = "userName") String userName, @RequestBody SavePermsVO vo) {
-        return userService.savePerms(userName, vo);
+    public AjaxResult savePerms(@PathVariable(name = "userName") String userName, @RequestBody SavePermsVO vo, CredentialPresentation credential) {
+        return userService.savePerms(userName, vo, credential);
     }
 
     @ApiName("个人中心")
@@ -131,6 +131,13 @@ public class ErpUserController {
     @GetMapping("/profile")
     public AjaxResult profile(CredentialPresentation credential) {
         return userService.profile(credential);
+    }
+
+    @ApiName("更新个人资料")
+    @ApiPublic // 网关 401 兜底，登录即可；必须精确匹配 /profile，避免被 {userId} 吞掉
+    @PutMapping("/profile")
+    public AjaxResult updateProfile(@RequestBody ErpUser user, CredentialPresentation credential) {
+        return userService.updateProfile(user, credential);
     }
 
     @ApiName("修改密码")

@@ -16,8 +16,8 @@ import java.util.List;
  */
 public class UserDetailVO {
 
-    /** 用户 ID（erp_user.user_id，SOYS 玩家 UUID） */
-    private String userId;
+    /** 用户 ID（erp_user.user_id，自增主键） */
+    private Long userId;
 
     /** 登录名（SOYS 玩家名） */
     private String userName;

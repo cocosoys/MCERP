@@ -15,6 +15,7 @@ import com.github.cocosoys.mc.soyshttpovermc.annotations.RequestBody;
 import com.github.cocosoys.mc.soyshttpovermc.annotations.RequestMapping;
 import com.github.cocosoys.mc.soyshttpovermc.annotations.RequestParam;
 import com.github.cocosoys.mc.soyshttpovermc.util.AjaxResult;
+import com.github.cocosoys.mc.soyshttpovermc.web.gateway.policy.auth.issuer.CredentialPresentation;
 
 /**
  * 字典管理（若依契约）：路由 /api/plugins/MCERP/system/dict/*。
@@ -54,22 +55,22 @@ public class ErpDictController {
     @ApiName("新增字典类型")
     @ApiPermission("mcerp:system:dict:add")
     @PostMapping("/type")
-    public AjaxResult typeAdd(@RequestBody ErpDictType body) {
-        return dictService.typeAdd(body);
+    public AjaxResult typeAdd(@RequestBody ErpDictType body, CredentialPresentation credential) {
+        return dictService.typeAdd(body, credential);
     }
 
     @ApiName("编辑字典类型")
     @ApiPermission("mcerp:system:dict:edit")
     @PutMapping("/type/{dictId}")
-    public AjaxResult typeUpdate(@PathVariable(name = "dictId") String dictId, @RequestBody ErpDictType body) {
-        return dictService.typeUpdate(dictId, body);
+    public AjaxResult typeUpdate(@PathVariable(name = "dictId") String dictId, @RequestBody ErpDictType body, CredentialPresentation credential) {
+        return dictService.typeUpdate(dictId, body, credential);
     }
 
     @ApiName("删除字典类型")
     @ApiPermission("mcerp:system:dict:remove")
     @DeleteMapping("/type/{dictIds}")
-    public AjaxResult typeRemove(@PathVariable(name = "dictIds") String dictIds) {
-        return dictService.typeRemove(dictIds);
+    public AjaxResult typeRemove(@PathVariable(name = "dictIds") String dictIds, CredentialPresentation credential) {
+        return dictService.typeRemove(dictIds, credential);
     }
 
     @ApiName("字典选项")
@@ -115,21 +116,21 @@ public class ErpDictController {
     @ApiName("新增字典数据")
     @ApiPermission("mcerp:system:dict:add")
     @PostMapping("/data")
-    public AjaxResult dataAdd(@RequestBody ErpDictData body) {
-        return dictService.dataAdd(body);
+    public AjaxResult dataAdd(@RequestBody ErpDictData body, CredentialPresentation credential) {
+        return dictService.dataAdd(body, credential);
     }
 
     @ApiName("编辑字典数据")
     @ApiPermission("mcerp:system:dict:edit")
     @PutMapping("/data/{dictCode}")
-    public AjaxResult dataUpdate(@PathVariable(name = "dictCode") String dictCode, @RequestBody ErpDictData body) {
-        return dictService.dataUpdate(dictCode, body);
+    public AjaxResult dataUpdate(@PathVariable(name = "dictCode") String dictCode, @RequestBody ErpDictData body, CredentialPresentation credential) {
+        return dictService.dataUpdate(dictCode, body, credential);
     }
 
     @ApiName("删除字典数据")
     @ApiPermission("mcerp:system:dict:remove")
     @DeleteMapping("/data/{dictCodes}")
-    public AjaxResult dataRemove(@PathVariable(name = "dictCodes") String dictCodes) {
-        return dictService.dataRemove(dictCodes);
+    public AjaxResult dataRemove(@PathVariable(name = "dictCodes") String dictCodes, CredentialPresentation credential) {
+        return dictService.dataRemove(dictCodes, credential);
     }
 }

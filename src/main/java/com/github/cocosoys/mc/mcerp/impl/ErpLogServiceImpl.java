@@ -5,6 +5,7 @@ import static com.github.cocosoys.mc.mcerp.i18n.McerpI18n.t;
 import com.github.cocosoys.mc.mcerp.entity.ErpLogininfor;
 import com.github.cocosoys.mc.mcerp.entity.ErpOperLog;
 import com.github.cocosoys.mc.mcerp.service.ErpLogService;
+import com.github.cocosoys.mc.mcerp.util.Ids;
 import com.github.cocosoys.mc.soyshttpovermc.util.PageUtils;
 import com.github.cocosoys.mc.soyshttpovermc.util.TableDataInfo;
 import com.github.cocosoys.mc.soyshttpovermc.orm.DATA;
@@ -46,7 +47,7 @@ public class ErpLogServiceImpl implements ErpLogService {
         }
         for (String id : operIds.split(",")) {
             if (!id.trim().isEmpty()) {
-                DATA.deleteById(ErpOperLog.class, id.trim());
+                DATA.deleteById(ErpOperLog.class, Ids.parse(id));
             }
         }
         return AjaxResult.success(t("mcerp.common.delete-success", "删除成功"));
@@ -86,7 +87,7 @@ public class ErpLogServiceImpl implements ErpLogService {
         }
         for (String id : infoIds.split(",")) {
             if (!id.trim().isEmpty()) {
-                DATA.deleteById(ErpLogininfor.class, id.trim());
+                DATA.deleteById(ErpLogininfor.class, Ids.parse(id));
             }
         }
         return AjaxResult.success(t("mcerp.common.delete-success", "删除成功"));

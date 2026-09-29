@@ -67,15 +67,15 @@ public class ErpNoticeController {
     @ApiName("编辑公告")
     @ApiPermission("mcerp:system:notice:edit")
     @PutMapping("/{noticeId}")
-    public AjaxResult update(@PathVariable(name = "noticeId") String noticeId, @RequestBody ErpNotice notice) {
-        return noticeService.update(noticeId, notice);
+    public AjaxResult update(@PathVariable(name = "noticeId") String noticeId, @RequestBody ErpNotice notice, CredentialPresentation credential) {
+        return noticeService.update(noticeId, notice, credential);
     }
 
     @ApiName("删除公告")
     @ApiPermission("mcerp:system:notice:remove")
     @DeleteMapping("/{noticeIds}")
-    public AjaxResult remove(@PathVariable(name = "noticeIds") String noticeIds) {
-        return noticeService.remove(noticeIds);
+    public AjaxResult remove(@PathVariable(name = "noticeIds") String noticeIds, CredentialPresentation credential) {
+        return noticeService.remove(noticeIds, credential);
     }
 
     @ApiName("标记已读")

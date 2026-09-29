@@ -1,9 +1,10 @@
 # MCERP 初始化数据（YAML 存储模式）— 用户表
 # 登录认证由 SOYS 登录桥（AuthMe 密码 / 免密+验证码）负责；本表为后台用户资料、
 # 账号停用标记与权限分配（SOYS 权限节点/权限组）依据。builtin='Y' 表示内置初始数据。
+# 主键 user_id 为自增数字（原 'admin' 字符串主键已迁移为 '1'）。
 erp_user:
-  'admin':
-    user_id: 'admin'
+  '1':
+    user_id: '1'
     user_name: admin
     nick_name: 管理员
     email: ''
