@@ -369,6 +369,7 @@ public class ErpUserServiceImpl implements ErpUserService {
         user.setEmail(u == null ? "" : u.getEmail());
         user.setPhonenumber(u == null ? "" : u.getPhonenumber());
         user.setStatus(u == null ? "0" : u.getStatus());
+        user.setCreateTime(u == null ? null : u.getCreateTime());
         vo.setUser(user);
         vo.setRoleGroup(auth.isOp(player) ? t("mcerp.user.rolegroup-op", "超级管理员") : t("mcerp.user.rolegroup-player", "普通玩家"));
         return AjaxResult.success(vo);

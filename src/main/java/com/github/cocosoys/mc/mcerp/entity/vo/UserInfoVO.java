@@ -1,14 +1,18 @@
 package com.github.cocosoys.mc.mcerp.entity.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.github.cocosoys.mc.soyshttpovermc.orm.convertor.BeanCodec;
 import lombok.Data;
 
+import java.util.Date;
+
 /**
- * 用户信息 VO（getInfo 接口返回的 user 字段）。
+ * 用户信息 VO（getInfo / 个人中心 profile 接口返回的 user 字段）。
  */
 @Data
 public class UserInfoVO {
 
-    /** 用户 ID */
+    /** 用户 ID（当前为登录玩家名语义） */
     private String userId;
 
     /** 登录账号 */
@@ -31,4 +35,8 @@ public class UserInfoVO {
 
     /** 状态（0正常/1停用） */
     private String status;
+
+    /** 创建时间 */
+    @JsonFormat(pattern = BeanCodec.DATE_TIME_PATTERN)
+    private Date createTime;
 }

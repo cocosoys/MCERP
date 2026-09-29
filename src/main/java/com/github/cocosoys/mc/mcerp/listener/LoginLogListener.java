@@ -14,6 +14,7 @@ import org.bukkit.event.Listener;
 /**
  * 登录日志监听器：挂 SOYS 网关事件写入 erp_logininfor。
  * <ul>
+ *   <li>{@link GatewayEvent.GatewayLoginResultEvent}：网页/自动登录链路成败（POST /auth/login、记住我/游戏 IP 自动登录）→ 成功 status=0 / 失败 status=1</li>
  *   <li>{@link GatewayEvent.GatewayCredentialIssuedEvent}：登录成功（SOYS 向玩家签发凭证，AuthMe 桥登录/令牌换取）→ status=0</li>
  *   <li>{@link GatewayEvent.GatewayAccessDeniedEvent}：仅记录登录链路（path 含 /auth/）的拒绝 → status=1，记录原因与 IP</li>
  * </ul>
@@ -21,6 +22,25 @@ import org.bukkit.event.Listener;
  */
 @CustomLog
 public class LoginLogListener implements Listener {
+
+    /** 登录结果（网页弹窗登录 / 记住我 / 游戏 IP 自动登录）：成功 status=0、失败 status=1，均带玩家/IP/原因。 */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onLoginResult(GatewayEvent.GatewayLoginResultEvent event) {
+        try {
+            ErpLogininfor log = new ErpLogininfor();
+            log.setUserName(event.getPlayer() == null ? "" : event.getPlayer());
+            log.setIpaddr(event.getIp() == null ? "" : event.getIp());
+            log.setStatus(event.isSuccess() ? "0" : "1");
+            String reason = event.getReason() == null ? "" : event.getReason();
+            log.setMsg(event.isSuccess()
+                    ? t("mcerp.logininfor.success", "登录成功")
+                    : t("mcerp.logininfor.failed", "登录失败") + ": " + reason);
+            log.setLoginTime(AuthService.now());
+            DATA.insert(log);
+        } catch (Exception e) {
+            log.warnT("mcerp.logininfor.write-failed", "登录日志写入失败: {0}", e.toString());
+        }
+    }
 
     /** 登录成功：SOYS 向玩家签发凭证 → status=0。 */
     @EventHandler(priority = EventPriority.MONITOR)

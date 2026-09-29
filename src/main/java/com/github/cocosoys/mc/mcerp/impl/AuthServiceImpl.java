@@ -120,6 +120,7 @@ public class AuthServiceImpl implements AuthService {
         user.setEmail(u == null ? "" : u.getEmail());
         user.setPhonenumber(u == null ? "" : u.getPhonenumber());
         user.setStatus(u == null ? "0" : u.getStatus());
+        user.setCreateTime(u == null ? null : u.getCreateTime());
         return user;
     }
 
