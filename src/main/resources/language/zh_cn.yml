@@ -29,7 +29,6 @@ mcerp.user.perm-sync-success: 权限同步成功
 mcerp.user.avatar-not-enabled: 头像上传暂未启用（SOYS 上传接口未接入）
 mcerp.user.rolegroup-op: 超级管理员
 mcerp.user.rolegroup-player: 普通玩家
-mcerp.user.postgroup: ERP 后台
 mcerp.user.auto-register-remark: 首次进入 ERP 自动登记
 
 # ---------- 通知公告 ----------

@@ -97,12 +97,6 @@ public class ErpUserController {
         return userService.resetPwd();
     }
 
-    @ApiName("部门树")
-    @ApiPermission("mcerp:system:user:list")
-    @GetMapping("/deptTree")
-    public AjaxResult deptTree() {
-        return userService.deptTree();
-    }
 
     @ApiName("用户角色")
     @ApiPermission("mcerp:system:user:query")

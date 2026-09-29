@@ -17,6 +17,7 @@ import com.github.cocosoys.mc.mcerp.impl.ErpLogServiceImpl;
 import com.github.cocosoys.mc.mcerp.impl.ErpMenuServiceImpl;
 import com.github.cocosoys.mc.mcerp.impl.ErpNoticeServiceImpl;
 import com.github.cocosoys.mc.mcerp.impl.ErpUserServiceImpl;
+import com.github.cocosoys.mc.mcerp.impl.ErpDashboardServiceImpl;
 import com.github.cocosoys.mc.mcerp.service.AuthService;
 import com.github.cocosoys.mc.mcerp.service.MenuRouteService;
 import com.github.cocosoys.mc.mcerp.service.OperLogService;
@@ -26,6 +27,7 @@ import com.github.cocosoys.mc.mcerp.service.ErpLogService;
 import com.github.cocosoys.mc.mcerp.service.ErpMenuService;
 import com.github.cocosoys.mc.mcerp.service.ErpNoticeService;
 import com.github.cocosoys.mc.mcerp.service.ErpUserService;
+import com.github.cocosoys.mc.mcerp.service.ErpDashboardService;
 import com.github.cocosoys.mc.soyshttpovermc.api.SoysExpansion;
 
 import java.util.ArrayList;
@@ -67,6 +69,7 @@ public class McErpHostExpansion extends SoysExpansion {
         ErpConfigService sysConfigService = new ErpConfigServiceImpl(operLogService);
         ErpNoticeService sysNoticeService = new ErpNoticeServiceImpl(operLogService);
         ErpLogService sysLogService = new ErpLogServiceImpl();
+        ErpDashboardService dashboardService = new ErpDashboardServiceImpl(registry);
         // ===== 记录所有 controller 实例化 =====
         List<Object> list = new ArrayList<>();
         list.add(new ErpAuthController(authService, menuRouteService));
@@ -76,7 +79,7 @@ public class McErpHostExpansion extends SoysExpansion {
         list.add(new ErpConfigController(sysConfigService));
         list.add(new ErpNoticeController(sysNoticeService));
         list.add(new ErpLogController(sysLogService));
-        list.add(new ErpDashboardController(registry));
+        list.add(new ErpDashboardController(dashboardService));
         this.controllers = list;
     }
 

@@ -19,7 +19,7 @@ public interface ErpUserService {
 
     /**
      * 新增用户表单初始化（RuoYi 前端 handleAdd 调 GET /system/user/）：
-     * 返回顶层 {user, roles, posts}，供岗位/角色下拉与创建人展示。
+     * 返回顶层 {user, roles}，供角色下拉与创建人展示。
      */
     AjaxResult formInit(CredentialPresentation credential);
 
@@ -35,7 +35,6 @@ public interface ErpUserService {
 
     AjaxResult resetPwd();
 
-    AjaxResult deptTree();
 
     AjaxResult authRole(String userId);
 

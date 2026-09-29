@@ -45,9 +45,6 @@ import java.util.UUID;
  */
 public class ErpUserServiceImpl implements ErpUserService {
 
-    /** 数据权限节点（RuoYi 数据范围语义的权限化表达；当前权限分配仅限菜单 perms，暂不使用）。 */
-    // private static final String DATA_PERM_ALL = "mcerp:data:all";
-
     private final AuthService auth;
     private final OperLogService operLog;
     private final ErpRegistry registry;
@@ -90,8 +87,6 @@ public class ErpUserServiceImpl implements ErpUserService {
         ok.put("user", user);
         // 角色下拉（SOYS 权限组）
         ok.put("roles", roleOptions());
-        // 岗位：MCERP 未实现岗位模块 → 空列表
-        ok.put("posts", new ArrayList<>());
         return ok;
     }
 
@@ -113,7 +108,6 @@ public class ErpUserServiceImpl implements ErpUserService {
         vo.setCreateTime(u.getCreateTime());
         vo.setRoles(roleOptions());
         vo.setRoleIds(userRoleIds(u.getUserName()));
-        vo.setPostIds(new ArrayList<>()); // 岗位模块未实现
         return AjaxResult.success(vo);
     }
 
@@ -209,10 +203,6 @@ public class ErpUserServiceImpl implements ErpUserService {
         return AjaxResult.error(t("mcerp.user.password-authme", "密码由游戏内 AuthMe 管理，请在游戏中使用 /changepassword 修改"));
     }
 
-    @Override
-    public AjaxResult deptTree() {
-        return AjaxResult.success(new ArrayList<>()); // 未实现部门模块
-    }
 
     @Override
     public AjaxResult authRole(String userId) {
@@ -375,7 +365,6 @@ public class ErpUserServiceImpl implements ErpUserService {
         user.setNickName(player);
         vo.setUser(user);
         vo.setRoleGroup(auth.isOp(player) ? t("mcerp.user.rolegroup-op", "超级管理员") : t("mcerp.user.rolegroup-player", "普通玩家"));
-        vo.setPostGroup(t("mcerp.user.postgroup", "ERP 后台"));
         return AjaxResult.success(vo);
     }
 

@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 用户详情 VO（若依 user detail 契约：平铺 user 字段 + roles/roleIds/postIds 实体化）。
+ * 用户详情 VO（若依 user detail 契约：平铺 user 字段 + roles/roleIds 实体化）。
  */
 @Data
 /**
@@ -50,6 +50,4 @@ public class UserDetailVO {
     /** 已分配角色（SOYS 权限组）id 列表 */
     private List<String> roleIds;
 
-    /** 岗位 id（模块未实现，空列表） */
-    private List<String> postIds;
 }
