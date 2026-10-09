@@ -18,7 +18,7 @@ This guide covers deploying MCERP from scratch: requirements, backend build, fro
 ## 2. Backend build
 
 ```powershell
-cd D:\WorkTools\Project\Minecraft\plugins\spigot\1.12.2\MCERP
+cd .\MCERP-master
 mvn -o clean package -DskipTests
 ```
 
@@ -54,14 +54,14 @@ Then rerun step 2 to package the new frontend into the jar.
 1. Copy the jar into the server plugin folder:
 
    ```powershell
-   Copy-Item target\MCERP-1.0-SNAPSHOT.jar D:\MyGame\Minecraft\Server\Spigot\1.12.2\plugins\ -Force
+   Copy-Item target\MCERP-1.0-SNAPSHOT.jar plugins\ -Force
    ```
 
 2. Restart the server (stop the old process, then start again):
 
    ```powershell
    Get-NetTCPConnection -LocalPort 25565 -State Listen | Stop-Process -Id { $_.OwningProcess } -Force
-   Start-Process D:\WorkTools\JDK\8\bin\java.exe -WorkingDirectory D:\MyGame\Minecraft\Server\Spigot\1.12.2 `
+   Start-Process <JDK8 dir>\bin\java.exe -WorkingDirectory <server dir> `
      -ArgumentList "-Xmx2G","-jar","Spigot-1.12.2-build1573k.jar","nogui"
    ```
 

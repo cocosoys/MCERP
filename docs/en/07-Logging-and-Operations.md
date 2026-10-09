@@ -72,9 +72,9 @@ Each `erp_logininfor` row:
 
 ```powershell
 # backend
-cd D:\WorkTools\Project\Minecraft\plugins\spigot\1.12.2\MCERP
+cd .\MCERP-master
 mvn -o clean package -DskipTests
-Copy-Item target\MCERP-1.0-SNAPSHOT.jar D:\MyGame\Minecraft\Server\Spigot\1.12.2\plugins\ -Force
+Copy-Item target\MCERP-1.0-SNAPSHOT.jar <server dir>\plugins\ -Force
 
 # after frontend changes
 cd RuoYi-Vue2-master

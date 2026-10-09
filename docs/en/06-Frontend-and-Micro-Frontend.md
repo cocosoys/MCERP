@@ -126,7 +126,7 @@ In the main app `WujieLink/index.vue`, on url change:
 ```
 this.\$nextTick(() => {
 
-&#x20; this.\$refs.wujie.bus.\$emit('router-push', this.props.path)
+  this.\$refs.wujie.bus.\$emit('router-push', this.props.path)
 
 })
 ```
