@@ -16,6 +16,7 @@ import com.github.cocosoys.mc.soyshttpovermc.util.AjaxResult;
 import com.github.cocosoys.mc.soyshttpovermc.web.gateway.policy.auth.issuer.CredentialPresentation;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -43,14 +44,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public String currentPlayer(CredentialPresentation credential) {
-        if (credential == null || !credential.hasAnyCredential()) {
-            return null;
-        }
-        HttpOverMcPlugin soys = HttpOverMcPlugin.getInstance();
-        if (soys == null || soys.getCombinedPermissionService() == null) {
-            return null;
-        }
-        String player = soys.getCombinedPermissionService().subjectOf(credential);
+        String player = playerOf(credential);
         if (player != null && !player.isEmpty()) {
             ensureUserRegistered(player);
         }
@@ -90,7 +84,24 @@ public class AuthServiceImpl implements AuthService {
         if (soys == null || soys.getCombinedPermissionService() == null) {
             return true; // SOYS 未就绪时不阻断
         }
+        // OP 全放行前先做名字大小写归一：离线服 UUID 由名字哈希派生，"Admin" 与 "admin"
+        // 会落到不同 UUID，直接交给 SOYS 判定会得到"无权限"，导致注册模块整片消失。
+        if (isOp(playerOf(credential))) {
+            return true;
+        }
         return soys.getCombinedPermissionService().hasPermission(credential, permission);
+    }
+
+    /** 取凭证主体名（不做自动登记，避免权限判定路径写库）。 */
+    private String playerOf(CredentialPresentation credential) {
+        if (credential == null || !credential.hasAnyCredential()) {
+            return null;
+        }
+        HttpOverMcPlugin soys = HttpOverMcPlugin.getInstance();
+        if (soys == null || soys.getCombinedPermissionService() == null) {
+            return null;
+        }
+        return soys.getCombinedPermissionService().subjectOf(credential);
     }
 
     @Override
@@ -136,11 +147,22 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public boolean isOp(String player) {
-        if (player == null) {
+        if (player == null || player.isEmpty()) {
             return false;
         }
-        OfflinePlayer op = Bukkit.getOfflinePlayer(player);
-        return op != null && op.isOp();
+        // 名字大小写不敏感：Minecraft 用户名本身唯一且不分大小写，但离线服 UUID 由名字哈希派生，
+        // "Admin" 与 ops.json 里的 "admin" 会得到不同 UUID，故不能只靠 getOfflinePlayer 的 isOp()。
+        for (OfflinePlayer op : Bukkit.getOperators()) {
+            if (op != null && op.getName() != null && op.getName().equalsIgnoreCase(player)) {
+                return true;
+            }
+        }
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            if (online != null && online.getName().equalsIgnoreCase(player) && online.isOp()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
