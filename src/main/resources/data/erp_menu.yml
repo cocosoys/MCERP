@@ -258,23 +258,6 @@ erp_menu:
     is_frame: '1'
     is_cache: '0'
     builtin: Y
-  '16':
-    menu_id: '16'
-    parent_id: '2'
-    menu_name: 用户导出
-    order_num: 7
-    path: ''
-    component: ''
-    menu_type: F
-    perms: mcerp:system:user:export
-    icon: ''
-    visible: '0'
-    status: '0'
-    query: ''
-    route_name: ''
-    is_frame: '1'
-    is_cache: '0'
-    builtin: Y
   '17':
     menu_id: '17'
     parent_id: '3'

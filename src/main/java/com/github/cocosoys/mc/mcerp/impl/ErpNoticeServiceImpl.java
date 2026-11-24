@@ -3,6 +3,7 @@ package com.github.cocosoys.mc.mcerp.impl;
 import static com.github.cocosoys.mc.mcerp.i18n.McerpI18n.t;
 
 import com.github.cocosoys.mc.mcerp.entity.ErpNotice;
+import com.github.cocosoys.mc.mcerp.enums.BusinessType;
 import com.github.cocosoys.mc.mcerp.service.AuthService;
 import com.github.cocosoys.mc.mcerp.service.OperLogService;
 import com.github.cocosoys.mc.mcerp.service.ErpNoticeService;
@@ -76,7 +77,7 @@ public class ErpNoticeServiceImpl implements ErpNoticeService {
             return AjaxResult.error(t("mcerp.notice.title-empty", "公告标题不能为空"));
         }
         DATA.insert(n);
-        operLog.record(credential, t("mcerp.operlog.module.notice", "通知公告"), t("mcerp.operlog.action.add-notice", "新增公告"), n.getNoticeTitle(), t("mcerp.common.add-success", "新增成功"));
+        operLog.record(credential, t("mcerp.operlog.module.notice", "通知公告"), BusinessType.INSERT, t("mcerp.operlog.action.add-notice", "新增公告"), n.getNoticeTitle(), t("mcerp.common.add-success", "新增成功"));
         return AjaxResult.success(t("mcerp.common.add-success", "新增成功"));
     }
 
@@ -99,7 +100,7 @@ public class ErpNoticeServiceImpl implements ErpNoticeService {
             n.setStatus(notice.getStatus());
         }
         DATA.updateById(n);
-        operLog.record(credential, t("mcerp.operlog.module.notice", "通知公告"), t("mcerp.operlog.action.edit-notice", "修改公告"), n.getNoticeTitle(), t("mcerp.common.edit-success", "修改成功"));
+        operLog.record(credential, t("mcerp.operlog.module.notice", "通知公告"), BusinessType.UPDATE, t("mcerp.operlog.action.edit-notice", "修改公告"), n.getNoticeTitle(), t("mcerp.common.edit-success", "修改成功"));
         return AjaxResult.success(t("mcerp.common.edit-success", "修改成功"));
     }
 
@@ -116,7 +117,7 @@ public class ErpNoticeServiceImpl implements ErpNoticeService {
             ErpNotice n = nid == null ? null : DATA.get(ErpNotice.class, nid);
             DATA.deleteById(ErpNotice.class, nid);
             if (n != null) {
-                operLog.record(credential, t("mcerp.operlog.module.notice", "通知公告"), t("mcerp.operlog.action.delete-notice", "删除公告"), n.getNoticeTitle(), t("mcerp.common.delete-success", "删除成功"));
+                operLog.record(credential, t("mcerp.operlog.module.notice", "通知公告"), BusinessType.DELETE, t("mcerp.operlog.action.delete-notice", "删除公告"), n.getNoticeTitle(), t("mcerp.common.delete-success", "删除成功"));
             }
         }
         return AjaxResult.success(t("mcerp.common.delete-success", "删除成功"));

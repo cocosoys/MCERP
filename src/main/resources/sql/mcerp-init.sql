@@ -86,6 +86,7 @@ CREATE TABLE IF NOT EXISTS erp_user (
     email        VARCHAR(128) DEFAULT '',
     phonenumber  VARCHAR(32)  DEFAULT '',
     sex          CHAR(1)      DEFAULT '0',
+    avatar       VARCHAR(255) DEFAULT '',
     status       CHAR(1)      DEFAULT '0',
     remark       VARCHAR(255) DEFAULT NULL,
     create_time  VARCHAR(32)  DEFAULT NULL,
@@ -148,7 +149,15 @@ INSERT IGNORE INTO erp_dict_data (dict_code, dict_sort, dict_label, dict_value, 
 ('6', 1, '女',   '1', 'sys_user_sex',         '0'),
 ('7', 2, '未知', '2', 'sys_user_sex',         '0');
 
--- 菜单（40 条：9 菜单节点 + 31 按钮权限；ID 为自然数，builtin='Y' 标记内置，控制器据此禁止修改/删除）
+-- 通知公告（1 条：与 data/erp_notice.yml 对齐）
+INSERT IGNORE INTO erp_notice (notice_id, notice_title, notice_type, notice_content, status, create_by, create_time) VALUES
+('1', '欢迎使用 MCERP 管理系统', '2', '本系统由 SOYSHTTPOverMC 提供登录与会话认证，权限控制采用 SOYS 权限体系（OP 默认拥有全部权限）。游戏内使用 /changepassword 修改 AuthMe 密码。', '0', 'admin', '2026-09-15 00:00:00');
+
+-- 用户资料（1 条：内置管理员，与 data/erp_user.yml 对齐；avatar 初始为空）
+INSERT IGNORE INTO erp_user (user_id, user_name, nick_name, email, phonenumber, sex, avatar, status, remark, create_time) VALUES
+('1', 'admin', '管理员', '', '', '0', '', '0', '系统内置管理员（初始数据）', '2026-09-15 00:00:00');
+
+-- 菜单（39 条：9 菜单节点 + 30 按钮权限；ID 为自然数，builtin='Y' 标记内置，控制器据此禁止修改/删除）
 INSERT IGNORE INTO erp_menu (menu_id, parent_id, menu_name, order_num, path, component, query, route_name, is_frame, is_cache, menu_type, perms, icon, visible, status, builtin) VALUES
 ('1', '0', '系统管理', 1, '/system', 'Layout', '', '', '1', '0',                  'M', 'mcerp:system:dir:view',                    'system',    '0', '0', 'Y'),
 ('2', '1', '用户管理', 1, 'user',      'system/user/index', '', '', '1', '0',         'C', 'mcerp:system:user:list',           'user',      '0', '0', 'Y'),
@@ -165,7 +174,6 @@ INSERT IGNORE INTO erp_menu (menu_id, parent_id, menu_name, order_num, path, com
 ('13', '2', '用户删除', 4, '', '', '', '', '1', '0', 'F', 'mcerp:system:user:remove',     '', '0', '0', 'Y'),
 ('14', '2', '重置密码', 5, '', '', '', '', '1', '0', 'F', 'mcerp:system:user:resetPwd',   '', '0', '0', 'Y'),
 ('15', '2', '用户状态', 6, '', '', '', '', '1', '0', 'F', 'mcerp:system:user:changeStatus','', '0', '0', 'Y'),
-('16', '2', '用户导出', 7, '', '', '', '', '1', '0', 'F', 'mcerp:system:user:export',     '', '0', '0', 'Y'),
 ('17', '3', '菜单查询', 1, '', '', '', '', '1', '0', 'F', 'mcerp:system:menu:query',      '', '0', '0', 'Y'),
 ('18', '3', '菜单新增', 2, '', '', '', '', '1', '0', 'F', 'mcerp:system:menu:add',        '', '0', '0', 'Y'),
 ('19', '3', '菜单修改', 3, '', '', '', '', '1', '0', 'F', 'mcerp:system:menu:edit',       '', '0', '0', 'Y'),

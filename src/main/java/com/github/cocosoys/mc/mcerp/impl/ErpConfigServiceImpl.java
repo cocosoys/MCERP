@@ -3,6 +3,7 @@ package com.github.cocosoys.mc.mcerp.impl;
 import static com.github.cocosoys.mc.mcerp.i18n.McerpI18n.t;
 
 import com.github.cocosoys.mc.mcerp.entity.ErpConfig;
+import com.github.cocosoys.mc.mcerp.enums.BusinessType;
 import com.github.cocosoys.mc.mcerp.service.AuthService;
 import com.github.cocosoys.mc.mcerp.service.OperLogService;
 import com.github.cocosoys.mc.mcerp.service.ErpConfigService;
@@ -94,7 +95,7 @@ public class ErpConfigServiceImpl implements ErpConfigService {
         c.setRemark(config.getRemark() == null ? "" : config.getRemark());
         c.setCreateTime(AuthService.now());
         DATA.insert(c);
-        operLog.record(credential, t("mcerp.operlog.module.config", "参数设置"), t("mcerp.operlog.action.add-config", "新增参数"), key, t("mcerp.common.add-success", "新增成功"));
+        operLog.record(credential, t("mcerp.operlog.module.config", "参数设置"), BusinessType.INSERT, t("mcerp.operlog.action.add-config", "新增参数"), key, t("mcerp.common.add-success", "新增成功"));
         return AjaxResult.success(t("mcerp.common.add-success", "新增成功"));
     }
 
@@ -117,7 +118,7 @@ public class ErpConfigServiceImpl implements ErpConfigService {
             c.setRemark(config.getRemark());
         }
         DATA.updateById(c);
-        operLog.record(credential, t("mcerp.operlog.module.config", "参数设置"), t("mcerp.operlog.action.edit-config", "修改参数"), c.getConfigKey(), t("mcerp.common.edit-success", "修改成功"));
+        operLog.record(credential, t("mcerp.operlog.module.config", "参数设置"), BusinessType.UPDATE, t("mcerp.operlog.action.edit-config", "修改参数"), c.getConfigKey(), t("mcerp.common.edit-success", "修改成功"));
         return AjaxResult.success(t("mcerp.common.edit-success", "修改成功"));
     }
 
@@ -137,7 +138,7 @@ public class ErpConfigServiceImpl implements ErpConfigService {
             }
             DATA.deleteById(ErpConfig.class, cid);
             if (c != null) {
-                operLog.record(credential, t("mcerp.operlog.module.config", "参数设置"), t("mcerp.operlog.action.delete-config", "删除参数"), c.getConfigKey(), t("mcerp.common.delete-success", "删除成功"));
+                operLog.record(credential, t("mcerp.operlog.module.config", "参数设置"), BusinessType.DELETE, t("mcerp.operlog.action.delete-config", "删除参数"), c.getConfigKey(), t("mcerp.common.delete-success", "删除成功"));
             }
         }
         return AjaxResult.success(t("mcerp.common.delete-success", "删除成功"));

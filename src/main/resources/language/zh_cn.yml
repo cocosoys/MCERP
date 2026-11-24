@@ -41,6 +41,24 @@ mcerp.log.missing-operId: 缺少 operId
 mcerp.log.missing-infoId: 缺少 infoId
 mcerp.log.unlock-success: 解锁成功（由 AuthMe 管理）
 
+# ---------- 日志导出（CSV 表头 / 状态文案） ----------
+mcerp.export.operlog.header: 序号,操作模块,业务类型,请求方式,操作人员,操作地址,操作状态,操作时间
+mcerp.export.logininfor.header: 序号,用户账号,登录IP,登录状态,提示消息,登录时间
+mcerp.export.status.success: 成功
+mcerp.export.status.fail: 失败
+
+# ---------- 业务类型（操作日志 business_type 类型码） ----------
+mcerp.biz.0: 其它
+mcerp.biz.1: 新增
+mcerp.biz.2: 修改
+mcerp.biz.3: 删除
+mcerp.biz.4: 授权
+mcerp.biz.5: 导出
+mcerp.biz.6: 导入
+mcerp.biz.7: 强退
+mcerp.biz.8: 生成代码
+mcerp.biz.9: 清空数据
+
 # ---------- 字典管理 ----------
 mcerp.dict.type-not-found: 字典类型不存在
 mcerp.dict.type-code-empty: 字典类型编码不能为空

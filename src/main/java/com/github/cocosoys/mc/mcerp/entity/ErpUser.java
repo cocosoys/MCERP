@@ -38,6 +38,9 @@ public class ErpUser extends BaseEntity {
     /** 性别（0 男 / 1 女 / 2 未知） */
     private String sex;
 
+    /** 头像地址（根相对 web 路径，如 /web/plugins/MCERP/avatar/xxx.png；空串表示未设置） */
+    private String avatar;
+
     /** 账号状态（0 正常 / 1 停用） */
     private String status;
 

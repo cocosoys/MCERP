@@ -1,0 +1,132 @@
+# ============================================================
+# MCERP language pack (English)
+# Loaded by the host plugin SOYSHTTPOverMC I18n mechanism:
+#   MCERP.onEnable → McerpI18n.register → I18n.registerLanguageSource(...)
+# Keys keep the mcerp. prefix (merged into the host default scope to avoid collisions)
+# Placeholders: {0} {1} ... (matching I18n.t args)
+# ============================================================
+
+# ---------- Common ----------
+mcerp.common.add-success: Added successfully
+mcerp.common.edit-success: Updated successfully
+mcerp.common.delete-success: Deleted successfully
+mcerp.common.operation-success: Operation succeeded
+mcerp.common.refresh-success: Refreshed successfully
+mcerp.common.clear-success: Cleared successfully
+mcerp.common.not-logged-in: Not signed in
+
+# ---------- User management ----------
+mcerp.user.not-found: User not found
+mcerp.user.username-empty: Username must not be empty
+mcerp.user.username-exists: Username already exists
+mcerp.user.missing-userId: Missing userId
+mcerp.user.cannot-delete-self: Cannot delete the account currently signed in
+mcerp.user.password-authme: Password is managed by AuthMe in game; use /changepassword
+mcerp.user.soys-perm-unavailable: SOYS permission store unavailable
+mcerp.user.role-sync-success: Roles synchronized
+mcerp.user.missing-username: Missing username
+mcerp.user.perm-sync-success: Permissions synchronized
+mcerp.user.avatar-not-enabled: Avatar upload is not enabled (SOYS upload API not wired yet)
+mcerp.user.rolegroup-op: Super administrator
+mcerp.user.rolegroup-player: Regular player
+mcerp.user.auto-register-remark: Auto-registered on first ERP visit
+
+# ---------- Notices ----------
+mcerp.notice.not-found: Notice not found
+mcerp.notice.title-empty: Notice title must not be empty
+mcerp.notice.missing-id: Missing noticeId
+
+# ---------- Log management ----------
+mcerp.log.missing-operId: Missing operId
+mcerp.log.missing-infoId: Missing infoId
+mcerp.log.unlock-success: Unlocked (managed by AuthMe)
+
+# ---------- Log export (CSV header / status text) ----------
+mcerp.export.operlog.header: No.,Module,Business type,Request method,Operator,Operator IP,Status,Operation time
+mcerp.export.logininfor.header: No.,Account,Login IP,Status,Message,Login time
+mcerp.export.status.success: Success
+mcerp.export.status.fail: Failure
+
+# ---------- Business type (erp_oper_log business_type code) ----------
+mcerp.biz.0: Other
+mcerp.biz.1: Insert
+mcerp.biz.2: Update
+mcerp.biz.3: Delete
+mcerp.biz.4: Grant
+mcerp.biz.5: Export
+mcerp.biz.6: Import
+mcerp.biz.7: Force logout
+mcerp.biz.8: Code generation
+mcerp.biz.9: Clear data
+
+# ---------- Dictionary management ----------
+mcerp.dict.type-not-found: Dictionary type not found
+mcerp.dict.type-code-empty: Dictionary type code must not be empty
+mcerp.dict.type-exists: Dictionary type already exists
+mcerp.dict.missing-id: Missing dictId
+mcerp.dict.data-not-found: Dictionary data not found
+mcerp.dict.type-empty: Dictionary type must not be empty
+mcerp.dict.missing-code: Missing dictCode
+
+# ---------- Menu management ----------
+mcerp.menu.table-only: Only menu table records are viewable (plugin menus are declared in code)
+mcerp.menu.name-empty: Menu name must not be empty
+mcerp.menu.not-found: Menu not found
+mcerp.menu.builtin-readonly: Built-in menus are seed data and cannot be edited
+mcerp.menu.missing-id: Missing menuId
+
+# ---------- Configuration ----------
+mcerp.config.not-found: Parameter not found
+mcerp.config.missing-key: Missing configKey
+mcerp.config.key-empty: Parameter key must not be empty
+mcerp.config.key-exists: Parameter key already exists
+mcerp.config.builtin-readonly: Built-in parameters cannot be modified
+mcerp.config.missing-id: Missing configId
+mcerp.config.builtin-nodelete: Built-in parameters cannot be deleted
+
+# ---------- Operation log (module / action names) ----------
+mcerp.operlog.module.user: User management
+mcerp.operlog.module.notice: Notices
+mcerp.operlog.module.dict: Dictionary
+mcerp.operlog.module.menu: Menus
+mcerp.operlog.module.config: Configuration
+mcerp.operlog.action.add-user: Add user
+mcerp.operlog.action.edit-user: Edit user
+mcerp.operlog.action.delete-user: Delete user
+mcerp.operlog.action.change-user-status: Change user status
+mcerp.operlog.action.assign-role: Assign role
+mcerp.operlog.action.assign-perm: Assign permission
+mcerp.operlog.action.add-notice: Add notice
+mcerp.operlog.action.edit-notice: Edit notice
+mcerp.operlog.action.delete-notice: Delete notice
+mcerp.operlog.action.add-dict-type: Add dictionary type
+mcerp.operlog.action.edit-dict-type: Edit dictionary type
+mcerp.operlog.action.delete-dict-type: Delete dictionary type
+mcerp.operlog.action.add-dict-data: Add dictionary data
+mcerp.operlog.action.edit-dict-data: Edit dictionary data
+mcerp.operlog.action.delete-dict-data: Delete dictionary data
+mcerp.operlog.action.add-menu: Add menu
+mcerp.operlog.action.edit-menu: Edit menu
+mcerp.operlog.action.delete-menu: Delete menu
+mcerp.operlog.action.add-config: Add parameter
+mcerp.operlog.action.edit-config: Edit parameter
+mcerp.operlog.action.delete-config: Delete parameter
+
+# ---------- Commands (/mcerp) ----------
+mcerp.cmd.reloaded: '§a[MCERP] Registry reloaded'
+mcerp.cmd.module-count: '§a[MCERP] Registered modules ({0}):'
+mcerp.cmd.module-item: '§7  - §f{0} §8({1})'
+mcerp.cmd.usage: '§a[MCERP] Usage: /mcerp reload | /mcerp list'
+
+# ---------- Server log ----------
+mcerp.log.plugin-disabled: disabled
+mcerp.log.host-register-fail: 'McErpHostExpansion registration failed: check identifier conflicts / SOYS bootstrap readiness'
+mcerp.log.soys-ready: 'SOYS attached: SoysExpansion portal registered (routes) + dist hosting (expansion:MCERP)'
+mcerp.log.enabled: 'enabled (ERP unified control center)'
+mcerp.log.rebuild-done: 'ERP module index rebuilt (removed stale {0}, added {1})'
+mcerp.log.registry-registered: 'ERP module registered: {0}'
+mcerp.log.registry-unregistered: 'Plugin disabled, its ERP registration removed: {0}'
+mcerp.log.registry-removed: 'ERP rebuild: removed index of offline module {0}'
+mcerp.log.expansion-skip: 'MCERP not ready, ERP registration skipped (recovered on reload): {0}'
+mcerp.log.expansion-no-displayname: 'ERP module has no displayName, registration rejected: {0}'
+mcerp.log.expansion-no-owner: 'ERP module owner plugin not resolvable, registration rejected: {0}'

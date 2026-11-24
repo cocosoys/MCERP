@@ -5,6 +5,7 @@ import static com.github.cocosoys.mc.mcerp.i18n.McerpI18n.t;
 import com.github.cocosoys.mc.mcerp.entity.ErpDictData;
 import com.github.cocosoys.mc.mcerp.entity.ErpDictType;
 import com.github.cocosoys.mc.mcerp.entity.vo.DictOptionVO;
+import com.github.cocosoys.mc.mcerp.enums.BusinessType;
 import com.github.cocosoys.mc.mcerp.service.AuthService;
 import com.github.cocosoys.mc.mcerp.service.OperLogService;
 import com.github.cocosoys.mc.mcerp.service.ErpDictService;
@@ -78,7 +79,7 @@ public class ErpDictServiceImpl implements ErpDictService {
         dt.setRemark(body.getRemark() == null ? "" : body.getRemark());
         dt.setCreateTime(AuthService.now());
         DATA.insert(dt);
-        operLog.record(credential, t("mcerp.operlog.module.dict", "字典管理"), t("mcerp.operlog.action.add-dict-type", "新增字典类型"), type, t("mcerp.common.add-success", "新增成功"));
+        operLog.record(credential, t("mcerp.operlog.module.dict", "字典管理"), BusinessType.INSERT, t("mcerp.operlog.action.add-dict-type", "新增字典类型"), type, t("mcerp.common.add-success", "新增成功"));
         return AjaxResult.success(t("mcerp.common.add-success", "新增成功"));
     }
 
@@ -101,7 +102,7 @@ public class ErpDictServiceImpl implements ErpDictService {
             dt.setRemark(body.getRemark());
         }
         DATA.updateById(dt);
-        operLog.record(credential, t("mcerp.operlog.module.dict", "字典管理"), t("mcerp.operlog.action.edit-dict-type", "修改字典类型"), dt.getDictType(), t("mcerp.common.edit-success", "修改成功"));
+        operLog.record(credential, t("mcerp.operlog.module.dict", "字典管理"), BusinessType.UPDATE, t("mcerp.operlog.action.edit-dict-type", "修改字典类型"), dt.getDictType(), t("mcerp.common.edit-success", "修改成功"));
         return AjaxResult.success(t("mcerp.common.edit-success", "修改成功"));
     }
 
@@ -127,7 +128,7 @@ public class ErpDictServiceImpl implements ErpDictService {
                         DATA.deleteById(ErpDictData.class, d.getDictCode());
                     }
                 }
-                operLog.record(credential, t("mcerp.operlog.module.dict", "字典管理"), t("mcerp.operlog.action.delete-dict-type", "删除字典类型"), dt.getDictType(), t("mcerp.common.delete-success", "删除成功"));
+                operLog.record(credential, t("mcerp.operlog.module.dict", "字典管理"), BusinessType.DELETE, t("mcerp.operlog.action.delete-dict-type", "删除字典类型"), dt.getDictType(), t("mcerp.common.delete-success", "删除成功"));
             }
         }
         return AjaxResult.success(t("mcerp.common.delete-success", "删除成功"));
@@ -199,7 +200,7 @@ public class ErpDictServiceImpl implements ErpDictService {
             return AjaxResult.error(t("mcerp.dict.type-empty", "字典类型不能为空"));
         }
         DATA.insert(d);
-        operLog.record(credential, t("mcerp.operlog.module.dict", "字典管理"), t("mcerp.operlog.action.add-dict-data", "新增字典数据"), d.getDictLabel(), t("mcerp.common.add-success", "新增成功"));
+        operLog.record(credential, t("mcerp.operlog.module.dict", "字典管理"), BusinessType.INSERT, t("mcerp.operlog.action.add-dict-data", "新增字典数据"), d.getDictLabel(), t("mcerp.common.add-success", "新增成功"));
         return AjaxResult.success(t("mcerp.common.add-success", "新增成功"));
     }
 
@@ -226,7 +227,7 @@ public class ErpDictServiceImpl implements ErpDictService {
             d.setRemark(body.getRemark());
         }
         DATA.updateById(d);
-        operLog.record(credential, t("mcerp.operlog.module.dict", "字典管理"), t("mcerp.operlog.action.edit-dict-data", "修改字典数据"), d.getDictLabel(), t("mcerp.common.edit-success", "修改成功"));
+        operLog.record(credential, t("mcerp.operlog.module.dict", "字典管理"), BusinessType.UPDATE, t("mcerp.operlog.action.edit-dict-data", "修改字典数据"), d.getDictLabel(), t("mcerp.common.edit-success", "修改成功"));
         return AjaxResult.success(t("mcerp.common.edit-success", "修改成功"));
     }
 
@@ -246,7 +247,7 @@ public class ErpDictServiceImpl implements ErpDictService {
             }
             DATA.deleteById(ErpDictData.class, dcode);
             if (d != null) {
-                operLog.record(credential, t("mcerp.operlog.module.dict", "字典管理"), t("mcerp.operlog.action.delete-dict-data", "删除字典数据"), d.getDictLabel(), t("mcerp.common.delete-success", "删除成功"));
+                operLog.record(credential, t("mcerp.operlog.module.dict", "字典管理"), BusinessType.DELETE, t("mcerp.operlog.action.delete-dict-data", "删除字典数据"), d.getDictLabel(), t("mcerp.common.delete-success", "删除成功"));
             }
         }
         return AjaxResult.success(t("mcerp.common.delete-success", "删除成功"));

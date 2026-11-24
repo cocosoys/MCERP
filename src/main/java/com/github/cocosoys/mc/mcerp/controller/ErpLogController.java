@@ -13,7 +13,7 @@ import com.github.cocosoys.mc.soyshttpovermc.util.AjaxResult;
 
 /**
  * 日志管理（若依契约）：路由 /api/plugins/MCERP/monitor/operlog + monitor/logininfor。
- * 列表/删除/清空全部委托 {@link ErpLogService}。
+ * 列表/导出/删除/清空全部委托 {@link ErpLogService}。
  */
 @RequestMapping("/monitor")
 /**
@@ -37,6 +37,14 @@ public class ErpLogController {
                                      @RequestParam(name = "title", required = false) String title,
                                      @RequestParam(name = "operName", required = false) String operName) {
         return logService.operlogList(pageNum, pageSize, title, operName);
+    }
+
+    @ApiName("导出操作日志")
+    @ApiPermission("mcerp:monitor:operlog:export")
+    @GetMapping("/operlog/export")
+    public AjaxResult operlogExport(@RequestParam(name = "title", required = false) String title,
+                                    @RequestParam(name = "operName", required = false) String operName) {
+        return logService.operlogExport(title, operName);
     }
 
     @ApiName("删除操作日志")
@@ -63,6 +71,14 @@ public class ErpLogController {
                                         @RequestParam(name = "userName", required = false) String userName,
                                         @RequestParam(name = "status", required = false) String status) {
         return logService.logininforList(pageNum, pageSize, userName, status);
+    }
+
+    @ApiName("导出登录日志")
+    @ApiPermission("mcerp:monitor:logininfor:export")
+    @GetMapping("/logininfor/export")
+    public AjaxResult logininforExport(@RequestParam(name = "userName", required = false) String userName,
+                                       @RequestParam(name = "status", required = false) String status) {
+        return logService.logininforExport(userName, status);
     }
 
     @ApiName("删除登录日志")

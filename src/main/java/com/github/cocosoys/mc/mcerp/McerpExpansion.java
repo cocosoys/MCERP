@@ -10,7 +10,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.plugin.Plugin;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * ERP 模块扩展基类（继承 SoysExpansion 泛化）。
@@ -52,6 +54,26 @@ import java.util.List;
  */
 @CustomLog
 public abstract class McerpExpansion extends SoysExpansion {
+
+    /**
+     * 契约附加字段：把本模块的 ERP 标识与模块路由根下发给前端 {@code __SOYS_CONTEXT__.js}。
+     *
+     * <p>{@code erpModuleRoot} 必须与 {@code MenuRouteServiceImpl.moduleRoute} 合成的模块 path 同源
+     * （{@code "/" + NameSafe.path(identifier)}），否则前端按 {@code path === moduleRoot} 裁不出子树。</p>
+     *
+     * <p>这是 ERP 模块"identifier ≠ owner 插件名"时唯一可靠的模块根来源：契约 {@code pluginsPrefix}
+     * 末段给的是插件名（如 SOYSPay），而模块路由走 identifier（如 SOYSPay-ERP → /soyspayerp）。</p>
+     */
+    @Override
+    public Map<String, String> contractFields() {
+        Map<String, String> fields = new LinkedHashMap<String, String>();
+        String id = getIdentifier();
+        if (id != null && !id.trim().isEmpty()) {
+            fields.put("erpModuleId", id.trim());
+            fields.put("erpModuleRoot", "/" + NameSafe.path(id.trim()));
+        }
+        return fields;
+    }
 
     /** MCERP 宿主引用（MCERP onEnable 时经 {@link #setMcerp(MCERP)} 注入；未绑定 = MCERP 未装/未就绪）。 */
     protected @Getter @Setter static volatile MCERP mcerp;

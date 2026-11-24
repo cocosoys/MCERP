@@ -2,6 +2,7 @@ package com.github.cocosoys.mc.mcerp.controller;
 
 import com.github.cocosoys.mc.mcerp.entity.ErpUser;
 import com.github.cocosoys.mc.mcerp.entity.vo.AuthRoleSaveVO;
+import com.github.cocosoys.mc.mcerp.entity.vo.AvatarUploadVO;
 import com.github.cocosoys.mc.mcerp.entity.vo.ChangeStatusVO;
 import com.github.cocosoys.mc.mcerp.entity.vo.SavePermsVO;
 import com.github.cocosoys.mc.mcerp.service.ErpUserService;
@@ -148,9 +149,9 @@ public class ErpUserController {
     }
 
     @ApiName("头像上传")
-    @ApiPublic // 网关 401 兜底，登录即可（暂未启用，返回引导提示）
+    @ApiPublic // 网关 401 兜底，登录即可；接收 base64 data URL，落盘并登记静态托管
     @PostMapping("/profile/avatar")
-    public AjaxResult avatar() {
-        return userService.avatar();
+    public AjaxResult avatar(@RequestBody AvatarUploadVO vo, CredentialPresentation credential) {
+        return userService.avatar(vo, credential);
     }
 }

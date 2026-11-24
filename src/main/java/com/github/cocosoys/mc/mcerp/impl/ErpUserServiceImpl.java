@@ -5,6 +5,8 @@ import static com.github.cocosoys.mc.mcerp.i18n.McerpI18n.t;
 import com.github.cocosoys.mc.mcerp.entity.ErpMenu;
 import com.github.cocosoys.mc.mcerp.entity.ErpUser;
 import com.github.cocosoys.mc.mcerp.entity.vo.MenuTreeVO;
+import com.github.cocosoys.mc.mcerp.enums.BusinessType;
+import com.github.cocosoys.mc.mcerp.entity.vo.AvatarUploadVO;
 import com.github.cocosoys.mc.mcerp.entity.vo.ProfileVO;
 import com.github.cocosoys.mc.mcerp.entity.vo.RoleOptionVO;
 import com.github.cocosoys.mc.mcerp.entity.vo.UserAuthRoleVO;
@@ -15,12 +17,15 @@ import com.github.cocosoys.mc.mcerp.entity.vo.SavePermsVO;
 import com.github.cocosoys.mc.mcerp.entity.vo.UserPermsVO;
 import com.github.cocosoys.mc.mcerp.entity.vo.UserInfoVO;
 import com.github.cocosoys.mc.mcerp.ErpRegistry;
+import com.github.cocosoys.mc.mcerp.MCERP;
 import com.github.cocosoys.mc.mcerp.entity.vo.ErpMenuVO;
 import com.github.cocosoys.mc.mcerp.entity.vo.ErpModuleVO;
 import com.github.cocosoys.mc.mcerp.service.AuthService;
 import com.github.cocosoys.mc.mcerp.service.OperLogService;
 import com.github.cocosoys.mc.mcerp.service.ErpUserService;
 import com.github.cocosoys.mc.mcerp.util.Ids;
+import com.github.cocosoys.mc.mcerp.util.NameSafe;
+import com.github.cocosoys.mc.soyshttpovermc.api.SoysHttpOverMcApi;
 import com.github.cocosoys.mc.soyshttpovermc.util.PageUtils;
 import com.github.cocosoys.mc.soyshttpovermc.util.TableDataInfo;
 import com.github.cocosoys.mc.soyshttpovermc.orm.DATA;
@@ -29,8 +34,13 @@ import com.github.cocosoys.mc.soyshttpovermc.spring.entity.SoysPermGroup;
 import com.github.cocosoys.mc.soyshttpovermc.spring.entity.SoysPermPermission;
 import com.github.cocosoys.mc.soyshttpovermc.util.AjaxResult;
 import com.github.cocosoys.mc.soyshttpovermc.web.gateway.policy.auth.issuer.CredentialPresentation;
+import org.bukkit.plugin.Plugin;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -44,6 +54,20 @@ import java.util.Set;
  * 角色（权限组）与权限节点（USER 类型）的增删同步在此编排，保证多步一致。
  */
 public class ErpUserServiceImpl implements ErpUserService {
+
+    /** 头像磁盘目录名（数据文件夹下）与对应 web 基础路径（registerDirectory 会自动补 /web/plugins/&lt;插件名&gt; 前缀）。 */
+    public static final String AVATAR_DIR_NAME = "avatar";
+    public static final String AVATAR_BASE_PATH = "/avatar";
+
+    /** 头像目录是否已批量登记（进程内幂等，避免重复扫描/重复登记）。 */
+    private static volatile boolean avatarDirRegistered = false;
+
+    /**
+     * 启动时缓存的 SOYS API 门面：由 {@link McErpHostExpansion#registerPages} 经
+     * {@link #registerAvatarDirectory(SoysHttpOverMcApi)} 注入；reload 重建门面时幂等覆盖。
+     * 框架的 {@code getApi()} 为实例方法，静态头像工具经此缓存引用访问门面。
+     */
+    private static volatile SoysHttpOverMcApi avatarApi;
 
     private final AuthService auth;
     private final OperLogService operLog;
@@ -131,7 +155,7 @@ public class ErpUserServiceImpl implements ErpUserService {
         u.setRemark(user.getRemark() == null ? "" : user.getRemark());
         u.setCreateTime(AuthService.now());
         DATA.insert(u);
-        operLog.record(credential, t("mcerp.operlog.module.user", "用户管理"), t("mcerp.operlog.action.add-user", "新增用户"), userName, t("mcerp.common.add-success", "新增成功"));
+        operLog.record(credential, t("mcerp.operlog.module.user", "用户管理"), BusinessType.INSERT, t("mcerp.operlog.action.add-user", "新增用户"), userName, t("mcerp.common.add-success", "新增成功"));
         return AjaxResult.success(t("mcerp.common.add-success", "新增成功"));
     }
 
@@ -161,7 +185,7 @@ public class ErpUserServiceImpl implements ErpUserService {
             u.setRemark(user.getRemark());
         }
         DATA.updateById(u);
-        operLog.record(credential, t("mcerp.operlog.module.user", "用户管理"), t("mcerp.operlog.action.edit-user", "修改用户"), u.getUserName(), t("mcerp.common.edit-success", "修改成功"));
+        operLog.record(credential, t("mcerp.operlog.module.user", "用户管理"), BusinessType.UPDATE, t("mcerp.operlog.action.edit-user", "修改用户"), u.getUserName(), t("mcerp.common.edit-success", "修改成功"));
         return AjaxResult.success(t("mcerp.common.edit-success", "修改成功"));
     }
 
@@ -181,7 +205,7 @@ public class ErpUserServiceImpl implements ErpUserService {
                 return AjaxResult.error(t("mcerp.user.cannot-delete-self", "不能删除当前登录账号"));
             }
             DATA.deleteById(ErpUser.class, uid);
-            operLog.record(credential, t("mcerp.operlog.module.user", "用户管理"), t("mcerp.operlog.action.delete-user", "删除用户"), u == null ? id.trim() : u.getUserName(), t("mcerp.common.delete-success", "删除成功"));
+            operLog.record(credential, t("mcerp.operlog.module.user", "用户管理"), BusinessType.DELETE, t("mcerp.operlog.action.delete-user", "删除用户"), u == null ? id.trim() : u.getUserName(), t("mcerp.common.delete-success", "删除成功"));
         }
         return AjaxResult.success(t("mcerp.common.delete-success", "删除成功"));
     }
@@ -194,7 +218,7 @@ public class ErpUserServiceImpl implements ErpUserService {
         }
         u.setStatus(vo.getStatus() == null || vo.getStatus().isEmpty() ? "0" : vo.getStatus());
         DATA.updateById(u);
-        operLog.record(credential, t("mcerp.operlog.module.user", "用户管理"), t("mcerp.operlog.action.change-user-status", "修改用户状态"), u.getUserName(), t("mcerp.common.edit-success", "修改成功"));
+        operLog.record(credential, t("mcerp.operlog.module.user", "用户管理"), BusinessType.UPDATE, t("mcerp.operlog.action.change-user-status", "修改用户状态"), u.getUserName(), t("mcerp.common.edit-success", "修改成功"));
         return AjaxResult.success(t("mcerp.common.edit-success", "修改成功"));
     }
 
@@ -309,7 +333,7 @@ public class ErpUserServiceImpl implements ErpUserService {
         for (String g : target) {
             store.addUserGroup(player, g);
         }
-        operLog.record(credential, t("mcerp.operlog.module.user", "用户管理"), t("mcerp.operlog.action.assign-role", "分配角色"), player, t("mcerp.user.role-sync-success", "角色同步成功"));
+        operLog.record(credential, t("mcerp.operlog.module.user", "用户管理"), BusinessType.GRANT, t("mcerp.operlog.action.assign-role", "分配角色"), player, t("mcerp.user.role-sync-success", "角色同步成功"));
         return AjaxResult.success(t("mcerp.user.role-sync-success", "角色同步成功"));
     }
 
@@ -348,7 +372,7 @@ public class ErpUserServiceImpl implements ErpUserService {
         for (String p : target) {
             store.addUserPermission(userName, p);
         }
-        operLog.record(credential, t("mcerp.operlog.module.user", "用户管理"), t("mcerp.operlog.action.assign-perm", "分配权限"), userName, t("mcerp.user.perm-sync-success", "权限同步成功"));
+        operLog.record(credential, t("mcerp.operlog.module.user", "用户管理"), BusinessType.GRANT, t("mcerp.operlog.action.assign-perm", "分配权限"), userName, t("mcerp.user.perm-sync-success", "权限同步成功"));
         return AjaxResult.success(t("mcerp.user.perm-sync-success", "权限同步成功"));
     }
 
@@ -364,7 +388,7 @@ public class ErpUserServiceImpl implements ErpUserService {
         user.setUserId(player);
         user.setUserName(player);
         user.setNickName(u != null && u.getNickName() != null && !u.getNickName().isEmpty() ? u.getNickName() : player);
-        user.setAvatar("");
+        user.setAvatar(u == null || u.getAvatar() == null ? "" : u.getAvatar());
         user.setSex(u == null ? "0" : u.getSex());
         user.setEmail(u == null ? "" : u.getEmail());
         user.setPhonenumber(u == null ? "" : u.getPhonenumber());
@@ -411,7 +435,7 @@ public class ErpUserServiceImpl implements ErpUserService {
         } else {
             DATA.updateById(u);
         }
-        operLog.record(credential, t("mcerp.operlog.module.user", "用户管理"), t("mcerp.operlog.action.edit-user", "修改用户"), player, t("mcerp.common.edit-success", "修改成功"));
+        operLog.record(credential, t("mcerp.operlog.module.user", "用户管理"), BusinessType.UPDATE, t("mcerp.operlog.action.edit-user", "修改用户"), player, t("mcerp.common.edit-success", "修改成功"));
         return AjaxResult.success(t("mcerp.common.edit-success", "修改成功"));
     }
 
@@ -421,8 +445,150 @@ public class ErpUserServiceImpl implements ErpUserService {
     }
 
     @Override
-    public AjaxResult avatar() {
-        return AjaxResult.error(t("mcerp.user.avatar-not-enabled", "头像上传暂未启用（SOYS 上传接口未接入）"));
+    public AjaxResult avatar(AvatarUploadVO vo, CredentialPresentation credential) {
+        String player = auth.currentPlayer(credential);
+        if (player == null) {
+            return AjaxResult.error(t("mcerp.common.not-logged-in", "未登录"));
+        }
+        if (vo == null || vo.getImg() == null || vo.getImg().isEmpty()) {
+            return AjaxResult.error(t("mcerp.user.avatar-empty", "头像数据为空"));
+        }
+        // 解析 data URL：data:image/png;base64,<payload>
+        String dataUrl = vo.getImg();
+        int comma = dataUrl.indexOf(',');
+        if (!dataUrl.startsWith("data:") || comma < 0) {
+            return AjaxResult.error(t("mcerp.user.avatar-bad-format", "头像数据格式错误"));
+        }
+        String header = dataUrl.substring(0, comma);
+        String payload = dataUrl.substring(comma + 1);
+        int semi = header.indexOf(';');
+        String mime = semi > 5 ? header.substring(5, semi) : "image/png";
+        if (!mime.startsWith("image/")) {
+            return AjaxResult.error(t("mcerp.user.avatar-not-image", "仅支持图片类型"));
+        }
+        byte[] bytes;
+        try {
+            bytes = Base64.getDecoder().decode(payload);
+        } catch (IllegalArgumentException e) {
+            return AjaxResult.error(t("mcerp.user.avatar-decode-failed", "头像解码失败"));
+        }
+        if (bytes.length == 0) {
+            return AjaxResult.error(t("mcerp.user.avatar-decode-failed", "头像解码失败"));
+        }
+        Plugin owner = MCERP.getInstance();
+        if (owner == null) {
+            return AjaxResult.error(t("mcerp.user.avatar-host-unavailable", "宿主插件不可用"));
+        }
+        File avatarDir = new File(owner.getDataFolder(), AVATAR_DIR_NAME);
+        if (!avatarDir.isDirectory() && !avatarDir.mkdirs()) {
+            return AjaxResult.error(t("mcerp.user.avatar-dir-failed", "头像目录创建失败"));
+        }
+        // 目录登记（重启后已存在的头像可继续访问）；先于写新文件，避免把新文件也纳入目录扫描
+        ensureAvatarDirectory();
+        String fileName = NameSafe.safe(player) + "-" + System.currentTimeMillis() + extensionOf(mime);
+        File target = new File(avatarDir, fileName);
+        try {
+            Files.write(target.toPath(), bytes);
+        } catch (IOException e) {
+            return AjaxResult.error(t("mcerp.user.avatar-write-failed", "头像写入失败"));
+        }
+        // 单文件登记：本次上传立即可访问，无需等待重启
+        String imgUrl = avatarWebRoot(owner) + AVATAR_BASE_PATH + "/" + fileName;
+        // 登记路径须为相对路径（/avatar/&lt;文件&gt;）：resolvePath 会自动补 /web/plugins/&lt;插件名&gt;，
+        // 若传完整 imgUrl 会被二次拼接成双前缀路由，导致 404
+        String registerPath = AVATAR_BASE_PATH + "/" + fileName;
+        try {
+            SoysHttpOverMcApi api = avatarApi;
+            if (api != null) {
+                api.getWebPage().registerPage(owner, registerPath, bytes, mime, true);
+            }
+        } catch (Exception e) {
+            // 单文件登记失败不阻断保存：目录已登记，重启后启动钩子仍会托管该文件
+        }
+        // 回填 erp_user.avatar（未登记玩家按补建处理）
+        ErpUser u = auth.findUser(player);
+        boolean created = false;
+        if (u == null) {
+            u = new ErpUser();
+            u.setUserName(player);
+            u.setStatus("0");
+            u.setCreateTime(AuthService.now());
+            created = true;
+        }
+        u.setAvatar(imgUrl);
+        if (created) {
+            DATA.insert(u);
+        } else {
+            DATA.updateById(u);
+        }
+        AjaxResult ok = AjaxResult.success(t("mcerp.common.edit-success", "修改成功"));
+        ok.put("imgUrl", imgUrl);
+        return ok;
+    }
+
+    /**
+     * 启动时登记头像磁盘目录（由 McErpHostExpansion.registerPages 调用）：
+     * 缓存 SOYS API 门面引用；目录不存在（首次安装）时静默跳过；登记失败不阻断页面注册。
+     *
+     * @param api 宿主扩展的实例 API 门面（{@code SoysExpansion.getApi()}），不允许为 null
+     */
+    public static void registerAvatarDirectory(SoysHttpOverMcApi api) {
+        if (api != null) {
+            avatarApi = api;
+        }
+        ensureAvatarDirectory();
+    }
+
+    /**
+     * 幂等登记头像目录：仅在数据文件夹/avatar 已存在时批量登记，重复调用由静态标志短路。
+     */
+    private static void ensureAvatarDirectory() {
+        if (avatarDirRegistered) {
+            return;
+        }
+        try {
+            Plugin owner = MCERP.getInstance();
+            SoysHttpOverMcApi api = avatarApi;
+            if (owner != null && api != null) {
+                File dir = new File(owner.getDataFolder(), AVATAR_DIR_NAME);
+                if (dir.isDirectory()) {
+                    api.getWebPage().registerDirectory(owner, AVATAR_BASE_PATH, dir);
+                }
+            }
+        } catch (Exception ignored) {
+            // 目录登记失败不阻断：单文件登记兜底，重启后启动钩子会再次尝试
+        }
+        avatarDirRegistered = true;
+    }
+
+    /**
+     * 头像 web 根路径：优先经 toolkit 按当前插件名动态推导，失败回退 /web/plugins/&lt;插件名&gt;。
+     */
+    private static String avatarWebRoot(Plugin owner) {
+        SoysHttpOverMcApi api = avatarApi;
+        if (api != null) {
+            String prefix = api.getToolkit().pageFullPrefix(owner);
+            if (prefix != null && !prefix.isEmpty()) {
+                return prefix;
+            }
+        }
+        return "/web/plugins/" + owner.getName();
+    }
+
+    /** 按 MIME 类型取文件扩展名（默认 png）。 */
+    private static String extensionOf(String mime) {
+        switch (mime) {
+            case "image/jpeg":
+            case "image/jpg":
+                return ".jpg";
+            case "image/gif":
+                return ".gif";
+            case "image/webp":
+                return ".webp";
+            case "image/png":
+            default:
+                return ".png";
+        }
     }
 
     // ===== SOYS 权限对接 =====

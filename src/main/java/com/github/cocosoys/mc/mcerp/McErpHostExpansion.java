@@ -104,6 +104,18 @@ public class McErpHostExpansion extends SoysExpansion {
         return "dist";
     }
 
+    /**
+     * 页面托管：骨架完成 dist 托管后，追加登记数据文件夹下的 avatar 目录
+     * （重启后已上传头像仍可被访问；目录不存在时 registerAvatarDirectory 内部静默跳过）。
+     * 本扩展的实例 getApi() 作为门面引用注入，供头像静态工具缓存使用。
+     */
+    @Override
+    protected boolean registerPages() {
+        boolean ok = super.registerPages();
+        ErpUserServiceImpl.registerAvatarDirectory(getApi());
+        return ok;
+    }
+
     @Override protected String[] dataRoots() {
         return new String[]{"data"};
     }

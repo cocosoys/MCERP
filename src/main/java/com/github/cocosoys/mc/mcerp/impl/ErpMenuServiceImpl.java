@@ -7,6 +7,7 @@ import com.github.cocosoys.mc.mcerp.entity.ErpMenu;
 import com.github.cocosoys.mc.mcerp.entity.vo.ErpMenuVO;
 import com.github.cocosoys.mc.mcerp.entity.vo.ErpModuleVO;
 import com.github.cocosoys.mc.mcerp.entity.vo.TreeselectVO;
+import com.github.cocosoys.mc.mcerp.enums.BusinessType;
 import com.github.cocosoys.mc.mcerp.service.OperLogService;
 import com.github.cocosoys.mc.mcerp.service.ErpMenuService;
 import com.github.cocosoys.mc.mcerp.util.Ids;
@@ -93,7 +94,7 @@ public class ErpMenuServiceImpl implements ErpMenuService {
             return AjaxResult.error(t("mcerp.menu.name-empty", "菜单名称不能为空"));
         }
         DATA.insert(m);
-        operLog.record(credential, t("mcerp.operlog.module.menu", "菜单管理"), t("mcerp.operlog.action.add-menu", "新增菜单"), m.getMenuName(), t("mcerp.common.add-success", "新增成功"));
+        operLog.record(credential, t("mcerp.operlog.module.menu", "菜单管理"), BusinessType.INSERT, t("mcerp.operlog.action.add-menu", "新增菜单"), m.getMenuName(), t("mcerp.common.add-success", "新增成功"));
         return AjaxResult.success(t("mcerp.common.add-success", "新增成功"));
     }
 
@@ -136,7 +137,7 @@ public class ErpMenuServiceImpl implements ErpMenuService {
             m.setStatus(menu.getStatus());
         }
         DATA.updateById(m);
-        operLog.record(credential, t("mcerp.operlog.module.menu", "菜单管理"), t("mcerp.operlog.action.edit-menu", "修改菜单"), m.getMenuName(), t("mcerp.common.edit-success", "修改成功"));
+        operLog.record(credential, t("mcerp.operlog.module.menu", "菜单管理"), BusinessType.UPDATE, t("mcerp.operlog.action.edit-menu", "修改菜单"), m.getMenuName(), t("mcerp.common.edit-success", "修改成功"));
         return AjaxResult.success(t("mcerp.common.edit-success", "修改成功"));
     }
 
@@ -158,7 +159,7 @@ public class ErpMenuServiceImpl implements ErpMenuService {
                 continue;
             }
             DATA.deleteById(ErpMenu.class, menuId);
-            operLog.record(credential, t("mcerp.operlog.module.menu", "菜单管理"), t("mcerp.operlog.action.delete-menu", "删除菜单"), m.getMenuName(), t("mcerp.common.delete-success", "删除成功"));
+            operLog.record(credential, t("mcerp.operlog.module.menu", "菜单管理"), BusinessType.DELETE, t("mcerp.operlog.action.delete-menu", "删除菜单"), m.getMenuName(), t("mcerp.common.delete-success", "删除成功"));
         }
         return AjaxResult.success(t("mcerp.common.delete-success", "删除成功"));
     }

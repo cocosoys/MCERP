@@ -2,6 +2,7 @@ package com.github.cocosoys.mc.mcerp.service;
 
 import com.github.cocosoys.mc.mcerp.entity.ErpUser;
 import com.github.cocosoys.mc.mcerp.entity.vo.AuthRoleSaveVO;
+import com.github.cocosoys.mc.mcerp.entity.vo.AvatarUploadVO;
 import com.github.cocosoys.mc.mcerp.entity.vo.ChangeStatusVO;
 import com.github.cocosoys.mc.mcerp.entity.vo.SavePermsVO;
 import com.github.cocosoys.mc.soyshttpovermc.util.TableDataInfo;
@@ -55,5 +56,10 @@ public interface ErpUserService {
 
     AjaxResult updatePwd();
 
-    AjaxResult avatar();
+    /**
+     * 头像上传（RuoYi 前端裁剪后调 POST /system/user/profile/avatar）：
+     * 接收 base64 data URL，解码落盘到数据文件夹 avatar 目录并登记静态托管，
+     * 回填 erp_user.avatar，返回根相对 imgUrl。
+     */
+    AjaxResult avatar(AvatarUploadVO vo, CredentialPresentation credential);
 }

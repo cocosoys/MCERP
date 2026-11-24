@@ -10,6 +10,7 @@ erp_user:
     email: ''
     phonenumber: ''
     sex: '0'
+    avatar: ''
     status: '0'
     remark: 系统内置管理员（初始数据）
     create_time: '2026-09-15 00:00:00'
