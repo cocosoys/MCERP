@@ -60,6 +60,17 @@ Each `erp_logininfor` row:
 - "Log management → Oper log": list + detail (method/URL/IP/result);
 - "Log management → Login log": success/failure status, reason, IP.
 
+### 2.4 Export (CSV)
+
+- Endpoints: `GET /api/plugins/MCERP/monitor/operlog/export` and
+  `GET /api/plugins/MCERP/monitor/logininfor/export`, guarded by
+  `mcerp:monitor:operlog:export` / `mcerp:monitor:logininfor:export`.
+- Filters match the list endpoints exactly (`title` / `operName` for oper log, `userName` /
+  `status` for login log), newest first, capped at 10,000 rows per export.
+- Annotated APIs always return a JSON envelope and have no binary channel, so the endpoint returns
+  `{fileName, content, total}` and the frontend assembles a Blob (adding a UTF-8 BOM so Excel
+  renders Chinese correctly); the downloaded file is `.csv`, not `.xlsx`.
+
 ## 3. Operational commands
 
 | Command | Purpose |
@@ -95,3 +106,4 @@ cd .. && mvn -o clean package -DskipTests
 | No login-log success/failure | Main plugin must fire `GatewayLoginResultEvent` (wired in `AuthServiceImpl.login`); `LoginLogListener` must be registered |
 | Log write failures | Check `latest.log` for `mcerp.operlog.write-failed` / `mcerp.logininfor.write-failed` warnings |
 | Module registration issues | `/mcerp list` to see registered modules; `/mcerp reload` to rebuild |
+| Only a few modules after login, role shows `common` | Login name differs in case from the OP name in `ops.json`: on offline-mode servers the UUID is derived from `OfflinePlayer:<name>`, so `Admin` and `admin` are different UUIDs. `AuthServiceImpl.isOp` now matches OP names case-insensitively; if it still fails, compare `ops.json` `name` with the login name |
